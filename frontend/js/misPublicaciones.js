@@ -23,7 +23,7 @@ async function cargar() {
 
         const respuesta =
             await fetch(
-                'http://localhost:3000/api/productos/mis-publicaciones',
+                '/api/productos/mis-publicaciones',
                 {
                     headers: {
                         Authorization:
@@ -125,7 +125,7 @@ async function eliminarProducto(id) {
 
         const respuesta =
             await fetch(
-                `http://localhost:3000/api/productos/mis-publicaciones/${id}`,
+                `/api/productos/mis-publicaciones/${id}`,
                 {
                     method: 'DELETE',
 

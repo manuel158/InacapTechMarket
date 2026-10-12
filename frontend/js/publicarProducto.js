@@ -76,7 +76,7 @@ formulario.addEventListener(
 
             const respuesta =
                 await fetch(
-                    'http://localhost:3000/api/productos',
+                    '/api/productos',
                     {
                         method: 'POST',
 

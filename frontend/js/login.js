@@ -12,7 +12,7 @@ formulario.addEventListener('submit', async (e) => {
     try {
 
         const respuesta = await fetch(
-            'http://localhost:3000/api/auth/login',
+            '/api/auth/login',
             {
                 method: 'POST',
                 headers: {

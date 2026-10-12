@@ -27,7 +27,7 @@ function mostrarError(id, error) {
 async function cargarUsuarios() {
     try {
         const usuarios = await solicitarAdmin(
-            'http://localhost:3000/api/admin/usuarios'
+            '/api/admin/usuarios'
         );
         const admins = usuarios.filter(usuario => usuario.rol === 'admin');
         const contenedor = document.getElementById('usuarios');
@@ -78,7 +78,7 @@ function mostrarReporteCategorias(productos) {
 async function cargarProductos() {
     try {
         const productos = await solicitarAdmin(
-            'http://localhost:3000/api/admin/productos'
+            '/api/admin/productos'
         );
         const contenedor = document.getElementById('productos');
 
@@ -106,7 +106,7 @@ async function cargarProductos() {
 async function eliminar(id) {
     try {
         const datos = await solicitarAdmin(
-            `http://localhost:3000/api/admin/producto/${id}`,
+            `/api/admin/producto/${id}`,
             { method: 'DELETE' }
         );
 

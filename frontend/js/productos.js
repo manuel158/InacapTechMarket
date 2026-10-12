@@ -16,7 +16,7 @@ async function cargarProductos() {
 
         const respuesta =
             await fetch(
-                'http://localhost:3000/api/productos'
+                '/api/productos'
             );
 
         if (!respuesta.ok) {
