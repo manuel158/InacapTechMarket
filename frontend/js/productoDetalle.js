@@ -110,7 +110,7 @@ async function cargarProducto() {
                                 ${
                                     obtenerOrigen() === 'mis-publicaciones'
                                         ? `<a class="btn btn-warning"
-                                            href="publicarProducto.html?id=${producto._id}">
+                                            href="publicarProducto.html?id=${producto._id}&origen=mis-publicaciones">
                                             <i class="bi bi-pencil"></i>
                                             Editar publicación
                                         </a>`

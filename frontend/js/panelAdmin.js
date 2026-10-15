@@ -1,5 +1,11 @@
 const token = localStorage.getItem('token');
 
+document.getElementById('btnCerrarSesion').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario');
+    window.location.href = 'iniciarSesion.html';
+});
+
 async function solicitarAdmin(url, opciones = {}) {
     const respuesta = await fetch(url, {
         ...opciones,

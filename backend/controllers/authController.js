@@ -4,6 +4,7 @@ require('../config/emailConfig');
 const Usuario = require('../models/Usuario');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const generarToken = (id, rol) => {
     return jwt.sign(
@@ -154,6 +155,122 @@ const verificarCuenta = async (req, res) => {
 
 };
 
+const solicitarRecuperacionPassword = async (req, res) => {
+    const mensaje =
+        'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.';
+
+    try {
+        const correoIngresado = req.body?.correo;
+        const correo = typeof correoIngresado === 'string'
+            ? correoIngresado.trim().toLowerCase()
+            : '';
+
+        if (!correo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+            return res.status(400).json({
+                mensaje: 'Ingresa un correo válido'
+            });
+        }
+
+        const usuario = await Usuario.findOne({ correo });
+
+        if (usuario) {
+            const token = crypto.randomBytes(32).toString('hex');
+            usuario.resetPasswordToken = crypto
+                .createHash('sha256')
+                .update(token)
+                .digest('hex');
+            usuario.resetPasswordExpires =
+                new Date(Date.now() + 30 * 60 * 1000);
+            await usuario.save();
+
+            const appUrl =
+                (process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`)
+                    .replace(/\/+$/, '');
+            const enlace =
+                `${appUrl}/paginas/recuperarContrasena.html?token=${token}`;
+
+            try {
+                await transporter.sendMail({
+                    from: process.env.EMAIL_USER,
+                    to: correo,
+                    subject: 'Recupera tu contraseña',
+                    text: `Hola ${usuario.nombre},\n\nUsa este enlace para cambiar tu contraseña. Expira en 30 minutos y solo puede utilizarse una vez:\n\n${enlace}\n\nSi no solicitaste este cambio, ignora este correo.`
+                });
+            } catch (error) {
+                console.error('No se pudo enviar el correo de recuperación:', error);
+            }
+        }
+
+        return res.json({ mensaje });
+    } catch (error) {
+        console.error('Error al solicitar recuperación de contraseña:', error);
+        return res.status(500).json({
+            mensaje: 'No se pudo procesar la solicitud. Inténtalo nuevamente.'
+        });
+    }
+};
+
+const restablecerPassword = async (req, res) => {
+    try {
+        const { token, password } = req.body || {};
+
+        if (
+            typeof token !== 'string' ||
+            typeof password !== 'string' ||
+            password.length < 8
+        ) {
+            return res.status(400).json({
+                mensaje: 'El enlace o la contraseña no son válidos'
+            });
+        }
+
+        const tokenHash = crypto
+            .createHash('sha256')
+            .update(token)
+            .digest('hex');
+        const usuarioPendiente = await Usuario.findOne({
+            resetPasswordToken: tokenHash,
+            resetPasswordExpires: { $gt: new Date() }
+        });
+
+        if (!usuarioPendiente) {
+            return res.status(400).json({
+                mensaje: 'El enlace expiró o ya fue utilizado. Solicita uno nuevo.'
+            });
+        }
+
+        const passwordHash = await bcrypt.hash(password, 10);
+        const usuario = await Usuario.findOneAndUpdate(
+            {
+                resetPasswordToken: tokenHash,
+                resetPasswordExpires: { $gt: new Date() }
+            },
+            {
+                $set: { password: passwordHash },
+                $unset: {
+                    resetPasswordToken: 1,
+                    resetPasswordExpires: 1
+                }
+            },
+            { new: true }
+        );
+
+        if (!usuario) {
+            return res.status(400).json({
+                mensaje: 'El enlace expiró o ya fue utilizado. Solicita uno nuevo.'
+            });
+        }
+
+        return res.json({
+            mensaje: 'Contraseña actualizada. Ya puedes iniciar sesión.'
+        });
+    } catch (error) {
+        console.error('Error al restablecer la contraseña:', error);
+        return res.status(500).json({
+            mensaje: 'No se pudo restablecer la contraseña. Inténtalo nuevamente.'
+        });
+    }
+};
 
 
 const loginUsuario = async (req, res) => {
@@ -217,5 +334,7 @@ const loginUsuario = async (req, res) => {
 module.exports = {
     registrarUsuario,
     loginUsuario,
-    verificarCuenta
+    verificarCuenta,
+    solicitarRecuperacionPassword,
+    restablecerPassword
 };

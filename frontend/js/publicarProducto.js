@@ -1,10 +1,21 @@
 const formulario = document.getElementById('formProducto');
 const parametros = new URLSearchParams(window.location.search);
 const productoId = parametros.get('id');
+const origen = parametros.get('origen');
 const campoImagen = document.getElementById('imagen');
 const resultado = document.getElementById('resultado');
 const botonGuardar = document.getElementById('btnGuardarProducto');
 const botonCancelar = document.getElementById('btnCancelarEdicion');
+const navPublicar = document.getElementById('navPublicar');
+const navMisPublicaciones = document.getElementById('navMisPublicaciones');
+
+const seEditaDesdeMisPublicaciones =
+    Boolean(productoId) && origen === 'mis-publicaciones';
+const enlaceActivo =
+    seEditaDesdeMisPublicaciones ? navMisPublicaciones : navPublicar;
+
+enlaceActivo.classList.add('active');
+enlaceActivo.setAttribute('aria-current', 'page');
 
 if (productoId) {
     document.getElementById('tituloFormulario').textContent =

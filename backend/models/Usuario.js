@@ -24,6 +24,16 @@ const usuarioSchema = new mongoose.Schema({
         default: null
     },
 
+    resetPasswordToken: {
+        type: String,
+        default: null
+    },
+
+    resetPasswordExpires: {
+        type: Date,
+        default: null
+    },
+
     verificado: {
         type: Boolean,
         default: false
