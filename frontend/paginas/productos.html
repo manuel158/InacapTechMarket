@@ -69,6 +69,12 @@
 
                     </ul>
 
+                    <span
+                        id="usuarioActual"
+                        class="navbar-text text-white me-3"
+                        aria-label="Usuario conectado">
+                    </span>
+
                     <button
                         id="btnCerrarSesion"
                         class="btn btn-light">
@@ -189,6 +195,7 @@
             integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
             crossorigin="anonymous"
         ></script>
+        <script src="../js/usuarioActual.js"></script>
         <script>
 
             const token = localStorage.getItem("token");

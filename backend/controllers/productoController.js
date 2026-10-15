@@ -153,9 +153,8 @@ const eliminarMiProducto = async (req, res) => {
         }
 
         if (
-            producto.usuario.toString()
-            !==
-            req.usuario._id.toString()
+            !producto.usuario ||
+            producto.usuario.toString() !== req.usuario._id.toString()
         ) {
 
             return res.status(403).json({
@@ -183,12 +182,68 @@ const eliminarMiProducto = async (req, res) => {
 
 };
 
+const actualizarMiProducto = async (req, res) => {
+
+    try {
+
+        const producto =
+            await Producto.findById(
+                req.params.id
+            );
+
+        if (!producto) {
+
+            return res.status(404).json({
+                mensaje:
+                    'Producto no encontrado'
+            });
+
+        }
+
+        if (
+            !producto.usuario ||
+            producto.usuario.toString() !== req.usuario._id.toString()
+        ) {
+
+            return res.status(403).json({
+                mensaje:
+                    'No autorizado'
+            });
+
+        }
+
+        producto.nombre = req.body.nombre;
+        producto.descripcion = req.body.descripcion;
+        producto.precio = req.body.precio;
+        producto.categoria = req.body.categoria;
+        producto.whatsapp = req.body.whatsapp;
+        producto.comentario = req.body.comentario;
+
+        if (req.file) {
+            producto.imagen = req.file.path;
+        }
+
+        await producto.save();
+
+        res.json(producto);
+
+    } catch (error) {
+
+        res.status(500).json({
+            mensaje:
+                error.message
+        });
+
+    }
+
+};
+
 module.exports = {
     crearProducto,
     obtenerProductos,
     obtenerProductoPorId,
     obtenerPorCategoria,
     obtenerMisProductos,
-    eliminarMiProducto
+    eliminarMiProducto,
+    actualizarMiProducto
 };
-

@@ -107,6 +107,16 @@ async function cargarProducto() {
 
                             <div class="d-grid gap-2 mt-4">
 
+                                ${
+                                    obtenerOrigen() === 'mis-publicaciones'
+                                        ? `<a class="btn btn-warning"
+                                            href="publicarProducto.html?id=${producto._id}">
+                                            <i class="bi bi-pencil"></i>
+                                            Editar publicación
+                                        </a>`
+                                        : ''
+                                }
+
                                 <a class="btn btn-success"
                                     href="https://wa.me/${producto.whatsapp}"
                                     target="_blank"

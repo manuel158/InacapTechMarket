@@ -1,15 +1,12 @@
-const usuario =
-JSON.parse(
-    localStorage.getItem(
-        'usuario'
-    )
-);
+const elementoUsuario =
+    document.getElementById('usuarioActual');
+const usuarioGuardado =
+    localStorage.getItem('usuario');
 
-if (usuario) {
+if (elementoUsuario && usuarioGuardado) {
+    const usuario = JSON.parse(usuarioGuardado);
 
-    document.getElementById(
-        'usuarioActual'
-    ).innerText =
-    `Bienvenido ${usuario.nombre}`;
-
+    if (usuario && typeof usuario.nombre === 'string') {
+        elementoUsuario.textContent = "Hola, "+usuario.nombre;
+    }
 }
