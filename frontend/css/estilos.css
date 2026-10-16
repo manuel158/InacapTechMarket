@@ -134,6 +134,19 @@ body{
     height:100%;
 }
 
+#contenedorProductos .card-producto{
+    width:95%;
+    margin-inline:auto;
+}
+
+#contenedorProductos .imagen-publicacion{
+    height:210px;
+}
+
+#contenedorProductos .card-body{
+    padding:1rem;
+}
+
 .imagen-producto{
     width:100%;
     height:250px;
