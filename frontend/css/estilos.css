@@ -3,41 +3,54 @@
     --color-secundario:#A80F15;
     --color-fondo:#F5F5F5;
     --color-texto:#212529;
-}
-.navbar-inacap{
-    background:#740407;
+    --inacap-rojo:#D71920;
+    --inacap-rojo-oscuro:#B11218;
 }
 
 body{
     background:#f5f7fa;
 }
+
+.navbar-inacap{
+    background:var(--inacap-rojo);
+}
+
 .btn-primary{
     background:#D71920 !important;
     border-color:#D71920 !important;
+    border-radius:10px;
 }
 
 .btn-primary:hover{
     background:#A80F15 !important;
     border-color:#A80F15 !important;
 }
+
 .badge{
     background:#110303 !important;
+    font-size:0.9rem;
 }
+
 main{
     padding-top:30px;
 }
 
 .card{
     border:none;
-    border-radius:15px;
+    border-radius:60px !important;
     transition:.3s;
 }
 
 .card:hover{
     transform:translateY(-5px);
+    transition:.3s;
+    box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
 
-    box-shadow:
-    0px 8px 20px rgba(0,0,0,.15);
+.card-body{
+    display:flex;
+    flex-direction:column;
+    padding:30px;
 }
 
 .navbar-brand{
@@ -47,80 +60,40 @@ main{
 h1{
     font-weight:bold;
 }
-body{
-    background:#f5f7fa;
-}
-
-.card{
-    border:none;
-    border-radius:15px;
-}
-
-.card-body{
-    padding:30px;
-}
 
 .form-control,
 .form-select{
     border-radius:10px;
 }
 
-.btn-primary{
-    border-radius:10px;
-}
-
 #resultado{
     text-align:center;
 }
-#detalleProducto img{
-    border-radius:15px 0 0 15px;
-}
 
-.badge{
-    font-size:0.9rem;
-}
-
-.card-title{
-    font-weight:700;
-}
-
-.text-success{
-    font-size:2rem;
-}
 #detalleProducto img{
     width:100%;
     height:100%;
     object-fit:cover;
+    border-radius:15px 0 0 15px;
 }
 
 .card-detalle-imagen{
     height:600px;
     overflow:hidden;
 }
+
 .imagen-publicacion{
-    height:250px;
-    width: 100%;
+    width:100%;
+    height:220px;
     object-fit:cover;
-}
-
-.card{
-    border:none;
-    border-radius:15px;
-}
-
-.card:hover{
-    transform:translateY(-5px);
-    transition:.3s;
-    box-shadow:0 10px 25px rgba(0,0,0,.15);
 }
 
 .card-title{
     font-weight:600;
 }
 
-.card{
-    border:none;
-    border-radius:15px;
+.text-success{
+    font-size:2rem;
 }
 
 .card-header{
@@ -130,8 +103,10 @@ body{
 #reporteCategorias div{
     font-size:1rem;
 }
+
 .card-producto{
     height:100%;
+    border-radius:35px;
 }
 
 #contenedorProductos .card-producto{
@@ -149,147 +124,56 @@ body{
 
 .imagen-producto{
     width:100%;
-    height:250px;
+    height:320px;
     object-fit:contain;
     background:white;
     padding:10px;
 }
 
-.card-body{
-    display:flex;
-    flex-direction:column;
-}
 .footer-inacap{
-
-    background:#0a0001;
-
+    background:#000;
     color:white;
-
     padding:30px 0;
-
     margin-top:60px;
-
 }
 
 .footer-inacap h5{
-
     font-weight:700;
-
 }
+
 .botonVerDetalleProductos{
-
-    background-color: #524e4e;
-    color: white;
-
-    border: none;
-
-    padding: 10px 18px;
-
-    border-radius: 8px;
-
-    text-decoration: none;
-
-    font-weight: 600;
-
-    display: inline-block;
-
-    transition: all 0.3s ease;
-
+    background-color:#524e4e;
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:600;
+    display:inline-block;
+    transition:all 0.3s ease;
 }
 
 .botonVerDetalleProductos:hover{
-
-    background-color: #B11218;
-
-    color: white;
-
-    transform: translateY(-2px);
-
-    box-shadow: 0 5px 15px rgba(0,0,0,.2);
-
-}
-.imagen-producto{
-
-    width: 100%;
-
-    height: 320px;
-
-    object-fit: contain;
-
-    background: white;
-
-    padding: 10px;
-
-}
-:root{
-
-    --inacap-rojo:#D71920;
-    --inacap-rojo-oscuro:#B11218;
-
-}
-
-body{
-
-    background:#f5f7fa;
-
-}
-
-.navbar-inacap{
-
-    background:var(--inacap-rojo);
-
-}
-
-.card{
-
-    border:none;
-
-    border-radius:15px;
-
-}
-
-.card:hover{
-
-    transform:translateY(-5px);
-
-    transition:.3s;
-
-    box-shadow:0 10px 25px rgba(0,0,0,.15);
-
-}
-
-.footer-inacap{
-
-    background:#000;
-
+    background-color:#B11218;
     color:white;
-
-    padding:30px 0;
-
-    margin-top:60px;
-
-}
-.imagen-publicacion {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
+    transform:translateY(-2px);
+    box-shadow:0 5px 15px rgba(0,0,0,.2);
 }
 
-@media (max-width: 576px) {
-
-    h1 {
-        font-size: 1.8rem;
+@media (max-width:576px){
+    h1{
+        font-size:1.8rem;
     }
 
-    .card-title {
-        font-size: 1rem;
+    .card-title{
+        font-size:1rem;
     }
 
-    .btn {
-        font-size: 0.9rem;
+    .btn{
+        font-size:0.9rem;
     }
 
-    .imagen-publicacion {
-        height: 200px;
+    .imagen-publicacion{
+        height:200px;
     }
 }
