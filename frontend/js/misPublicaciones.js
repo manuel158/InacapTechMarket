@@ -41,9 +41,9 @@ async function cargar() {
 
             contenedor.innerHTML += `
 
-            <div class="col-12 col-sm-6 col-lg-4">
+            <div class="col-12 col-sm-6 col-lg-3">
 
-                <div class="card h-100 shadow-sm">
+                <div class="card card-publicacion h-100 shadow-sm">
 
                     <img
                         src="${producto.imagen}"

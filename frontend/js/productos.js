@@ -34,6 +34,8 @@ async function cargarProductos() {
             );
         }
 
+        actualizarConteosCategorias();
+
         mostrarProductos(
             todosLosProductos
         );
@@ -48,6 +50,28 @@ async function cargarProductos() {
         `;
 
     }
+}
+
+function actualizarConteosCategorias() {
+    const conteos = todosLosProductos.reduce(
+        (resultado, producto) => {
+            resultado[producto.categoria] =
+                (resultado[producto.categoria] || 0) + 1;
+            return resultado;
+        },
+        {}
+    );
+
+    Array.from(filtro.options).forEach(opcion => {
+        const nombre = opcion.dataset.nombre || opcion.textContent.trim();
+        opcion.dataset.nombre = nombre;
+
+        const cantidad = opcion.value === 'Todos'
+            ? todosLosProductos.length
+            : conteos[opcion.value] || 0;
+
+        opcion.textContent = `${nombre} (${cantidad})`;
+    });
 }
 
 function mostrarProductos(productos) {

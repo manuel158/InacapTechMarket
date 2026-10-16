@@ -1,33 +1,32 @@
 :root{
-    --color-principal:#D71920;
-    --color-secundario:#A80F15;
-    --color-fondo:#F5F5F5;
-    --color-texto:#212529;
-    --inacap-rojo:#D71920;
-    --inacap-rojo-oscuro:#B11218;
+    --color-principal:#6D28D9;
+    --color-secundario:#4C1D95;
+    --color-fondo:#F5F3FF;
+    --color-texto:#1F2937;
 }
 
 body{
-    background:#f5f7fa;
+    background:var(--color-fondo);
+    color:var(--color-texto);
 }
 
 .navbar-inacap{
-    background:var(--inacap-rojo);
+    background:var(--color-secundario);
 }
 
 .btn-primary{
-    background:#D71920 !important;
-    border-color:#D71920 !important;
+    background:var(--color-principal) !important;
+    border-color:var(--color-principal) !important;
     border-radius:10px;
 }
 
 .btn-primary:hover{
-    background:#A80F15 !important;
-    border-color:#A80F15 !important;
+    background:var(--color-secundario) !important;
+    border-color:var(--color-secundario) !important;
 }
 
 .badge{
-    background:#110303 !important;
+    background:#1F1B2E !important;
     font-size:0.9rem;
 }
 
@@ -37,14 +36,15 @@ main{
 
 .card{
     border:none;
-    border-radius:60px !important;
+    border-radius:15px;
+    background:#FFFFFF;
     transition:.3s;
 }
 
 .card:hover{
     transform:translateY(-5px);
     transition:.3s;
-    box-shadow:0 10px 25px rgba(0,0,0,.15);
+    box-shadow:0 10px 25px rgba(76,29,149,.16);
 }
 
 .card-body{
@@ -73,7 +73,7 @@ h1{
 #detalleProducto img{
     width:100%;
     height:100%;
-    object-fit:cover;
+    object-fit:contain;
     border-radius:15px 0 0 15px;
 }
 
@@ -106,7 +106,20 @@ h1{
 
 .card-producto{
     height:100%;
-    border-radius:35px;
+    border-radius:20px;
+}
+
+.card-publicacion{
+    border-radius:16px;
+    overflow:hidden;
+}
+
+#contenedor .card-publicacion .imagen-publicacion{
+    height:180px;
+}
+
+#contenedor .card-publicacion .card-body{
+    padding:1rem;
 }
 
 #contenedorProductos .card-producto{
@@ -131,7 +144,7 @@ h1{
 }
 
 .footer-inacap{
-    background:#000;
+    background:#111827;
     color:white;
     padding:30px 0;
     margin-top:60px;
@@ -142,7 +155,7 @@ h1{
 }
 
 .botonVerDetalleProductos{
-    background-color:#524e4e;
+    background-color:#374151;
     color:white;
     border:none;
     padding:10px 18px;
@@ -154,10 +167,10 @@ h1{
 }
 
 .botonVerDetalleProductos:hover{
-    background-color:#B11218;
+    background-color:var(--color-secundario);
     color:white;
     transform:translateY(-2px);
-    box-shadow:0 5px 15px rgba(0,0,0,.2);
+    box-shadow:0 5px 15px rgba(76,29,149,.2);
 }
 
 @media (max-width:576px){
@@ -175,5 +188,11 @@ h1{
 
     .imagen-publicacion{
         height:200px;
+    }
+}
+
+@media (max-width:767.98px){
+    .card-detalle-imagen{
+        height:350px;
     }
 }

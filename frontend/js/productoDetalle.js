@@ -51,7 +51,6 @@ async function cargarProducto() {
                         <img
                             src="${producto.imagen}"
                             class="img-fluid h-100 w-100"
-                            style="object-fit: cover;"
                             alt="${producto.nombre}">
 
                     </div>
