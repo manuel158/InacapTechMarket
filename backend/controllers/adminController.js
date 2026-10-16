@@ -21,6 +21,45 @@ const listarUsuarios = async (req, res) => {
 
 };
 
+const eliminarUsuario = async (req, res) => {
+
+    try {
+
+        if (
+            req.usuario._id.toString() === req.params.id
+        ) {
+            return res.status(400).json({
+                mensaje: 'No puedes eliminar tu propia cuenta'
+            });
+        }
+
+        const usuario =
+            await Usuario.findById(
+                req.params.id
+            );
+
+        if (!usuario) {
+            return res.status(404).json({
+                mensaje: 'Usuario no encontrado'
+            });
+        }
+
+        await usuario.deleteOne();
+
+        res.json({
+            mensaje: 'Usuario eliminado'
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            mensaje: error.message
+        });
+
+    }
+
+};
+
 const listarProductos = async (req, res) => {
 
     try {
@@ -73,6 +112,7 @@ const eliminarProducto = async (req, res) => {
 
 module.exports = {
     listarUsuarios,
+    eliminarUsuario,
     listarProductos,
     eliminarProducto
 };

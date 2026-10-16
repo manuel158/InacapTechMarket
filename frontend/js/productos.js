@@ -56,7 +56,7 @@ function mostrarProductos(productos) {
 
     if (productos.length === 0) {
         contenedor.innerHTML = `
-            <p class="text-muted">
+            <p class="col-12 text-muted">
                 No hay productos para mostrar.
             </p>
         `;
@@ -67,36 +67,37 @@ function mostrarProductos(productos) {
 
         contenedor.innerHTML += `
 
-            <div class="card card-producto shadow-sm m-3" style="width: 22rem;">
+            <div class="col">
+                <div class="card card-producto shadow-sm h-100">
 
-                <img
-                    src="${producto.imagen}"
-                    class="imagen-publicacion card-img-top"
-                    alt="${producto.nombre}">
+                    <img
+                        src="${producto.imagen}"
+                        class="imagen-publicacion card-img-top"
+                        alt="${producto.nombre}">
 
-                <div class="card-body">
+                    <div class="card-body">
 
-                    <h5>
-                        ${producto.nombre}
-                    </h5>
+                        <h5>
+                            ${producto.nombre}
+                        </h5>
 
-                    <p>
+                        <p>
 
-                        <strong>Categoría:</strong>
-                        ${producto.categoria}
+                            <strong>Categoría:</strong>
+                            ${producto.categoria}
 
-                    </p>
+                        </p>
 
-                    <a class="botonVerDetalleProductos"
-                        href="productoDetalle.html?id=${producto._id}"
-                        >
+                        <a class="botonVerDetalleProductos"
+                            href="productoDetalle.html?id=${producto._id}"
+                            >
 
-                        Ver detalle
+                            Ver detalle
 
-                    </a>
+                        </a>
 
+                    </div>
                 </div>
-
             </div>
 
         `;

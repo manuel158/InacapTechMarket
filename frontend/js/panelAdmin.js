@@ -44,16 +44,42 @@ async function cargarUsuarios() {
 
         usuarios.forEach(usuario => {
             contenedor.innerHTML += `
-                <div class="border-bottom py-2">
-                    <strong>${usuario.nombre}</strong>
-                    <br>
-                    ${usuario.correo}
-                    <span class="badge bg-primary ms-2">${usuario.rol}</span>
+                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                    <div>
+                        <strong>${usuario.nombre}</strong>
+                        <br>
+                        ${usuario.correo}
+                        <span class="badge bg-primary ms-2">${usuario.rol}</span>
+                    </div>
+                    <button
+                        class="btn btn-danger btn-sm"
+                        onclick="eliminarUsuario('${usuario._id}')">
+                        Eliminar
+                    </button>
                 </div>
             `;
         });
     } catch (error) {
         mostrarError('usuarios', error);
+    }
+}
+
+async function eliminarUsuario(id) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
+        return;
+    }
+
+    try {
+        const datos = await solicitarAdmin(
+            `/api/admin/usuario/${id}`,
+            { method: 'DELETE' }
+        );
+
+        alert(datos.mensaje);
+        await cargarUsuarios();
+    } catch (error) {
+        console.error(error);
+        alert(`No se pudo eliminar el usuario: ${error.message}`);
     }
 }
 

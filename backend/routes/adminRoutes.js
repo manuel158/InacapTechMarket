@@ -4,6 +4,7 @@ const router = express.Router();
 
 const {
     listarUsuarios,
+    eliminarUsuario,
     listarProductos,
     eliminarProducto
 } = require('../controllers/adminController');
@@ -19,6 +20,13 @@ router.get(
     protegerRuta,
     esAdministrador,
     listarUsuarios
+);
+
+router.delete(
+    '/usuario/:id',
+    protegerRuta,
+    esAdministrador,
+    eliminarUsuario
 );
 
 router.get(
