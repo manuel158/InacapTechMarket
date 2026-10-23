@@ -1,0 +1,24 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #1f2937;
+  background: #f5f3ff;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: #f5f3ff;
+}
+
+.navbar-inacap {
+  background: #4c1d95;
+}
+
+.migration-card {
+  max-width: 760px;
+  padding: 3rem 1.5rem;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 10px 25px rgb(76 29 149 / 12%);
+}

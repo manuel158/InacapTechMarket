@@ -1,2 +1,4 @@
+node_modules/
+frontend-react/dist/
 backend/node_modules/
 backend/.env
