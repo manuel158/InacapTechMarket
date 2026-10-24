@@ -30,3 +30,6 @@ transporter.verify((error, success) => {
         console.log("SMTP OK");
     }
 });
+
+module.exports = transporter;
+
