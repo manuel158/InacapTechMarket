@@ -179,7 +179,7 @@ const solicitarRecuperacionPassword = async (req, res) => {
                 (process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`)
                     .replace(/\/+$/, '');
             const enlace =
-                `${appUrl}/paginas/recuperarContrasena.html?token=${token}`;
+                `${appUrl}/#/recuperar-password?token=${encodeURIComponent(token)}`;
 
             try {
                 await enviarCorreo({

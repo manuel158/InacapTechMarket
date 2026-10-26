@@ -26,8 +26,8 @@ mongoose.connect(process.env.MONGO_URI)
     console.log('Error MongoDB:', error);
 });
 
-// Servir archivos estáticos desde frontend
-app.use(express.static(path.join(__dirname, '../frontend')));
+const frontendDist = path.join(__dirname, '../frontend-react/dist');
+app.use(express.static(frontendDist));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
@@ -35,10 +35,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/productos', productoRoutes);
 
 app.use('/api/admin', adminRoutes);
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
 
 app.listen(PORT, () => {
     console.log(`Servidor iniciado en http://localhost:${PORT}`);
