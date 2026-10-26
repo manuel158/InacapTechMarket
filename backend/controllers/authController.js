@@ -1,10 +1,11 @@
-const transporter =
+const enviarCorreo =
 require('../config/emailConfig');
 
 const Usuario = require('../models/Usuario');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const generarCodigo = require('../utils/generarCodigo');
 
 const generarToken = (id, rol) => {
     return jwt.sign(
@@ -44,10 +45,7 @@ const registrarUsuario = async (req, res) => {
             });
         }
 
-        const codigoVerificacion =
-            Math.floor(
-                1000 + Math.random() * 9000
-            ).toString();
+        const codigoVerificacion = generarCodigo();
 
         global.registroTemporal = {
             nombre,
@@ -56,17 +54,11 @@ const registrarUsuario = async (req, res) => {
             codigoVerificacion
         };
 
-        await transporter.sendMail({
-
-            from: process.env.EMAIL_USER,
-
-            to: correo,
-
+        await enviarCorreo({
+            toEmail: correo,
+            toName: nombre,
             subject: 'Código de verificación',
-
-            text:
-                `Tu código es: ${codigoVerificacion}`
-
+            message: `Tu código de verificación es: ${codigoVerificacion}`
         });
 
         res.status(200).json({
@@ -190,11 +182,11 @@ const solicitarRecuperacionPassword = async (req, res) => {
                 `${appUrl}/paginas/recuperarContrasena.html?token=${token}`;
 
             try {
-                await transporter.sendMail({
-                    from: process.env.EMAIL_USER,
-                    to: correo,
+                await enviarCorreo({
+                    toEmail: correo,
+                    toName: usuario.nombre,
                     subject: 'Recupera tu contraseña',
-                    text: `Hola ${usuario.nombre},\n\nUsa este enlace para cambiar tu contraseña. Expira en 30 minutos y solo puede utilizarse una vez:\n\n${enlace}\n\nSi no solicitaste este cambio, ignora este correo.`
+                    message: `Hola ${usuario.nombre},\n\nUsa este enlace para cambiar tu contraseña. Expira en 30 minutos y solo puede utilizarse una vez:\n\n${enlace}\n\nSi no solicitaste este cambio, ignora este correo.`
                 });
             } catch (error) {
                 console.error('No se pudo enviar el correo de recuperación:', error);
