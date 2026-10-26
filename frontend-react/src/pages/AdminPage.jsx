@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiDelete, apiRequest } from '../services/api.js';
 import { Feedback, SiteLayout } from '../components/SiteLayout.jsx';
+import { getProductCategory } from '../utils/categories.js';
 
 export default function AdminPage() {
   const [users, setUsers] = useState([]);
@@ -37,7 +38,8 @@ export default function AdminPage() {
   }
 
   const categoryCounts = products.reduce((result, product) => {
-    result[product.categoria] = (result[product.categoria] || 0) + 1;
+    const { categoria } = getProductCategory(product);
+    result[categoria] = (result[categoria] || 0) + 1;
     return result;
   }, {});
   const adminCount = users.filter(user => user.rol === 'admin').length;
@@ -53,7 +55,7 @@ export default function AdminPage() {
             <div className="row g-3 mb-4">
               {[
                 ['Total Usuarios', users.length],
-                ['Productos', products.length],
+                ['Publicaciones', products.length],
                 ['Administradores', adminCount],
                 ['Categorías', Object.keys(categoryCounts).length]
               ].map(([label, value]) => (
@@ -93,7 +95,7 @@ export default function AdminPage() {
               </div>
             </section>
             <section className="card shadow">
-              <div className="card-header"><h2 className="h4 mb-0">Productos</h2></div>
+              <div className="card-header"><h2 className="h4 mb-0">Publicaciones</h2></div>
               <div className="card-body">
                 {products.map(product => (
                   <div className="d-flex justify-content-between align-items-center border-bottom py-2 gap-3" key={product._id}>
@@ -103,7 +105,7 @@ export default function AdminPage() {
                     </button>
                   </div>
                 ))}
-                {!products.length && <p className="mb-0">No hay productos.</p>}
+                {!products.length && <p className="mb-0">No hay publicaciones.</p>}
               </div>
             </section>
           </>

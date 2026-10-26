@@ -1,17 +1,11 @@
 const mongoose = require('mongoose');
+const categorias = require('../../shared/categories.json');
 
 const categoriasPermitidas = [
-    'Notebooks',
-    'Computadores',
-    'Monitores',
-    'Perifericos',
-    'Celulares',
-    'Consolas',
-    'Componentes',
-    'Impresoras',
-    'Redes',
-    'Otros'
+    ...Object.keys(categorias),
+    ...categorias.Tecnología
 ];
+const subcategoriasPermitidas = Object.values(categorias).flat();
 
 const productoSchema = new mongoose.Schema({
 
@@ -34,6 +28,18 @@ const productoSchema = new mongoose.Schema({
         type: String,
         required: true,
         enum: categoriasPermitidas
+    },
+
+    subcategoria: {
+        type: String,
+        required: true,
+        enum: subcategoriasPermitidas,
+        validate: {
+            validator(subcategoria) {
+                return categorias[this.categoria]?.includes(subcategoria) || false;
+            },
+            message: 'La subcategoría no corresponde a la categoría seleccionada'
+        }
     },
 
     imagen: {

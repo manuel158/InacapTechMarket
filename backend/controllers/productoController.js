@@ -1,8 +1,19 @@
 const Producto = require('../models/Producto');
+const categorias = require('../../shared/categories.json');
+
+function categoriaValida(categoria, subcategoria) {
+    return Object.prototype.hasOwnProperty.call(categorias, categoria) &&
+        categorias[categoria].includes(subcategoria);
+}
 
 const crearProducto = async (req, res) => {
 
     try {
+        if (!categoriaValida(req.body.categoria, req.body.subcategoria)) {
+            return res.status(400).json({
+                mensaje: 'Selecciona una categoría y subcategoría válidas'
+            });
+        }
 
         const producto =
             await Producto.create({
@@ -18,6 +29,9 @@ const crearProducto = async (req, res) => {
 
                 categoria:
                     req.body.categoria,
+
+                subcategoria:
+                    req.body.subcategoria,
 
                 whatsapp:
                     req.body.whatsapp,
@@ -212,10 +226,17 @@ const actualizarMiProducto = async (req, res) => {
 
         }
 
+        if (!categoriaValida(req.body.categoria, req.body.subcategoria)) {
+            return res.status(400).json({
+                mensaje: 'Selecciona una categoría y subcategoría válidas'
+            });
+        }
+
         producto.nombre = req.body.nombre;
         producto.descripcion = req.body.descripcion;
         producto.precio = req.body.precio;
         producto.categoria = req.body.categoria;
+        producto.subcategoria = req.body.subcategoria;
         producto.whatsapp = req.body.whatsapp;
         producto.comentario = req.body.comentario;
 

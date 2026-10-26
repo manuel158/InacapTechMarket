@@ -9,9 +9,9 @@ export default function HomePage() {
         <p className="text-uppercase fw-bold mb-2">Tecnología para nuestra comunidad</p>
         <h1 className="display-4 fw-bold">Bienvenido a IntechMarket</h1>
         <p className="lead mx-auto">
-          Descubre, publica y encuentra productos tecnológicos en el marketplace de la comunidad educativa.
+          Encuentra productos, materiales académicos, servicios y oportunidades de la comunidad educativa.
         </p>
-        <Link className="btn btn-primary btn-lg mt-2" to="/productos">Explorar productos</Link>
+        <Link className="btn btn-primary btn-lg mt-2" to="/productos">Explorar publicaciones</Link>
       </section>
       <div className="row g-4">
         <div className="col-12 col-md-6">
@@ -26,8 +26,8 @@ export default function HomePage() {
         <div className="col-12 col-md-6">
           <article className="card h-100 shadow-sm">
             <div className="card-body text-center">
-              <h2 className="h4 card-title">Publica tus productos</h2>
-              <p>Inicia sesión para crear y administrar tus publicaciones tecnológicas.</p>
+              <h2 className="h4 card-title">Comparte con la comunidad</h2>
+              <p>Inicia sesión para publicar productos, servicios, materiales y avisos.</p>
               <Link className="btn btn-primary mt-auto" to="/login">Iniciar sesión</Link>
             </div>
           </article>
