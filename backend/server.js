@@ -8,12 +8,21 @@ require('./routes/productoRoutes');
 
 const adminRoutes =
 require('./routes/adminRoutes');
+const chatRoutes =
+require('./routes/chatRoutes');
 
 const express = require('express');
+const http = require('http');
 const path = require('path');
 const mongoose = require('mongoose');
+const { Server } = require('socket.io');
+const inicializarChat = require('./socket/chatSocket');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+inicializarChat(io);
 
 const PORT = process.env.PORT || 3000;
 
@@ -35,7 +44,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/productos', productoRoutes);
 
 app.use('/api/admin', adminRoutes);
+app.use('/api/chat', chatRoutes);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Servidor iniciado en http://localhost:${PORT}`);
 });

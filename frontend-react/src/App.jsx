@@ -1,6 +1,7 @@
 import { Link, Route, Routes } from 'react-router-dom';
 import { RequireAdmin, RequireAuth } from './app/RouteGuards.jsx';
 import AdminPage from './pages/AdminPage.jsx';
+import { ConversationPage, ConversationsPage } from './pages/ChatPages.jsx';
 import {
   LoginPage,
   PasswordRecoveryPage,
@@ -33,6 +34,8 @@ export default function App() {
       <Route path="/productos" element={<ProductsPage />} />
       <Route path="/productos/:id" element={<ProductDetailPage />} />
       <Route element={<RequireAuth />}>
+        <Route path="/mensajes" element={<ConversationsPage />} />
+        <Route path="/mensajes/:id" element={<ConversationPage />} />
         <Route path="/mis-publicaciones" element={<MyListingsPage />} />
         <Route path="/publicar" element={<ProductFormPage />} />
         <Route path="/publicar/:id/editar" element={<ProductFormPage />} />

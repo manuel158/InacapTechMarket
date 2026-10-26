@@ -31,6 +31,7 @@ export function SiteLayout({ children }) {
           <div className="collapse navbar-collapse" id="reactNavbar">
             <div className="navbar-nav me-auto">
               <NavLink className="nav-link" to="/productos">Publicaciones</NavLink>
+              {user && <NavLink className="nav-link" to="/mensajes">Mensajes</NavLink>}
               {user && <NavLink className="nav-link" to="/publicar">Publicar</NavLink>}
               {user && <NavLink className="nav-link" to="/mis-publicaciones">Mis publicaciones</NavLink>}
               {user?.rol === 'admin' && <NavLink className="nav-link" to="/admin">Panel Admin</NavLink>}

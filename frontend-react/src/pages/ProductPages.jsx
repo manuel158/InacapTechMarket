@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { apiDelete, apiRequest, formatPrice } from '../services/api.js';
+import { apiDelete, apiPost, apiRequest, formatPrice } from '../services/api.js';
+import { useAuth } from '../app/AuthContext.jsx';
 import { Feedback, SiteLayout } from '../components/SiteLayout.jsx';
 import {
   categoryNames,
@@ -147,11 +148,15 @@ export function ProductsPage() {
 
 export function ProductDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const fromMine = searchParams.get('origen') === 'mis-publicaciones';
   const [product, setProduct] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [chatBusy, setChatBusy] = useState(false);
+  const [chatError, setChatError] = useState('');
 
   useEffect(() => {
     setLoading(true);
@@ -162,6 +167,24 @@ export function ProductDetailPage() {
   }, [id]);
 
   const whatsapp = product?.whatsapp?.replace(/\D/g, '');
+  const publicadorId = product?.usuario?._id || product?.usuario;
+  const isOwner = user && String(publicadorId) === String(user.id);
+
+  async function startChat() {
+    setChatError('');
+    setChatBusy(true);
+    try {
+      const conversation = await apiPost(
+        `/api/chat/publicaciones/${encodeURIComponent(id)}/conversacion`,
+        {}
+      );
+      navigate(`/mensajes/${conversation._id}`);
+    } catch (requestError) {
+      setChatError(requestError.message);
+    } finally {
+      setChatBusy(false);
+    }
+  }
 
   return (
     <SiteLayout>
@@ -190,6 +213,7 @@ export function ProductDetailPage() {
                   <h2 className="h5">Comentario</h2>
                   <p>{product.comentario || 'Sin comentarios'}</p>
                   <p><strong>WhatsApp:</strong> {product.whatsapp}</p>
+                  <Feedback error={chatError} />
                   <div className="d-grid gap-2 mt-4">
                     {fromMine && (
                       <Link className="btn btn-warning" to={`/publicar/${product._id}/editar`}>
@@ -205,6 +229,24 @@ export function ProductDetailPage() {
                       >
                         Contactar por WhatsApp
                       </a>
+                    )}
+                    {user && !isOwner && (
+                      <button
+                        className="btn btn-primary"
+                        onClick={startChat}
+                        disabled={chatBusy}
+                      >
+                        {chatBusy ? 'Abriendo chat…' : 'Enviar mensaje'}
+                      </button>
+                    )}
+                    {!user && (
+                      <Link
+                        className="btn btn-primary"
+                        to="/login"
+                        state={{ from: { pathname: `/productos/${product._id}` } }}
+                      >
+                        Inicia sesión para enviar un mensaje
+                      </Link>
                     )}
                     <Link className="btn btn-dark" to={fromMine ? '/mis-publicaciones' : '/productos'}>
                       Volver
