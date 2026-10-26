@@ -166,7 +166,6 @@ export function ProductDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const whatsapp = product?.whatsapp?.replace(/\D/g, '');
   const publicadorId = product?.usuario?._id || product?.usuario;
   const isOwner = user && String(publicadorId) === String(user.id);
 
@@ -212,23 +211,12 @@ export function ProductDetailPage() {
                   <p className="text-muted">{product.descripcion}</p>
                   <h2 className="h5">Comentario</h2>
                   <p>{product.comentario || 'Sin comentarios'}</p>
-                  <p><strong>WhatsApp:</strong> {product.whatsapp}</p>
                   <Feedback error={chatError} />
                   <div className="d-grid gap-2 mt-4">
                     {fromMine && (
                       <Link className="btn btn-warning" to={`/publicar/${product._id}/editar`}>
                         Editar publicación
                       </Link>
-                    )}
-                    {whatsapp && (
-                      <a
-                        className="btn btn-success"
-                        href={`https://wa.me/${whatsapp}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Contactar por WhatsApp
-                      </a>
                     )}
                     {user && !isOwner && (
                       <button
