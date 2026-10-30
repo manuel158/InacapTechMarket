@@ -52,6 +52,13 @@ const iniciarConversacion = async (req, res) => {
             });
         }
 
+        if (publicacion.estado &&
+            publicacion.estado !== 'aprobada') {
+            return res.status(404).json({
+                mensaje: 'No se encontró la publicación'
+            });
+        }
+
         if (publicacion.usuario.toString() === req.usuario._id.toString()) {
             return res.status(400).json({
                 mensaje: 'No puedes iniciar un chat con tu propia publicación'

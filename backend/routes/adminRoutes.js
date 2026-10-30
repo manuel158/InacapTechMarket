@@ -6,7 +6,8 @@ const {
     listarUsuarios,
     eliminarUsuario,
     listarProductos,
-    eliminarProducto
+    eliminarProducto,
+    revisarProducto
 } = require('../controllers/adminController');
 
 const protegerRuta =
@@ -34,6 +35,13 @@ router.get(
     protegerRuta,
     esAdministrador,
     listarProductos
+);
+
+router.patch(
+    '/producto/:id/revision',
+    protegerRuta,
+    esAdministrador,
+    revisarProducto
 );
 
 router.delete(

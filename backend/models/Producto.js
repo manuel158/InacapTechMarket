@@ -92,6 +92,33 @@ const productoSchema = new mongoose.Schema({
         default: ''
     },
 
+    estado: {
+        type: String,
+        enum: ['pendiente', 'aprobada', 'rechazada', 'pausada'],
+        default: undefined
+    },
+
+    motivoRechazo: {
+        type: String,
+        default: '',
+        maxlength: 500,
+        trim: true,
+        select: false
+    },
+
+    revisadoEn: {
+        type: Date,
+        default: null,
+        select: false
+    },
+
+    revisadoPor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Usuario',
+        default: null,
+        select: false
+    },
+
     whatsapp: {
         type: String,
         default: '',

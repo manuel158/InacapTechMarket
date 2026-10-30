@@ -1,6 +1,13 @@
 const Producto = require('../models/Producto');
 const categorias = require('../../shared/categories.json');
 
+const publicacionesVisibles = {
+    $or: [
+        { estado: 'aprobada' },
+        { estado: { $exists: false } }
+    ]
+};
+
 function categoriaValida(categoria, subcategoria) {
     let categoriaActual = categoria;
     if (['Material Académico', 'Tecnología'].includes(categoria) ||
@@ -99,6 +106,9 @@ const crearProducto = async (req, res) => {
                 detalleCategoria:
                     req.body.detalleCategoria,
 
+                estado:
+                    'pendiente',
+
                 usuario:
                     req.usuario._id
 
@@ -123,7 +133,7 @@ const obtenerProductos = async (req, res) => {
 
     try {
 
-        const productos = await Producto.find()
+        const productos = await Producto.find(publicacionesVisibles)
             .populate('usuario', 'nombre correo');
 
         res.json(productos);
@@ -143,9 +153,21 @@ const obtenerProductoPorId = async (req, res) => {
     try {
 
         const producto =
-            await Producto.findById(req.params.id);
+            await Producto.findById(req.params.id)
+                .select('+motivoRechazo');
 
         if (!producto) {
+            return res.status(404).json({
+                mensaje: 'Producto no encontrado'
+            });
+        }
+
+        const propietario = req.usuario &&
+            producto.usuario?.toString() === req.usuario._id.toString();
+        const administrador = req.usuario?.rol === 'admin';
+        const publicacionVisible = producto.estado === 'aprobada' ||
+            producto.estado === undefined;
+        if (!publicacionVisible && !propietario && !administrador) {
             return res.status(404).json({
                 mensaje: 'Producto no encontrado'
             });
@@ -170,6 +192,7 @@ async (req, res) => {
 
         const productos =
             await Producto.find({
+                ...publicacionesVisibles,
                 categoria: req.params.categoria
             });
 
@@ -192,7 +215,7 @@ const obtenerMisProductos = async (req, res) => {
         const productos =
             await Producto.find({
                 usuario: req.usuario._id
-            });
+            }).select('+motivoRechazo');
 
         res.json(productos);
 
@@ -303,6 +326,10 @@ const actualizarMiProducto = async (req, res) => {
         producto.comentario = req.body.comentario;
         producto.sePermutaPor = req.body.sePermutaPor || '';
         producto.detalleCategoria = req.body.detalleCategoria || '';
+        producto.estado = 'pendiente';
+        producto.motivoRechazo = '';
+        producto.revisadoEn = null;
+        producto.revisadoPor = null;
 
         const files = imagenesSubidas(req);
         if (files.length > 3) {
@@ -330,6 +357,40 @@ const actualizarMiProducto = async (req, res) => {
 
 };
 
+const actualizarEstadoMiProducto = async (req, res) => {
+    try {
+        const estadoSolicitado = req.body?.estado;
+        const producto = await Producto.findOne({
+            _id: req.params.id,
+            usuario: req.usuario._id
+        });
+
+        if (!producto) {
+            return res.status(404).json({
+                mensaje: 'No se encontró la publicación en tu cuenta'
+            });
+        }
+
+        if ((!producto.estado || producto.estado === 'aprobada') &&
+            estadoSolicitado === 'pausada') {
+            producto.estado = 'pausada';
+        } else if (producto.estado === 'pausada' && estadoSolicitado === 'aprobada') {
+            producto.estado = 'aprobada';
+        } else {
+            return res.status(400).json({
+                mensaje: 'Solo puedes pausar una publicación aprobada o reactivar una pausada'
+            });
+        }
+
+        await producto.save();
+        return res.json(producto);
+    } catch (error) {
+        return res.status(500).json({
+            mensaje: error.message
+        });
+    }
+};
+
 module.exports = {
     crearProducto,
     obtenerProductos,
@@ -337,5 +398,6 @@ module.exports = {
     obtenerPorCategoria,
     obtenerMisProductos,
     eliminarMiProducto,
-    actualizarMiProducto
+    actualizarMiProducto,
+    actualizarEstadoMiProducto
 };

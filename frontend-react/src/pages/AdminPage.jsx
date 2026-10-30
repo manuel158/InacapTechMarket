@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { apiDelete, apiRequest } from '../services/api.js';
 import { Feedback, SiteLayout } from '../components/SiteLayout.jsx';
 import { getProductCategory } from '../utils/categories.js';
+import { Link } from 'react-router-dom';
 
 export default function AdminPage() {
   const [users, setUsers] = useState([]);
@@ -37,6 +38,23 @@ export default function AdminPage() {
     }
   }
 
+  async function reviewProduct(product, estado) {
+    const motivoRechazo = estado === 'rechazada'
+      ? window.prompt('Indica el motivo del rechazo (máximo 500 caracteres):')
+      : '';
+    if (estado === 'rechazada' && motivoRechazo === null) return;
+
+    try {
+      await apiRequest(`/api/admin/producto/${encodeURIComponent(product._id)}/revision`, {
+        method: 'PATCH',
+        body: JSON.stringify({ estado, motivoRechazo })
+      });
+      await load();
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  }
+
   const categoryCounts = products.reduce((result, product) => {
     const { categoria } = getProductCategory(product);
     result[categoria] = (result[categoria] || 0) + 1;
@@ -56,10 +74,11 @@ export default function AdminPage() {
               {[
                 ['Total Usuarios', users.length],
                 ['Publicaciones', products.length],
+                ['Pendientes de revisión', products.filter(product => product.estado === 'pendiente').length],
                 ['Administradores', adminCount],
                 ['Categorías', Object.keys(categoryCounts).length]
               ].map(([label, value]) => (
-                <div className="col-6 col-lg-3" key={label}>
+                <div className="col-6 col-lg-4" key={label}>
                   <div className="card text-center shadow">
                     <div className="card-body"><h2 className="h6">{label}</h2><p className="h2 mb-0">{value}</p></div>
                   </div>
@@ -99,10 +118,33 @@ export default function AdminPage() {
               <div className="card-body">
                 {products.map(product => (
                   <div className="d-flex justify-content-between align-items-center border-bottom py-2 gap-3" key={product._id}>
-                    <strong>{product.nombre}</strong>
-                    <button className="btn btn-danger btn-sm" onClick={() => remove(`/api/admin/producto/${encodeURIComponent(product._id)}`, 'este producto')}>
-                      Eliminar
-                    </button>
+                    <div>
+                      <strong>{product.nombre}</strong>
+                      <div className="small text-muted">
+                        {product.categoria} · {product.estado || 'aprobada'}
+                      </div>
+                      {product.estado === 'rechazada' && product.motivoRechazo && (
+                        <div className="small text-danger">Motivo: {product.motivoRechazo}</div>
+                      )}
+                    </div>
+                    <div className="d-flex gap-2">
+                      <Link className="btn btn-outline-primary btn-sm" to={`/productos/${product._id}`}>
+                        Ver publicación
+                      </Link>
+                      {product.estado === 'pendiente' && (
+                        <>
+                          <button className="btn btn-success btn-sm" onClick={() => reviewProduct(product, 'aprobada')}>
+                            Aprobar
+                          </button>
+                          <button className="btn btn-warning btn-sm" onClick={() => reviewProduct(product, 'rechazada')}>
+                            Rechazar
+                          </button>
+                        </>
+                      )}
+                      <button className="btn btn-danger btn-sm" onClick={() => remove(`/api/admin/producto/${encodeURIComponent(product._id)}`, 'esta publicación')}>
+                        Eliminar
+                      </button>
+                    </div>
                   </div>
                 ))}
                 {!products.length && <p className="mb-0">No hay publicaciones.</p>}

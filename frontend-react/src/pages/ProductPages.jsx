@@ -26,8 +26,19 @@ function showsEstimatedValue(category) {
   ].includes(category);
 }
 
-function ProductCard({ product, mine = false, onDelete }) {
+function publicationStatus(product) {
+  return product.estado || 'aprobada';
+}
+
+function ProductCard({ product, mine = false, onDelete, onStatusChange }) {
   const { categoria, subcategoria } = getProductCategory(product);
+  const status = publicationStatus(product);
+  const statusLabels = {
+    pendiente: 'Pendiente de aprobación',
+    aprobada: 'Aprobada',
+    rechazada: 'Rechazada',
+    pausada: 'Pausada'
+  };
 
   return (
     <div className={mine ? 'col-12 col-sm-6 col-lg-3' : 'col'}>
@@ -41,7 +52,15 @@ function ProductCard({ product, mine = false, onDelete }) {
           <span className="badge mb-2">
             {categoria}{subcategoria ? ` · ${subcategoria}` : ''}
           </span>
+          {mine && (
+            <span className={`badge ms-2 mb-2 ${status === 'aprobada' ? 'bg-success' : status === 'rechazada' ? 'bg-danger' : 'bg-secondary'}`}>
+              {statusLabels[status] || status}
+            </span>
+          )}
           <h2 className="h5 card-title">{product.nombre}</h2>
+          {mine && status === 'rechazada' && product.motivoRechazo && (
+            <p className="small text-danger">Motivo: {product.motivoRechazo}</p>
+          )}
           {categoria === 'Trueques' && product.sePermutaPor && (
             <p className="fw-semibold mb-3">Se permuta por: {product.sePermutaPor}</p>
           )}
@@ -62,6 +81,17 @@ function ProductCard({ product, mine = false, onDelete }) {
                 <Link className="btn btn-warning" to={`/publicar/${product._id}/editar`}>
                   Editar
                 </Link>
+                {['aprobada', 'pausada'].includes(status) && (
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() => onStatusChange(
+                      product._id,
+                      status === 'aprobada' ? 'pausada' : 'aprobada'
+                    )}
+                  >
+                    {status === 'aprobada' ? 'Pausar publicación' : 'Reanudar publicación'}
+                  </button>
+                )}
                 <button className="btn btn-danger" onClick={() => onDelete(product._id)}>
                   Eliminar
                 </button>
@@ -187,6 +217,9 @@ export function ProductDetailPage() {
 
   const publicadorId = product?.usuario?._id || product?.usuario;
   const isOwner = user && String(publicadorId) === String(user.id);
+  const isAdmin = user?.rol === 'admin';
+  const canContact = product &&
+    (product.estado === 'aprobada' || product.estado === undefined);
   const images = product ? productImages(product) : [];
   const productCategory = product ? getProductCategory(product) : null;
 
@@ -243,6 +276,20 @@ export function ProductDetailPage() {
                       : ''}
                   </span>
                   <h2 className="card-title">{product.nombre}</h2>
+                  {(fromMine || isAdmin) && product.estado && (
+                    <p className="text-muted">
+                      Estado: {product.estado === 'pendiente'
+                        ? 'Pendiente de aprobación'
+                        : product.estado === 'aprobada'
+                          ? 'Aprobada'
+                          : product.estado === 'rechazada'
+                            ? 'Rechazada'
+                            : 'Pausada'}
+                    </p>
+                  )}
+                  {(fromMine || isAdmin) && product.estado === 'rechazada' && product.motivoRechazo && (
+                    <p className="text-danger">Motivo del rechazo: {product.motivoRechazo}</p>
+                  )}
                   {productCategory.categoria === 'Trueques' && product.sePermutaPor && (
                     <p className="fw-semibold mb-3">
                       Se permuta por: {product.sePermutaPor}
@@ -271,7 +318,7 @@ export function ProductDetailPage() {
                         Editar publicación
                       </Link>
                     )}
-                    {user && !isOwner && (
+                    {user && !isOwner && !isAdmin && canContact && (
                       <button
                         className="btn btn-primary"
                         onClick={startChat}
@@ -280,7 +327,7 @@ export function ProductDetailPage() {
                         {chatBusy ? 'Abriendo chat…' : 'Enviar mensaje'}
                       </button>
                     )}
-                    {!user && (
+                    {!user && canContact && (
                       <Link
                         className="btn btn-primary"
                         to="/login"
@@ -332,6 +379,18 @@ export function MyListingsPage() {
     }
   }
 
+  async function changeStatus(id, estado) {
+    try {
+      await apiRequest(`/api/productos/mis-publicaciones/${encodeURIComponent(id)}/estado`, {
+        method: 'PATCH',
+        body: JSON.stringify({ estado })
+      });
+      await load();
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  }
+
   return (
     <SiteLayout>
       <main className="container mt-4">
@@ -344,7 +403,13 @@ export function MyListingsPage() {
         {!loading && !error && !products.length && <p className="text-muted">Aún no tienes publicaciones.</p>}
         <div className="row g-4">
           {products.map(product => (
-            <ProductCard key={product._id} product={product} mine onDelete={remove} />
+            <ProductCard
+              key={product._id}
+              product={product}
+              mine
+              onDelete={remove}
+              onStatusChange={changeStatus}
+            />
           ))}
         </div>
       </main>
@@ -429,7 +494,9 @@ export function ProductFormPage() {
       );
       const data = await response.json();
       if (!response.ok) throw new Error(data.mensaje || `Error del servidor (${response.status})`);
-      setSuccess(editing ? 'Publicación actualizada correctamente.' : 'Producto publicado correctamente.');
+      setSuccess(editing
+        ? 'Cambios enviados a revisión. La publicación no será visible hasta que se apruebe.'
+        : 'Publicación enviada a revisión. Será visible cuando administración la apruebe.');
       if (editing) {
         window.setTimeout(() => navigate('/mis-publicaciones'), 700);
       } else {
