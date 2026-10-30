@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-do
 import { apiPost } from '../services/api.js';
 import { useAuth } from '../app/AuthContext.jsx';
 import { AuthLayout, Feedback } from '../components/SiteLayout.jsx';
+import terms from '../../../shared/terms.json';
 
 function AuthCard({ eyebrow, title, children }) {
   return (
@@ -104,7 +105,8 @@ export function RegisterPage() {
         tipoIntegrante: form.get('tipoIntegrante'),
         sede: form.get('sede'),
         sexo: form.get('sexo'),
-        fechaNacimiento: form.get('fechaNacimiento')
+        fechaNacimiento: form.get('fechaNacimiento'),
+        aceptaTerminos: form.get('aceptaTerminos') === 'on'
       });
       setPending(true);
       setSuccess(data.mensaje);
@@ -146,6 +148,10 @@ export function RegisterPage() {
               <label className="form-label" htmlFor="register-email">Correo institucional</label>
               <input className="form-control" id="register-email" name="correo" type="email" placeholder="usuario@inacapmail.cl" autoComplete="email" required />
             </div>
+            <div className="mb-4">
+              <label className="form-label" htmlFor="register-password">Contraseña</label>
+              <input className="form-control" id="register-password" name="password" type="password" autoComplete="new-password" required />
+            </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="register-whatsapp">WhatsApp (opcional)</label>
               <input className="form-control" id="register-whatsapp" name="whatsapp" type="tel" autoComplete="tel" />
@@ -181,9 +187,15 @@ export function RegisterPage() {
               <label className="form-label" htmlFor="register-birth-date">Fecha de nacimiento</label>
               <input className="form-control" id="register-birth-date" name="fechaNacimiento" type="date" autoComplete="bday" max={maxBirthDate} required />
             </div>
-            <div className="mb-4">
-              <label className="form-label" htmlFor="register-password">Contraseña</label>
-              <input className="form-control" id="register-password" name="password" type="password" autoComplete="new-password" required />
+            <div className="form-check mb-4">
+              <input className="form-check-input" id="register-terms" name="aceptaTerminos" type="checkbox" required />
+              <label className="form-check-label" htmlFor="register-terms">
+                He leído y acepto los{' '}
+                <Link to="/terminos" target="_blank" rel="noreferrer">
+                  Términos y Condiciones
+                </Link>{' '}
+                (versión {terms.version}).
+              </label>
             </div>
             <button className="btn btn-primary btn-lg w-100" disabled={busy}>
               {busy ? 'Enviando…' : 'Registrarse'}

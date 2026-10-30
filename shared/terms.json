@@ -1,0 +1,162 @@
+{
+  "version": "2026-10-30",
+  "lastUpdated": "30 de octubre de 2026",
+  "sections": [
+    {
+      "title": "1. Información general y aceptación",
+      "paragraphs": [
+        "Estos Términos y Condiciones (en adelante, «los Términos») regulan el acceso y uso de la plataforma web InacapTechMarket (en adelante, «la Plataforma»), un espacio digital donde los miembros de la comunidad educativa pueden publicar, visualizar y contactarse para el intercambio (trueque) de artículos y servicios, y para la publicación de arriendos y búsquedas de roommate.",
+        "Para iniciar el registro, la persona usuaria debe marcar la casilla de aceptación de estos Términos. La Plataforma registra la versión aceptada y la fecha y hora en que se envía el formulario; esos datos quedan asociados a la cuenta cuando se completa la verificación mediante el código enviado al correo. La información sobre el tratamiento de datos personales está descrita en la sección 9. Quien no esté de acuerdo con estos Términos debe abstenerse de registrarse o utilizar la Plataforma."
+      ]
+    },
+    {
+      "title": "2. Naturaleza del proyecto",
+      "paragraphs": [
+        "InacapTechMarket es un prototipo desarrollado con fines académicos en el marco de la asignatura Proyecto Integrado de la carrera de Analista Programador. La Plataforma es administrada por el equipo de desarrollo del proyecto, Manuel Trujillo, Jose Tocagon y C. Isabel Flores, y no constituye un servicio comercial ni oficial de la institución."
+      ]
+    },
+    {
+      "title": "3. Rol de la Plataforma",
+      "paragraphs": [
+        "InacapTechMarket actúa únicamente como un espacio de contacto entre personas que publican y personas interesadas. En consecuencia:"
+      ],
+      "bullets": [
+        "La Plataforma no es parte de los trueques, arriendos, prestaciones de servicios ni acuerdos de convivencia que los usuarios celebren entre sí.",
+        "La Plataforma no procesa pagos ni reservas, no gestiona envíos ni interviene en la entrega de artículos, la prestación de servicios o el uso de inmuebles. El contacto entre usuarios se realiza de forma directa, a través del chat de la Plataforma.",
+        "La Plataforma no fija ni controla valores de referencia ni condiciones, no garantiza la calidad, el estado, la autenticidad, la seguridad ni la legalidad de los artículos, servicios o inmuebles publicados, ni la veracidad de las descripciones.",
+        "La Plataforma no puede verificar de forma absoluta la identidad de las personas usuarias. Cada persona asume el riesgo de los acuerdos que celebre con otras, y es su responsabilidad comprobar la titularidad, las condiciones y la seguridad de los inmuebles y servicios antes de comprometerse."
+      ]
+    },
+    {
+      "title": "4. Registro, cuenta y acceso",
+      "paragraphs": [
+        "4.1 Quiénes pueden registrarse. El registro está destinado a miembros de la comunidad educativa con correo institucional terminado en @inacapmail.cl. La Plataforma solicita una fecha de nacimiento y solo comprueba que sea una fecha válida que no esté en el futuro; no verifica automáticamente la mayoría de edad ni la capacidad legal. La persona usuaria debe contar con la edad y capacidad que exija la ley para los acuerdos que celebre y no debe usar la Plataforma si carece de ellas.",
+        "4.2 Datos del registro. El formulario solicita nombre, correo institucional, contraseña, tipo de integrante (estudiante, profesor o funcionario), sede (actualmente Valdivia), fecha de nacimiento y, opcionalmente, WhatsApp y sexo. La persona usuaria se compromete a entregar información exacta, veraz y actualizada, y es responsable de la certeza de los datos que ingresa. La contraseña se almacena como hash y no en texto legible.",
+        "4.3 Verificación. La cuenta debe ser verificada mediante un código enviado al correo electrónico registrado antes de habilitar completamente el acceso.",
+        "4.4 Credenciales. Cada persona es responsable de custodiar su contraseña y de toda actividad realizada desde su cuenta. Debe informar de inmediato cualquier uso no autorizado. La Plataforma puede restablecer el acceso mediante el mecanismo de recuperación de contraseña por correo.",
+        "4.5 Una cuenta por persona. Está prohibido crear más de una cuenta o suplantar la identidad de otra persona.",
+        "4.6 Visitantes. Las personas visitantes pueden ver la página de inicio, las publicaciones y sus detalles sin iniciar sesión. Para crear, editar o eliminar publicaciones propias e iniciar o participar en conversaciones se requiere una cuenta verificada y una sesión iniciada."
+      ]
+    },
+    {
+      "title": "5. Publicaciones, trueques, chat y valoraciones",
+      "paragraphs": [
+        "5.1 Uso permitido. Las personas usuarias con sesión iniciada pueden publicar artículos para trueque, libros, servicios estudiantiles, avisos y oportunidades, objetos perdidos o encontrados, publicaciones de vivienda y actividades comunitarias. El formulario permite adjuntar hasta tres imágenes por publicación. Las personas usuarias pueden editar o eliminar sus propias publicaciones. Cualquier visitante puede consultar las publicaciones visibles y sus detalles.",
+        "5.2 Responsabilidad por el contenido. Cada persona es la única responsable de sus publicaciones y de los datos que incluya, como título, descripción, categoría y subcategoría, imágenes, comentarios, lo que busca a cambio, valor referencial y detalles adicionales. La Plataforma no cuenta actualmente con un campo estructurado de ubicación en las publicaciones. Al publicar, declara que:"
+      ],
+      "bullets": [
+        "Es dueña de lo que ofrece (artículo, servicio o inmueble) o está autorizada para ofrecerlo.",
+        "La información y las imágenes son verdaderas y no engañosas.",
+        "Cuenta con los derechos necesarios sobre las imágenes y textos que sube.",
+        "Es consciente de que las personas interesadas podrán contactarla a través del chat de la Plataforma."
+      ],
+      "moreParagraphs": [
+        "5.3 Licencia sobre el contenido. La persona usuaria conserva la propiedad de su contenido, pero otorga a la Plataforma una autorización no exclusiva y gratuita para almacenarlo y mostrarlo dentro del servicio mientras la publicación permanezca en la Plataforma. Puede eliminar sus publicaciones desde su cuenta; el contenido también puede ser eliminado por administración conforme a estos Términos.",
+        "5.4 Gratuidad. El uso de la Plataforma y las publicaciones no tienen costo para las personas usuarias. Cualquier cambio a esta condición se informará con anticipación según la sección 12.",
+        "5.5 Publicaciones y moderación. Actualmente, una publicación se muestra a las personas visitantes y usuarias una vez que se crea correctamente; no existe un flujo de aprobación manual previo ni estados de publicación como «pendiente» o «disponible». La administración puede eliminar publicaciones que infrinjan estos Términos. La aparición de una publicación en la Plataforma no constituye una verificación ni garantía sobre la calidad, autenticidad o legalidad del artículo, servicio o inmueble, ni sobre la veracidad de su descripción.",
+        "5.6 Chat entre usuarios. Las personas usuarias con sesión iniciada pueden iniciar una conversación desde una publicación y comunicarse mediante el chat de la Plataforma. El chat debe usarse con respeto y solo para fines relacionados con las publicaciones, y está sujeto a las secciones 6 y 7. Como la Plataforma no procesa pagos, no deben solicitarse ni compartirse contraseñas, claves ni datos bancarios por el chat. Los mensajes se almacenan para el funcionamiento del servicio, son accesibles a las personas participantes y no se muestran como contenido público. Los acuerdos de entrega, pago o contratación que se pacten son responsabilidad exclusiva de las partes, según la sección 11. Actualmente el chat no ofrece notificaciones por correo electrónico ni moderación automatizada mediante IA.",
+        "5.7 Funciones no disponibles. La Plataforma no ofrece actualmente un sistema de calificaciones o reseñas, propuestas de trueque dentro del sistema, ni una función para marcar un intercambio como concretado. Las partes pueden conversar por el chat y acordar directamente si realizan un intercambio.",
+        "5.8 Trueques. Para coordinar un trueque, las personas usuarias interesadas se contactan mediante el chat y acuerdan directamente sus condiciones. La Plataforma no intermedia, acepta ni registra propuestas, y no confirma la realización del intercambio. Las partes son responsables del cumplimiento de lo que acuerden, de la entrega de los artículos y de la prestación de los servicios.",
+        "5.9 Arriendos y búsqueda de roommate. Estas publicaciones no funcionan mediante propuestas de trueque, sino por contacto directo a través del chat. El valor referencial y las condiciones indicadas son solo informativos: la Plataforma no recibe pagos, no gestiona reservas ni garantías y no participa en la celebración de contratos de arriendo ni en acuerdos de convivencia. Quien publica un arriendo declara estar facultado legalmente para arrendar el inmueble. Se recomienda verificar la identidad de la otra parte, conocer el inmueble antes de comprometerse y formalizar por escrito cualquier acuerdo antes de entregar dinero. En las búsquedas de roommate no deben publicarse datos personales sensibles, como la dirección exacta o el número de documento de identidad; las publicaciones que los incluyan podrán ser rechazadas.",
+        "5.10 Servicios. Quienes ofrecen servicios, como clases particulares o apoyo académico, son responsables de su calidad y cumplimiento. La Plataforma no certifica los conocimientos, títulos ni la idoneidad de quienes los ofrecen, ni forma parte de la relación entre las partes."
+      ]
+    },
+    {
+      "title": "6. Contenido y publicaciones prohibidas",
+      "paragraphs": [
+        "No está permitido publicar ni promover:"
+      ],
+      "bullets": [
+        "Productos robados, adquiridos de forma ilegal, falsificados, defectuosos o prohibidos por la ley.",
+        "Armas, municiones, explosivos, drogas, medicamentos con receta, alcohol, tabaco o materiales peligrosos.",
+        "Productos que infrinjan derechos de propiedad intelectual de terceros, como copias no autorizadas de software, música, películas u otros contenidos, o dispositivos destinados a eludir su protección.",
+        "Cuentas digitales, suscripciones, licencias, documentos reales o falsos, divisas, instrumentos financieros o juegos de azar.",
+        "Contenido sexual o sugestivo, discriminatorio, ofensivo, violento o que incite al odio.",
+        "Ofertas engañosas o fraudulentas, publicaciones sin un artículo, servicio o inmueble real, o arriendos de inmuebles sobre los que no se tiene derecho a disponer.",
+        "Datos personales de terceros sin su consentimiento.",
+        "Cualquier contenido contrario a la ley chilena o a las normas de convivencia de la comunidad educativa."
+      ]
+    },
+    {
+      "title": "7. Normas de conducta",
+      "paragraphs": [
+        "Las personas usuarias deben actuar con respeto, honestidad y responsabilidad digital. Queda prohibido:"
+      ],
+      "bullets": [
+        "Usar la Plataforma con fines ilícitos, fraudulentos o para hostigar a otras personas.",
+        "Intentar acceder sin autorización a cuentas, rutas protegidas o al panel de administración, o vulnerar las medidas de seguridad.",
+        "Usar bots, scrapers u otros sistemas automatizados para extraer contenido, datos personales o información de la Plataforma, o afectar su disponibilidad.",
+        "Realizar acciones que puedan constituir delitos informáticos conforme a la Ley N.º 21.459."
+      ]
+    },
+    {
+      "title": "8. Moderación y sanciones",
+      "paragraphs": [
+        "La administración puede consultar las publicaciones y las cuentas desde el panel de administración y eliminar publicaciones o cuentas. No existe actualmente un sistema automático de suspensión de cuentas ni un flujo de apelación dentro de la Plataforma. Las personas usuarias pueden contactar al correo indicado en la sección 14 para realizar consultas o solicitar que se revise una situación."
+      ],
+      "bullets": [
+        "Eliminar publicaciones que incumplan estos Términos.",
+        "Eliminar cuentas ante incumplimientos o por razones de seguridad."
+      ],
+      "moreParagraphs": [
+        "Cuando corresponda, se informará a la persona afectada. Quien considere que una medida fue un error puede solicitar su revisión a través del canal de contacto indicado en la sección 14."
+      ]
+    },
+    {
+      "title": "9. Privacidad y protección de datos personales",
+      "paragraphs": [
+        "9.1 Datos que se tratan. La Plataforma trata los datos ingresados en el registro: nombre, correo institucional, contraseña (almacenada como hash mediante bcrypt), WhatsApp opcional, tipo de integrante, sede, sexo opcional y fecha de nacimiento. También almacena el rol y estado de verificación de la cuenta, el código temporal de verificación durante el registro, los datos para recuperación de contraseña, la versión y fecha y hora de aceptación de estos Términos, los datos e imágenes de las publicaciones y los mensajes enviados por el chat. No existe actualmente una función de calificaciones o reseñas.",
+        "9.2 Finalidad. Los datos se usan para crear y administrar cuentas, verificar el correo, autenticar a las personas, registrar la aceptación de los Términos, permitir la publicación y visualización de contenido, facilitar conversaciones entre usuarios y administrar la Plataforma. El nombre se muestra asociado a las publicaciones. El correo institucional se utiliza para la cuenta y, aunque la interfaz no lo muestra en las tarjetas de publicaciones, actualmente se incluye en la respuesta del servicio que las entrega. El WhatsApp es opcional, no se muestra en las publicaciones ni en el perfil público de la Plataforma y no se utiliza en el flujo actual de contacto, que se realiza mediante el chat. Los datos no se venden ni se ceden a terceros con fines comerciales.",
+        "9.3 Proveedores de servicios. Para operar, la Plataforma utiliza servicios de terceros: MongoDB Atlas (base de datos), Cloudinary (almacenamiento de imágenes) y Render (alojamiento). Estos proveedores pueden tratar los datos para prestar sus servicios.",
+        "9.4 Seguridad. Se aplican medidas como autenticación mediante JWT, almacenamiento de contraseñas mediante hash bcrypt, control de acceso por roles y uso de variables de entorno para credenciales. Ningún sistema es completamente invulnerable, por lo que la Plataforma no puede garantizar seguridad absoluta.",
+        "9.5 Derechos. Las personas usuarias pueden solicitar acceso, rectificación y eliminación de sus datos personales, así como ejercer los demás derechos que les reconoce la normativa aplicable, escribiendo al canal de contacto de la sección 14.",
+        "9.6 Normativa aplicable. El tratamiento de datos se rige por la Ley N.º 19.628 sobre protección de la vida privada y por la Ley N.º 21.719, que la modifica y regula la protección de datos personales, desde su entrada en vigencia."
+      ]
+    },
+    {
+      "title": "10. Propiedad intelectual",
+      "paragraphs": [
+        "El diseño, código, estructura, logotipos y demás elementos de la Plataforma pertenecen a sus desarrolladores o a sus respectivos titulares y están protegidos por la Ley N.º 17.336 sobre propiedad intelectual. No está permitido copiarlos, reproducirlos ni distribuirlos sin autorización. Si una persona considera que una publicación infringe sus derechos, puede notificarlo por el canal de contacto, y la Plataforma podrá retirar el contenido cuestionado."
+      ]
+    },
+    {
+      "title": "11. Limitación de responsabilidad",
+      "paragraphs": [
+        "En la medida permitida por la ley:"
+      ],
+      "bullets": [
+        "Las personas usuarias son responsables de sus publicaciones y de los trueques, arriendos y demás acuerdos que celebren entre sí, incluyendo condiciones de entrega, valores, pagos y cualquier impuesto o contrato aplicable.",
+        "La Plataforma no responde por pérdidas, fraudes, daños o conflictos derivados de acuerdos entre usuarios, ni por la calidad, seguridad o legalidad de los artículos, servicios o inmuebles ofrecidos.",
+        "No se garantiza que el servicio esté disponible de forma continua o libre de errores, ya que depende en parte de servicios de terceros y se trata de un prototipo.",
+        "La persona usuaria mantendrá indemne a los responsables de la Plataforma frente a reclamos de terceros derivados del contenido que publique o del uso indebido que haga del servicio."
+      ],
+      "moreParagraphs": [
+        "Nada en estos Términos limita los derechos irrenunciables que la legislación chilena, incluida la Ley N.º 19.496 sobre protección de los derechos de los consumidores, reconozca a las personas usuarias."
+      ]
+    },
+    {
+      "title": "12. Modificaciones",
+      "paragraphs": [
+        "Estos Términos pueden actualizarse. La versión vigente y su fecha de actualización se muestran en esta página y en el formulario de registro. Actualmente, la Plataforma registra la aceptación durante el registro inicial, pero no solicita automáticamente a las cuentas existentes que acepten de nuevo una versión actualizada ni envía avisos individuales sobre cambios. Las personas usuarias deben revisar esta página para consultar la versión vigente."
+      ]
+    },
+    {
+      "title": "13. Cancelación de la cuenta",
+      "paragraphs": [
+        "La persona usuaria puede solicitar la eliminación de su cuenta en cualquier momento por el canal de contacto. Esto no extingue las obligaciones pendientes que pudiera tener respecto de otras personas usuarias o de la Plataforma."
+      ]
+    },
+    {
+      "title": "14. Contacto",
+      "paragraphs": [
+        "Para consultas, reclamos, solicitudes sobre datos personales o apelaciones de medidas de moderación: alejandrobarria1984@gmail.com."
+      ]
+    },
+    {
+      "title": "15. Ley aplicable y jurisdicción",
+      "paragraphs": [
+        "Estos Términos se rigen por la ley chilena. Cualquier controversia derivada de su interpretación o aplicación será conocida por los tribunales ordinarios de justicia con competencia en Valdivia, Chile, sin perjuicio de las normas de orden público que correspondan."
+      ]
+    }
+  ]
+}

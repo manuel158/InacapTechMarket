@@ -50,6 +50,16 @@ const usuarioSchema = new mongoose.Schema({
         select: false
     },
 
+    terminosVersionAceptada: {
+        type: String,
+        select: false
+    },
+
+    terminosAceptadosEn: {
+        type: Date,
+        select: false
+    },
+
     codigoVerificacion: {
         type: String,
         default: null
@@ -85,6 +95,8 @@ const usuarioSchema = new mongoose.Schema({
             delete value.sede;
             delete value.sexo;
             delete value.fechaNacimiento;
+            delete value.terminosVersionAceptada;
+            delete value.terminosAceptadosEn;
             return value;
         }
     }

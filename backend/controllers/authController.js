@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const generarCodigo = require('../utils/generarCodigo');
+const terms = require('../../shared/terms.json');
 
 const generarToken = (id, rol) => {
     return jwt.sign(
@@ -32,7 +33,8 @@ const registrarUsuario = async (req, res) => {
             tipoIntegrante,
             sede,
             sexo,
-            fechaNacimiento
+            fechaNacimiento,
+            aceptaTerminos
         } = req.body;
 
         const tiposIntegrante = ['estudiante', 'profesor', 'funcionario'];
@@ -51,6 +53,7 @@ const registrarUsuario = async (req, res) => {
             sede !== 'Valdivia' ||
             !sexosPermitidos.includes(sexo || '') ||
             !fechaNacimientoValida ||
+            aceptaTerminos !== true ||
             (whatsapp !== undefined &&
                 (typeof whatsapp !== 'string' || whatsapp.trim().length > 20))
         ) {
@@ -85,7 +88,9 @@ const registrarUsuario = async (req, res) => {
             tipoIntegrante,
             sede,
             sexo: sexo || '',
-            fechaNacimiento
+            fechaNacimiento,
+            terminosVersionAceptada: terms.version,
+            terminosAceptadosEn: new Date()
         };
 
         await enviarCorreo({
@@ -172,6 +177,12 @@ const verificarCuenta = async (req, res) => {
 
                 fechaNacimiento:
                     global.registroTemporal.fechaNacimiento,
+
+                terminosVersionAceptada:
+                    global.registroTemporal.terminosVersionAceptada,
+
+                terminosAceptadosEn:
+                    global.registroTemporal.terminosAceptadosEn,
 
                 verificado: true
 

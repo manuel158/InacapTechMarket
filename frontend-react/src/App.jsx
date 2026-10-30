@@ -8,6 +8,7 @@ import {
   RegisterPage
 } from './pages/AuthPages.jsx';
 import HomePage from './pages/HomePage.jsx';
+import TermsPage from './pages/TermsPage.jsx';
 import {
   MyListingsPage,
   ProductDetailPage,
@@ -30,6 +31,7 @@ export default function App() {
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/registro" element={<RegisterPage />} />
+      <Route path="/terminos" element={<TermsPage />} />
       <Route path="/recuperar-password" element={<PasswordRecoveryPage />} />
       <Route path="/productos" element={<ProductsPage />} />
       <Route path="/productos/:id" element={<ProductDetailPage />} />
