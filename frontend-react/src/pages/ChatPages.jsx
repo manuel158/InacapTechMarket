@@ -108,6 +108,11 @@ export function ConversationPage() {
 
         setConnected(true);
         setError('');
+        socket.emit('chat:read', { conversacionId: id }, result => {
+          if (active && !result?.ok) {
+            setError(result?.mensaje || 'No se pudo actualizar el contador de mensajes.');
+          }
+        });
         apiRequest(`/api/chat/conversaciones/${encodeURIComponent(id)}`)
           .then(data => {
             if (!active) return;
@@ -124,7 +129,16 @@ export function ConversationPage() {
     });
 
     socket.on('chat:message', message => {
-      if (active) setMessages(current => mergeMessages(current, [message]));
+      if (!active) return;
+      setMessages(current => mergeMessages(current, [message]));
+      const senderId = message.sender?._id || message.sender;
+      if (String(senderId) !== String(user.id)) {
+        socket.emit('chat:read', { conversacionId: id }, result => {
+          if (active && !result?.ok) {
+            setError(result?.mensaje || 'No se pudo actualizar el contador de mensajes.');
+          }
+        });
+      }
     });
 
     socket.on('connect_error', () => {

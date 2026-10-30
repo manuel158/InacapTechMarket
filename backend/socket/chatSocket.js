@@ -3,10 +3,46 @@ const mongoose = require('mongoose');
 const Usuario = require('../models/Usuario');
 const Conversacion = require('../models/Conversacion');
 const Mensaje = require('../models/Mensaje');
+const enviarCorreo = require('../config/emailConfig');
+const {
+    userRoom,
+    emitirCantidadNoLeidos
+} = require('../utils/chatNotifications');
 
 function esParticipante(conversacion, usuarioId) {
     return conversacion.seller.toString() === usuarioId ||
         conversacion.interested.toString() === usuarioId;
+}
+
+async function marcarLeida(io, conversacion, usuarioId) {
+    const unreadField = conversacion.seller.toString() === usuarioId
+        ? 'sellerUnreadCount'
+        : 'interestedUnreadCount';
+    await Conversacion.updateOne(
+        { _id: conversacion._id },
+        { $set: { [unreadField]: 0 } }
+    );
+    await emitirCantidadNoLeidos(io, usuarioId);
+}
+
+async function enviarAvisoPrimerMensaje(conversacionId, nombreRemitente) {
+    const conversacion = await Conversacion.findById(conversacionId)
+        .populate('seller', 'nombre correo')
+        .populate('publication', 'nombre');
+    if (!conversacion?.seller?.correo) {
+        throw new Error('No se encontró el correo de quien publicó');
+    }
+
+    await enviarCorreo({
+        toEmail: conversacion.seller.correo,
+        toName: conversacion.seller.nombre,
+        subject: 'Tienes mensajes nuevos en tu publicación',
+        message: `${nombreRemitente} inició una conversación sobre tu publicación "${conversacion.publication?.nombre || 'Publicación'}". Ingresa a InacapTechMarket para revisar el mensaje.`
+    });
+    await Conversacion.updateOne(
+        { _id: conversacionId },
+        { $set: { firstMessageEmailSent: true } }
+    );
 }
 
 function inicializarChat(io) {
@@ -32,6 +68,10 @@ function inicializarChat(io) {
     });
 
     io.on('connection', socket => {
+        socket.join(userRoom(socket.data.usuarioId));
+        emitirCantidadNoLeidos(io, socket.data.usuarioId)
+            .catch(error => console.error('Error al notificar mensajes sin leer:', error));
+
         socket.on('chat:join', async (payload, acknowledge) => {
             const respond = typeof acknowledge === 'function' ? acknowledge : () => {};
             const conversacionId = payload?.conversacionId;
@@ -92,6 +132,24 @@ function inicializarChat(io) {
                     sender: socket.data.usuarioId,
                     text
                 });
+                const esPrimerMensaje = await Conversacion.findOneAndUpdate(
+                    {
+                        _id: conversacionId,
+                        firstMessageEmailClaimed: { $ne: true },
+                        $or: [
+                            { lastMessage: { $exists: false } },
+                            { 'lastMessage.createdAt': { $exists: false } }
+                        ]
+                    },
+                    { $set: { firstMessageEmailClaimed: true } },
+                    { new: false }
+                );
+                const destinatarioId = conversacion.seller.toString() === socket.data.usuarioId
+                    ? conversacion.interested
+                    : conversacion.seller;
+                const campoNoLeidos = conversacion.seller.toString() === socket.data.usuarioId
+                    ? 'interestedUnreadCount'
+                    : 'sellerUnreadCount';
                 await Conversacion.findByIdAndUpdate(conversacionId, {
                     $set: {
                         lastMessage: {
@@ -100,7 +158,8 @@ function inicializarChat(io) {
                             createdAt: mensaje.createdAt
                         },
                         updatedAt: mensaje.createdAt
-                    }
+                    },
+                    $inc: { [campoNoLeidos]: 1 }
                 });
 
                 io.to(conversacionId).emit('chat:message', {
@@ -112,10 +171,42 @@ function inicializarChat(io) {
                     text: mensaje.text,
                     createdAt: mensaje.createdAt
                 });
+                emitirCantidadNoLeidos(io, destinatarioId)
+                    .catch(error => console.error('Error al actualizar mensajes sin leer:', error));
+                if (
+                    esPrimerMensaje &&
+                    conversacion.seller.toString() !== socket.data.usuarioId
+                ) {
+                    enviarAvisoPrimerMensaje(conversacionId, socket.data.nombre)
+                        .catch(error => console.error('No se pudo enviar el aviso del primer mensaje:', error));
+                }
                 return respond({ ok: true });
             } catch (error) {
                 console.error('Error al enviar mensaje:', error);
                 return respond({ ok: false, mensaje: 'No se pudo enviar el mensaje' });
+            }
+        });
+
+        socket.on('chat:read', async (payload, acknowledge) => {
+            const respond = typeof acknowledge === 'function' ? acknowledge : () => {};
+            const conversacionId = payload?.conversacionId;
+            if (
+                !mongoose.isValidObjectId(conversacionId) ||
+                socket.data.conversacionId !== conversacionId
+            ) {
+                return respond({ ok: false, mensaje: 'La conversación no es válida' });
+            }
+
+            try {
+                const conversacion = await Conversacion.findById(conversacionId);
+                if (!conversacion || !esParticipante(conversacion, socket.data.usuarioId)) {
+                    return respond({ ok: false, mensaje: 'No tienes acceso a esta conversación' });
+                }
+                await marcarLeida(io, conversacion, socket.data.usuarioId);
+                return respond({ ok: true });
+            } catch (error) {
+                console.error('Error al marcar mensajes como leídos:', error);
+                return respond({ ok: false, mensaje: 'No se pudo actualizar el contador de mensajes' });
             }
         });
     });

@@ -16,6 +16,24 @@ const conversacionSchema = new mongoose.Schema({
         ref: 'Usuario',
         required: true
     },
+    sellerUnreadCount: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    interestedUnreadCount: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    firstMessageEmailClaimed: {
+        type: Boolean,
+        default: false
+    },
+    firstMessageEmailSent: {
+        type: Boolean,
+        default: false
+    },
     lastMessage: {
         text: {
             type: String,

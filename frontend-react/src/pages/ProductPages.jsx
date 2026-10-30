@@ -30,6 +30,32 @@ function publicationStatus(product) {
   return product.estado || 'aprobada';
 }
 
+function searchWords(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLocaleLowerCase('es-CL')
+    .match(/[\p{L}\p{N}]+/gu) || [];
+}
+
+function matchesKeyword(product, keyword) {
+  const keywords = searchWords(keyword);
+  if (!keywords.length) return true;
+
+  const { categoria, subcategoria } = getProductCategory(product);
+  const productWords = new Set(searchWords([
+    product.nombre,
+    product.descripcion,
+    categoria,
+    subcategoria,
+    product.sePermutaPor,
+    product.detalleCategoria,
+    product.comentario
+  ].filter(Boolean).join(' ')));
+
+  return keywords.every(word => productWords.has(word));
+}
+
 function ProductCard({ product, mine = false, onDelete, onStatusChange }) {
   const { categoria, subcategoria } = getProductCategory(product);
   const status = publicationStatus(product);
@@ -108,6 +134,8 @@ export function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState('Todos');
   const [subcategory, setSubcategory] = useState('Todas');
+  const [keyword, setKeyword] = useState('');
+  const [dateOrder, setDateOrder] = useState('recent');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -134,16 +162,55 @@ export function ProductsPage() {
     }
     return result;
   }, {});
-  const filtered = products.filter(product => {
-    const productCategory = getProductCategory(product);
-    return (category === 'Todos' || productCategory.categoria === category) &&
-      (subcategory === 'Todas' || productCategory.subcategoria === subcategory);
-  });
+  const filtered = products
+    .filter(product => {
+      const productCategory = getProductCategory(product);
+      return (category === 'Todos' || productCategory.categoria === category) &&
+        (subcategory === 'Todas' || productCategory.subcategoria === subcategory) &&
+        matchesKeyword(product, keyword);
+    })
+    .sort((left, right) => {
+      const leftDate = Date.parse(left.createdAt);
+      const rightDate = Date.parse(right.createdAt);
+      const leftValid = Number.isFinite(leftDate);
+      const rightValid = Number.isFinite(rightDate);
+
+      if (!leftValid || !rightValid) {
+        return leftValid === rightValid ? 0 : leftValid ? -1 : 1;
+      }
+
+      return dateOrder === 'oldest' ? leftDate - rightDate : rightDate - leftDate;
+    });
 
   return (
     <SiteLayout>
       <main className="container py-4">
         <h1 className="text-center mb-4">Publicaciones</h1>
+        <div className="row g-3 mb-4">
+          <div className="col-md-8">
+            <label className="form-label fw-semibold" htmlFor="keyword-filter">Buscar palabra clave</label>
+            <input
+              className="form-control"
+              id="keyword-filter"
+              type="search"
+              value={keyword}
+              onChange={event => setKeyword(event.target.value)}
+              placeholder="Busca palabras completas en las publicaciones"
+            />
+          </div>
+          <div className="col-md-4">
+            <label className="form-label fw-semibold" htmlFor="date-order-filter">Ordenar por fecha</label>
+            <select
+              className="form-select"
+              id="date-order-filter"
+              value={dateOrder}
+              onChange={event => setDateOrder(event.target.value)}
+            >
+              <option value="recent">Más recientes primero</option>
+              <option value="oldest">Más antiguas primero</option>
+            </select>
+          </div>
+        </div>
         <div className="mb-4">
           <label className="form-label fw-semibold" htmlFor="category-filter">Filtrar por categoría</label>
           <select
@@ -197,6 +264,7 @@ export function ProductDetailPage() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const fromMine = searchParams.get('origen') === 'mis-publicaciones';
+  const fromAdmin = searchParams.get('origen') === 'admin';
   const [product, setProduct] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
   const [error, setError] = useState('');
@@ -336,7 +404,10 @@ export function ProductDetailPage() {
                         Inicia sesión para enviar un mensaje
                       </Link>
                     )}
-                    <Link className="btn btn-dark" to={fromMine ? '/mis-publicaciones' : '/productos'}>
+                    <Link
+                      className="btn btn-dark"
+                      to={fromAdmin ? '/admin' : fromMine ? '/mis-publicaciones' : '/productos'}
+                    >
                       Volver
                     </Link>
                   </div>

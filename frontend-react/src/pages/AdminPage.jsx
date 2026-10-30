@@ -128,7 +128,7 @@ export default function AdminPage() {
                       )}
                     </div>
                     <div className="d-flex gap-2">
-                      <Link className="btn btn-outline-primary btn-sm" to={`/productos/${product._id}`}>
+                      <Link className="btn btn-outline-primary btn-sm" to={`/productos/${product._id}?origen=admin`}>
                         Ver publicación
                       </Link>
                       {product.estado === 'pendiente' && (

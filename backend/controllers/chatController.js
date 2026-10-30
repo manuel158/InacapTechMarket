@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Conversacion = require('../models/Conversacion');
 const Mensaje = require('../models/Mensaje');
 const Producto = require('../models/Producto');
+const { obtenerCantidadNoLeidos } = require('../utils/chatNotifications');
 
 const populateConversacion = [
     { path: 'publication', select: 'nombre imagen categoria subcategoria precio' },
@@ -32,6 +33,18 @@ const listarConversaciones = async (req, res) => {
         console.error('Error al listar conversaciones:', error);
         return res.status(500).json({
             mensaje: 'No se pudieron cargar las conversaciones'
+        });
+    }
+};
+
+const obtenerNoLeidos = async (req, res) => {
+    try {
+        const count = await obtenerCantidadNoLeidos(req.usuario._id);
+        return res.json({ count });
+    } catch (error) {
+        console.error('Error al contar mensajes sin leer:', error);
+        return res.status(500).json({
+            mensaje: 'No se pudo cargar el contador de mensajes'
         });
     }
 };
@@ -137,6 +150,7 @@ const obtenerConversacion = async (req, res) => {
 
 module.exports = {
     listarConversaciones,
+    obtenerNoLeidos,
     iniciarConversacion,
     obtenerConversacion
 };
