@@ -28,6 +28,6 @@ const storage =
     });
 
 const upload =
-    multer({ storage });
+    multer({ storage, limits: { files: 3 } });
 
 module.exports = upload;

@@ -4,6 +4,7 @@ import { apiDelete, apiPost, apiRequest, formatPrice } from '../services/api.js'
 import { useAuth } from '../app/AuthContext.jsx';
 import { Feedback, SiteLayout } from '../components/SiteLayout.jsx';
 import {
+  categoryDetails,
   categoryNames,
   categorySubcategories,
   getProductCategory
@@ -13,6 +14,10 @@ function formatListingPrice(price) {
   return Number(price) === 0 ? 'Gratis / sin costo' : formatPrice(price);
 }
 
+function productImages(product) {
+  return product.imagenes?.length ? product.imagenes : [product.imagen].filter(Boolean);
+}
+
 function ProductCard({ product, mine = false, onDelete }) {
   const { categoria, subcategoria } = getProductCategory(product);
 
@@ -20,7 +25,7 @@ function ProductCard({ product, mine = false, onDelete }) {
     <div className={mine ? 'col-12 col-sm-6 col-lg-3' : 'col'}>
       <article className={`card shadow-sm h-100 ${mine ? 'card-publicacion' : 'card-producto'}`}>
         <img
-          src={product.imagen}
+          src={productImages(product)[0]}
           className="imagen-publicacion card-img-top"
           alt={product.nombre}
         />
@@ -29,7 +34,9 @@ function ProductCard({ product, mine = false, onDelete }) {
             {categoria}{subcategoria ? ` · ${subcategoria}` : ''}
           </span>
           <h2 className="h5 card-title">{product.nombre}</h2>
-          <p className="text-success fw-bold mb-3">{formatListingPrice(product.precio)}</p>
+          {categoria === 'Trueques' && product.sePermutaPor && (
+            <p className="fw-semibold mb-3">Se permuta por: {product.sePermutaPor}</p>
+          )}
           {!mine && product.usuario?.nombre && (
             <p className="text-muted">Publicado por {product.usuario.nombre}</p>
           )}
@@ -153,6 +160,7 @@ export function ProductDetailPage() {
   const [searchParams] = useSearchParams();
   const fromMine = searchParams.get('origen') === 'mis-publicaciones';
   const [product, setProduct] = useState(null);
+  const [activeImage, setActiveImage] = useState(0);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [chatBusy, setChatBusy] = useState(false);
@@ -161,13 +169,18 @@ export function ProductDetailPage() {
   useEffect(() => {
     setLoading(true);
     apiRequest(`/api/productos/${encodeURIComponent(id)}`)
-      .then(setProduct)
+      .then(data => {
+        setProduct(data);
+        setActiveImage(0);
+      })
       .catch(requestError => setError(requestError.message))
       .finally(() => setLoading(false));
   }, [id]);
 
   const publicadorId = product?.usuario?._id || product?.usuario;
   const isOwner = user && String(publicadorId) === String(user.id);
+  const images = product ? productImages(product) : [];
+  const productCategory = product ? getProductCategory(product) : null;
 
   async function startChat() {
     setChatError('');
@@ -195,20 +208,51 @@ export function ProductDetailPage() {
           <div className="card shadow-lg border-0">
             <div className="row g-0">
               <div className="col-md-6 card-detalle-imagen">
-                <img className="img-fluid h-100 w-100" src={product.imagen} alt={product.nombre} />
+                <img className="img-fluid h-100 w-100" src={images[activeImage]} alt={product.nombre} />
+                {images.length > 1 && (
+                  <div className="detalle-miniaturas" aria-label="Fotos de la publicación">
+                    {images.map((image, index) => (
+                      <button
+                        key={`${image}-${index}`}
+                        type="button"
+                        className={`detalle-miniatura ${index === activeImage ? 'activa' : ''}`}
+                        onClick={() => setActiveImage(index)}
+                        aria-label={`Ver foto ${index + 1}`}
+                        aria-pressed={index === activeImage}
+                      >
+                        <img src={image} alt="" />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="col-md-6">
                 <div className="card-body p-4">
                   <span className="badge bg-primary mb-3">
-                    {getProductCategory(product).categoria}
-                    {getProductCategory(product).subcategoria
-                      ? ` · ${getProductCategory(product).subcategoria}`
+                    {productCategory.categoria}
+                    {productCategory.subcategoria
+                      ? ` · ${productCategory.subcategoria}`
                       : ''}
                   </span>
                   <h2 className="card-title">{product.nombre}</h2>
-                  <h3 className="text-success fw-bold mb-4">{formatListingPrice(product.precio)}</h3>
+                  {productCategory.categoria === 'Trueques' && product.sePermutaPor && (
+                    <p className="fw-semibold mb-3">
+                      Se permuta por: {product.sePermutaPor}
+                    </p>
+                  )}
+                  {product.precio !== undefined && product.precio !== null && (
+                    <small className="text-muted d-block mb-3">
+                      Producto evaluado en: {formatListingPrice(product.precio)}
+                    </small>
+                  )}
                   <h2 className="h5">Descripción</h2>
                   <p className="text-muted">{product.descripcion}</p>
+                  {product.detalleCategoria && (
+                    <>
+                      <h2 className="h5">{categoryDetails[productCategory.categoria]?.label || 'Detalles'}</h2>
+                      <p className="text-muted">{product.detalleCategoria}</p>
+                    </>
+                  )}
                   <h2 className="h5">Comentario</h2>
                   <p>{product.comentario || 'Sin comentarios'}</p>
                   <Feedback error={chatError} />
@@ -313,9 +357,16 @@ export function ProductFormPage() {
     precio: '',
     categoria: '',
     subcategoria: '',
+    sePermutaPor: '',
+    detalleCategoria: '',
     whatsapp: '',
     comentario: ''
   });
+  const validSubcategories = categorySubcategories[values.categoria] || [];
+  const formSubcategories = editing && values.subcategoria &&
+    !validSubcategories.includes(values.subcategoria)
+    ? [...validSubcategories, values.subcategoria]
+    : validSubcategories;
 
   useEffect(() => {
     if (!editing) return;
@@ -330,6 +381,8 @@ export function ProductFormPage() {
           precio: product.precio ?? '',
           categoria: productCategory.categoria || '',
           subcategoria: productCategory.subcategoria || '',
+          sePermutaPor: product.sePermutaPor || '',
+          detalleCategoria: product.detalleCategoria || '',
           whatsapp: product.whatsapp || '',
           comentario: product.comentario || ''
         });
@@ -343,7 +396,9 @@ export function ProductFormPage() {
     setValues(current => ({
       ...current,
       [name]: value,
-      ...(name === 'categoria' ? { subcategoria: '' } : {})
+      ...(name === 'categoria'
+        ? { subcategoria: '', sePermutaPor: '', detalleCategoria: '' }
+        : {})
     }));
   }
 
@@ -378,6 +433,8 @@ export function ProductFormPage() {
           precio: '',
           categoria: '',
           subcategoria: '',
+          sePermutaPor: '',
+          detalleCategoria: '',
           whatsapp: '',
           comentario: ''
         });
@@ -401,19 +458,6 @@ export function ProductFormPage() {
                 {!loading && !error && (
                   <form onSubmit={submit}>
                     <div className="mb-3">
-                      <label className="form-label" htmlFor="product-name">Nombre</label>
-                      <input className="form-control" id="product-name" name="nombre" value={values.nombre} onChange={update} required />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label" htmlFor="product-description">Descripción</label>
-                      <textarea className="form-control" id="product-description" name="descripcion" rows="4" value={values.descripcion} onChange={update} required />
-                    </div>
-                    <div className="mb-3">
-                      <label className="form-label" htmlFor="product-price">Precio o monto de referencia</label>
-                      <input className="form-control" id="product-price" name="precio" type="number" min="0" step="1" value={values.precio} onChange={update} required />
-                      <div className="form-text">Ingresa 0 para donaciones, préstamos, avisos u otros casos sin cobro.</div>
-                    </div>
-                    <div className="mb-3">
                       <label className="form-label" htmlFor="product-category">Categoría</label>
                       <select className="form-select" id="product-category" name="categoria" value={values.categoria} onChange={update} required>
                         <option value="">Seleccione</option>
@@ -432,11 +476,67 @@ export function ProductFormPage() {
                         disabled={!values.categoria}
                       >
                         <option value="">Seleccione</option>
-                        {(categorySubcategories[values.categoria] || []).map(item => (
+                        {formSubcategories.map(item => (
                           <option key={item} value={item}>{item}</option>
                         ))}
                       </select>
                     </div>
+                    {values.categoria === 'Trueques' && (
+                      <div className="mb-3">
+                        <label className="form-label fw-bold" htmlFor="product-trade">Se permuta por</label>
+                        <input
+                          className="form-control"
+                          id="product-trade"
+                          name="sePermutaPor"
+                          value={values.sePermutaPor}
+                          onChange={update}
+                          placeholder="¿Qué producto o material buscas a cambio?"
+                          required
+                        />
+                      </div>
+                    )}
+                    <div className="mb-3">
+                      <label className="form-label" htmlFor="product-name">
+                        {values.categoria === 'Trueques' ? 'Producto a permutar' : 'Título'}
+                      </label>
+                      <input className="form-control" id="product-name" name="nombre" value={values.nombre} onChange={update} required />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label" htmlFor="product-description">Descripción</label>
+                      <textarea
+                        className="form-control"
+                        id="product-description"
+                        name="descripcion"
+                        rows="4"
+                        value={values.descripcion}
+                        onChange={update}
+                        placeholder={values.categoria === 'Trueques'
+                          ? 'Describe lo que ofreces y las condiciones de la permuta.'
+                          : 'Describe tu publicación.'}
+                        required
+                      />
+                    </div>
+                    <div className="mb-3">
+                      <label className="form-label" htmlFor="product-price">Producto evaluado en</label>
+                      <input className="form-control" id="product-price" name="precio" type="number" min="0" step="1" value={values.precio} onChange={update} required />
+                      <div className="form-text">Valor referencial; no se mostrará en el aviso.</div>
+                    </div>
+                    {categoryDetails[values.categoria] && (
+                      <div className="mb-3">
+                        <label className="form-label" htmlFor="product-category-details">
+                          {categoryDetails[values.categoria].label}
+                        </label>
+                        <textarea
+                          className="form-control"
+                          id="product-category-details"
+                          name="detalleCategoria"
+                          rows="3"
+                          value={values.detalleCategoria}
+                          onChange={update}
+                          placeholder={categoryDetails[values.categoria].placeholder}
+                        />
+                      </div>
+                    )}
                     <div className="mb-3">
                       <label className="form-label" htmlFor="product-whatsapp">WhatsApp</label>
                       <input className="form-control" id="product-whatsapp" name="whatsapp" value={values.whatsapp} onChange={update} placeholder="56912345678" required />
@@ -446,9 +546,29 @@ export function ProductFormPage() {
                       <textarea className="form-control" id="product-comment" name="comentario" rows="3" value={values.comentario} onChange={update} />
                     </div>
                     <div className="mb-4">
-                      <label className="form-label" htmlFor="product-image">Imagen</label>
-                      <input className="form-control" id="product-image" name="imagen" type="file" accept="image/*" required={!editing} />
-                      {editing && <small className="form-text text-muted">Si no selecciona una imagen, se conservará la actual.</small>}
+                      <label className="form-label" htmlFor="product-images">Fotos (máximo 3)</label>
+                      <input
+                        className="form-control"
+                        id="product-images"
+                        name="imagenes"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        required={!editing}
+                        onChange={event => {
+                          if (event.target.files.length > 3) {
+                            setError('Puedes seleccionar como máximo 3 fotos.');
+                            event.target.value = '';
+                          } else {
+                            setError('');
+                          }
+                        }}
+                      />
+                      {editing && (
+                        <small className="form-text text-muted">
+                          Si seleccionas fotos nuevas, reemplazarán las fotos actuales. Si no seleccionas ninguna, se conservarán.
+                        </small>
+                      )}
                     </div>
                     <div className="d-grid gap-2">
                       <button className="btn btn-primary btn-lg" disabled={busy}>

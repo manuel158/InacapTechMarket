@@ -2,8 +2,32 @@ const Producto = require('../models/Producto');
 const categorias = require('../../shared/categories.json');
 
 function categoriaValida(categoria, subcategoria) {
-    return Object.prototype.hasOwnProperty.call(categorias, categoria) &&
-        categorias[categoria].includes(subcategoria);
+    let categoriaActual = categoria;
+    if (['Material Académico', 'Tecnología'].includes(categoria) ||
+        categorias.Trueques.includes(categoria)) {
+        categoriaActual = 'Trueques';
+    } else if (categoria === 'Vivienda') {
+        categoriaActual = 'Vivienda y arriendo de cabañas';
+    }
+    const subcategoriasAntiguas = {
+        'Avisos y Oportunidades': ['Prácticas profesionales'],
+        'Comunidad y Recreación': ['Venta de entradas para eventos autorizados']
+    };
+    return Object.prototype.hasOwnProperty.call(categorias, categoriaActual) &&
+        (categorias[categoriaActual].includes(subcategoria) ||
+            subcategoriasAntiguas[categoriaActual]?.includes(subcategoria));
+}
+
+function imagenesSubidas(req) {
+    const files = req.files || {};
+    return [...(files.imagenes || []), ...(files.imagen || [])];
+}
+
+function datosPermutaValidos(categoria, sePermutaPor) {
+    const esTrueque = categoria === 'Trueques' ||
+        ['Material Académico', 'Tecnología'].includes(categoria) ||
+        categorias.Trueques.includes(categoria);
+    return !esTrueque || Boolean(sePermutaPor?.trim());
 }
 
 const crearProducto = async (req, res) => {
@@ -12,6 +36,19 @@ const crearProducto = async (req, res) => {
         if (!categoriaValida(req.body.categoria, req.body.subcategoria)) {
             return res.status(400).json({
                 mensaje: 'Selecciona una categoría y subcategoría válidas'
+            });
+        }
+
+        if (!datosPermutaValidos(req.body.categoria, req.body.sePermutaPor)) {
+            return res.status(400).json({
+                mensaje: 'Indica qué producto aceptarías a cambio'
+            });
+        }
+
+        const files = imagenesSubidas(req);
+        if (!files.length || files.length > 3) {
+            return res.status(400).json({
+                mensaje: 'Debes subir entre 1 y 3 imágenes'
             });
         }
 
@@ -40,7 +77,16 @@ const crearProducto = async (req, res) => {
                     req.body.comentario,
 
                 imagen:
-                    req.file.path,
+                    files[0].path,
+
+                imagenes:
+                    files.map(file => file.path),
+
+                sePermutaPor:
+                    req.body.sePermutaPor,
+
+                detalleCategoria:
+                    req.body.detalleCategoria,
 
                 usuario:
                     req.usuario._id
@@ -232,6 +278,12 @@ const actualizarMiProducto = async (req, res) => {
             });
         }
 
+        if (!datosPermutaValidos(req.body.categoria, req.body.sePermutaPor)) {
+            return res.status(400).json({
+                mensaje: 'Indica qué producto aceptarías a cambio'
+            });
+        }
+
         producto.nombre = req.body.nombre;
         producto.descripcion = req.body.descripcion;
         producto.precio = req.body.precio;
@@ -239,9 +291,18 @@ const actualizarMiProducto = async (req, res) => {
         producto.subcategoria = req.body.subcategoria;
         producto.whatsapp = req.body.whatsapp;
         producto.comentario = req.body.comentario;
+        producto.sePermutaPor = req.body.sePermutaPor || '';
+        producto.detalleCategoria = req.body.detalleCategoria || '';
 
-        if (req.file) {
-            producto.imagen = req.file.path;
+        const files = imagenesSubidas(req);
+        if (files.length > 3) {
+            return res.status(400).json({
+                mensaje: 'Puedes subir como máximo 3 imágenes'
+            });
+        }
+        if (files.length) {
+            producto.imagen = files[0].path;
+            producto.imagenes = files.map(file => file.path);
         }
 
         await producto.save();

@@ -3,9 +3,19 @@ const categorias = require('../../shared/categories.json');
 
 const categoriasPermitidas = [
     ...Object.keys(categorias),
-    ...categorias.Tecnología
+    ...categorias.Trueques,
+    'Material Académico',
+    'Tecnología',
+    'Vivienda'
 ];
-const subcategoriasPermitidas = Object.values(categorias).flat();
+const subcategoriasAntiguas = {
+    'Avisos y Oportunidades': ['Prácticas profesionales'],
+    'Comunidad y Recreación': ['Venta de entradas para eventos autorizados']
+};
+const subcategoriasPermitidas = [
+    ...Object.values(categorias).flat(),
+    ...Object.values(subcategoriasAntiguas).flat()
+];
 
 const productoSchema = new mongoose.Schema({
 
@@ -36,7 +46,16 @@ const productoSchema = new mongoose.Schema({
         enum: subcategoriasPermitidas,
         validate: {
             validator(subcategoria) {
-                return categorias[this.categoria]?.includes(subcategoria) || false;
+                let categoria = this.categoria;
+                if (['Material Académico', 'Tecnología'].includes(categoria) ||
+                    categorias.Trueques.includes(categoria)) {
+                    categoria = 'Trueques';
+                } else if (categoria === 'Vivienda') {
+                    categoria = 'Vivienda y arriendo de cabañas';
+                }
+                return categorias[categoria]?.includes(subcategoria) ||
+                    subcategoriasAntiguas[categoria]?.includes(subcategoria) ||
+                    false;
             },
             message: 'La subcategoría no corresponde a la categoría seleccionada'
         }
@@ -45,6 +64,21 @@ const productoSchema = new mongoose.Schema({
     imagen: {
         type: String,
         required: true
+    },
+
+    imagenes: {
+        type: [String],
+        default: []
+    },
+
+    sePermutaPor: {
+        type: String,
+        default: ''
+    },
+
+    detalleCategoria: {
+        type: String,
+        default: ''
     },
 
     whatsapp: {

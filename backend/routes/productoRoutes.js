@@ -22,7 +22,10 @@ router.delete(
 router.put(
     '/mis-publicaciones/:id',
     protegerRuta,
-    upload.single('imagen'),
+    upload.fields([
+        { name: 'imagenes', maxCount: 3 },
+        { name: 'imagen', maxCount: 1 }
+    ]),
     actualizarMiProducto
 );
 router.get('/', obtenerProductos);
@@ -30,6 +33,14 @@ router.get('/mis-publicaciones', protegerRuta, obtenerMisProductos);
 router.get('/categoria/:categoria', obtenerPorCategoria);
 router.get('/:id', obtenerProductoPorId);
 
-router.post('/', protegerRuta, upload.single('imagen'), crearProducto);
+router.post(
+    '/',
+    protegerRuta,
+    upload.fields([
+        { name: 'imagenes', maxCount: 3 },
+        { name: 'imagen', maxCount: 1 }
+    ]),
+    crearProducto
+);
 
 module.exports = router;

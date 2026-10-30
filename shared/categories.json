@@ -1,13 +1,5 @@
 {
-  "Material Académico": [
-    "Compra de libros usados",
-    "Venta de libros usados",
-    "Intercambio de libros",
-    "Donación de libros",
-    "Donación de materiales académicos",
-    "Préstamo de libros"
-  ],
-  "Tecnología": [
+  "Trueques": [
     "Notebooks",
     "Computadores",
     "Monitores",
@@ -17,14 +9,20 @@
     "Componentes",
     "Impresoras",
     "Redes",
-    "Otros"
+    "Otros",
+    "Compra de libros usados",
+    "Venta de libros usados",
+    "Intercambio de libros",
+    "Donación de libros",
+    "Donación de materiales académicos",
+    "Préstamo de libros"
   ],
   "Servicios Estudiantiles": [
     "Tutorías",
-    "Clases particulares"
+    "Clases particulares",
+    "otros"
   ],
   "Avisos y Oportunidades": [
-    "Prácticas profesionales",
     "Trabajos part-time",
     "Eventos universitarios",
     "Convocatorias académicas"
@@ -33,14 +31,14 @@
     "Objetos perdidos",
     "Objetos encontrados"
   ],
-  "Vivienda": [
+  "Vivienda y arriendo de cabañas": [
     "Cabaña en arriendo",
     "Arriendo de habitaciones",
     "Búsqueda de habitaciones en arriendo",
-    "Búsqueda de compañero de departamento"
+    "Búsqueda de compañera/o de piso"
   ],
   "Comunidad y Recreación": [
-    "Venta de entradas para eventos autorizados",
+    "Información para eventos autorizados",
     "Organización de actividades recreativas",
     "Promoción de actividades de bienestar estudiantil",
     "Anuncios de actividades comunitarias"
