@@ -386,7 +386,7 @@ export function ProductDetailPage() {
                         Editar publicación
                       </Link>
                     )}
-                    {user && !isOwner && !isAdmin && canContact && (
+                    {user && !isOwner && canContact && (
                       <button
                         className="btn btn-primary"
                         onClick={startChat}
