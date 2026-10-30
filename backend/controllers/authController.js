@@ -27,8 +27,37 @@ const registrarUsuario = async (req, res) => {
         const {
             nombre,
             correo,
-            password
+            password,
+            whatsapp,
+            tipoIntegrante,
+            sede,
+            sexo,
+            fechaNacimiento
         } = req.body;
+
+        const tiposIntegrante = ['estudiante', 'profesor', 'funcionario'];
+        const sexosPermitidos = ['Femenino', 'Masculino', 'Otro', 'Prefiero no decirlo', ''];
+        const fechaNacimientoDate = typeof fechaNacimiento === 'string' &&
+            /^\d{4}-\d{2}-\d{2}$/.test(fechaNacimiento)
+            ? new Date(`${fechaNacimiento}T00:00:00.000Z`)
+            : null;
+        const fechaNacimientoValida = typeof fechaNacimiento === 'string' &&
+            fechaNacimientoDate &&
+            !Number.isNaN(fechaNacimientoDate.getTime()) &&
+            fechaNacimientoDate.toISOString().slice(0, 10) === fechaNacimiento &&
+            fechaNacimientoDate < new Date();
+        if (
+            !tiposIntegrante.includes(tipoIntegrante) ||
+            sede !== 'Valdivia' ||
+            !sexosPermitidos.includes(sexo || '') ||
+            !fechaNacimientoValida ||
+            (whatsapp !== undefined &&
+                (typeof whatsapp !== 'string' || whatsapp.trim().length > 20))
+        ) {
+            return res.status(400).json({
+                mensaje: 'Revisa los datos de perfil ingresados'
+            });
+        }
 
         if (!correo.endsWith('@inacapmail.cl')) {
             return res.status(400).json({
@@ -51,7 +80,12 @@ const registrarUsuario = async (req, res) => {
             nombre,
             correo,
             password,
-            codigoVerificacion
+            codigoVerificacion,
+            whatsapp: whatsapp?.trim() || '',
+            tipoIntegrante,
+            sede,
+            sexo: sexo || '',
+            fechaNacimiento
         };
 
         await enviarCorreo({
@@ -123,6 +157,21 @@ const verificarCuenta = async (req, res) => {
 
                 password:
                     passwordHash,
+
+                whatsapp:
+                    global.registroTemporal.whatsapp,
+
+                tipoIntegrante:
+                    global.registroTemporal.tipoIntegrante,
+
+                sede:
+                    global.registroTemporal.sede,
+
+                sexo:
+                    global.registroTemporal.sexo,
+
+                fechaNacimiento:
+                    global.registroTemporal.fechaNacimiento,
 
                 verificado: true
 

@@ -10,7 +10,15 @@ const categoriasPermitidas = [
 ];
 const subcategoriasAntiguas = {
     'Avisos y Oportunidades': ['Prácticas profesionales'],
-    'Comunidad y Recreación': ['Venta de entradas para eventos autorizados']
+    'Comunidad y Recreación': ['Venta de entradas para eventos autorizados'],
+    'Material Académico': [
+        'Compra de libros usados',
+        'Venta de libros usados',
+        'Intercambio de libros',
+        'Donación de libros',
+        'Donación de materiales académicos',
+        'Préstamo de libros'
+    ]
 };
 const subcategoriasPermitidas = [
     ...Object.values(categorias).flat(),
@@ -49,6 +57,9 @@ const productoSchema = new mongoose.Schema({
                 let categoria = this.categoria;
                 if (['Material Académico', 'Tecnología'].includes(categoria) ||
                     categorias.Trueques.includes(categoria)) {
+                    if (categoria === 'Material Académico') {
+                        return subcategoriasAntiguas[categoria].includes(subcategoria);
+                    }
                     categoria = 'Trueques';
                 } else if (categoria === 'Vivienda') {
                     categoria = 'Vivienda y arriendo de cabañas';
@@ -83,7 +94,8 @@ const productoSchema = new mongoose.Schema({
 
     whatsapp: {
         type: String,
-        required: true
+        default: '',
+        select: false
     },
 
     comentario: {

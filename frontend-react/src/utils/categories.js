@@ -6,7 +6,13 @@ const legacyCategories = {
   'Vivienda': 'Vivienda y arriendo de cabañas'
 };
 const legacySubcategories = {
-  'Búsqueda de compañero de departamento': 'Búsqueda de compañera/o de piso'
+  'Búsqueda de compañero de departamento': 'Búsqueda de compañera/o de piso',
+  'Compra de libros usados': 'Libros',
+  'Venta de libros usados': 'Libros',
+  'Intercambio de libros': 'Libros',
+  'Donación de libros': 'Libros',
+  'Donación de materiales académicos': 'Libros',
+  'Préstamo de libros': 'Libros'
 };
 export const categoryNames = Object.keys(categories);
 export const categorySubcategories = categories;
@@ -39,11 +45,16 @@ export const categoryDetails = {
 
 export function getProductCategory(product) {
   const categoria = legacyCategories[product.categoria] ||
-    (categories.Trueques.includes(product.categoria) ? 'Trueques' : product.categoria);
+    (categories.Trueques.includes(product.categoria) ||
+      Object.hasOwn(legacySubcategories, product.categoria)
+      ? 'Trueques'
+      : product.categoria);
   if (categories[categoria]) {
     return {
       categoria,
-      subcategoria: legacySubcategories[product.subcategoria] || product.subcategoria ||
+      subcategoria: legacySubcategories[product.subcategoria] ||
+        legacySubcategories[product.categoria] ||
+        product.subcategoria ||
         (categories.Trueques.includes(product.categoria) ? product.categoria : '')
     };
   }

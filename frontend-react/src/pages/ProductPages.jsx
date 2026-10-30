@@ -18,6 +18,14 @@ function productImages(product) {
   return product.imagenes?.length ? product.imagenes : [product.imagen].filter(Boolean);
 }
 
+function showsEstimatedValue(category) {
+  return ![
+    'Comunidad y Recreación',
+    'Avisos y Oportunidades',
+    'Objetos Perdidos y Encontrados'
+  ].includes(category);
+}
+
 function ProductCard({ product, mine = false, onDelete }) {
   const { categoria, subcategoria } = getProductCategory(product);
 
@@ -240,9 +248,10 @@ export function ProductDetailPage() {
                       Se permuta por: {product.sePermutaPor}
                     </p>
                   )}
-                  {product.precio !== undefined && product.precio !== null && (
+                  {showsEstimatedValue(productCategory.categoria) &&
+                    product.precio !== undefined && product.precio !== null && (
                     <small className="text-muted d-block mb-3">
-                      Producto evaluado en: {formatListingPrice(product.precio)}
+                      Producto / Servicio evaluado en: {formatListingPrice(product.precio)}
                     </small>
                   )}
                   <h2 className="h5">Descripción</h2>
@@ -359,7 +368,6 @@ export function ProductFormPage() {
     subcategoria: '',
     sePermutaPor: '',
     detalleCategoria: '',
-    whatsapp: '',
     comentario: ''
   });
   const validSubcategories = categorySubcategories[values.categoria] || [];
@@ -383,7 +391,6 @@ export function ProductFormPage() {
           subcategoria: productCategory.subcategoria || '',
           sePermutaPor: product.sePermutaPor || '',
           detalleCategoria: product.detalleCategoria || '',
-          whatsapp: product.whatsapp || '',
           comentario: product.comentario || ''
         });
       })
@@ -435,7 +442,6 @@ export function ProductFormPage() {
           subcategoria: '',
           sePermutaPor: '',
           detalleCategoria: '',
-          whatsapp: '',
           comentario: ''
         });
       }
@@ -481,6 +487,12 @@ export function ProductFormPage() {
                         ))}
                       </select>
                     </div>
+                    <div className="mb-3">
+                      <label className="form-label" htmlFor="product-name">
+                        {values.categoria === 'Trueques' ? 'Producto a publicar' : 'Título'}
+                      </label>
+                      <input className="form-control" id="product-name" name="nombre" value={values.nombre} onChange={update} required />
+                    </div>
                     {values.categoria === 'Trueques' && (
                       <div className="mb-3">
                         <label className="form-label fw-bold" htmlFor="product-trade">Se permuta por</label>
@@ -496,12 +508,6 @@ export function ProductFormPage() {
                       </div>
                     )}
                     <div className="mb-3">
-                      <label className="form-label" htmlFor="product-name">
-                        {values.categoria === 'Trueques' ? 'Producto a permutar' : 'Título'}
-                      </label>
-                      <input className="form-control" id="product-name" name="nombre" value={values.nombre} onChange={update} required />
-                    </div>
-                    <div className="mb-3">
                       <label className="form-label" htmlFor="product-description">Descripción</label>
                       <textarea
                         className="form-control"
@@ -516,11 +522,15 @@ export function ProductFormPage() {
                         required
                       />
                     </div>
-                    <div className="mb-3">
-                      <label className="form-label" htmlFor="product-price">Producto evaluado en</label>
-                      <input className="form-control" id="product-price" name="precio" type="number" min="0" step="1" value={values.precio} onChange={update} required />
-                      <div className="form-text">Valor referencial; no se mostrará en el aviso.</div>
-                    </div>
+                    {showsEstimatedValue(values.categoria) && (
+                      <div className="mb-3">
+                        <label className="form-label" htmlFor="product-price">
+                          Producto / Servicio evaluado en:
+                        </label>
+                        <input className="form-control" id="product-price" name="precio" type="number" min="0" step="1" value={values.precio} onChange={update} required />
+                        <div className="form-text">Valor referencial; no se mostrará en el aviso.</div>
+                      </div>
+                    )}
                     {categoryDetails[values.categoria] && (
                       <div className="mb-3">
                         <label className="form-label" htmlFor="product-category-details">
@@ -537,10 +547,6 @@ export function ProductFormPage() {
                         />
                       </div>
                     )}
-                    <div className="mb-3">
-                      <label className="form-label" htmlFor="product-whatsapp">WhatsApp</label>
-                      <input className="form-control" id="product-whatsapp" name="whatsapp" value={values.whatsapp} onChange={update} placeholder="56912345678" required />
-                    </div>
                     <div className="mb-3">
                       <label className="form-label" htmlFor="product-comment">Comentario</label>
                       <textarea className="form-control" id="product-comment" name="comentario" rows="3" value={values.comentario} onChange={update} />

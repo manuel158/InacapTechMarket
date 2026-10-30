@@ -82,6 +82,12 @@ export function RegisterPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const today = new Date();
+  const maxBirthDate = [
+    today.getFullYear(),
+    String(today.getMonth() + 1).padStart(2, '0'),
+    String(today.getDate()).padStart(2, '0')
+  ].join('-');
 
   async function register(event) {
     event.preventDefault();
@@ -93,7 +99,12 @@ export function RegisterPage() {
       const data = await apiPost('/api/auth/registro', {
         nombre: form.get('nombre').trim(),
         correo: form.get('correo').trim(),
-        password: form.get('password')
+        password: form.get('password'),
+        whatsapp: form.get('whatsapp').trim(),
+        tipoIntegrante: form.get('tipoIntegrante'),
+        sede: form.get('sede'),
+        sexo: form.get('sexo'),
+        fechaNacimiento: form.get('fechaNacimiento')
       });
       setPending(true);
       setSuccess(data.mensaje);
@@ -124,7 +135,7 @@ export function RegisterPage() {
   return (
     <AuthLayout>
       <AuthCard eyebrow="Únete a la comunidad" title="Crear cuenta">
-        <p className="text-center text-muted">Regístrate para publicar y descubrir productos tecnológicos.</p>
+        <p className="text-center text-muted">Regístrate para publicar y conectar con la comunidad INACAP.</p>
         {!pending && (
           <form onSubmit={register}>
             <div className="mb-3">
@@ -134,6 +145,41 @@ export function RegisterPage() {
             <div className="mb-3">
               <label className="form-label" htmlFor="register-email">Correo institucional</label>
               <input className="form-control" id="register-email" name="correo" type="email" placeholder="usuario@inacapmail.cl" autoComplete="email" required />
+            </div>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="register-whatsapp">WhatsApp (opcional)</label>
+              <input className="form-control" id="register-whatsapp" name="whatsapp" type="tel" autoComplete="tel" />
+              <div className="form-text">Tu número se mantendrá privado y no aparecerá en tu perfil público.</div>
+            </div>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="register-member-type">Tipo de integrante</label>
+              <select className="form-select" id="register-member-type" name="tipoIntegrante" required defaultValue="">
+                <option value="">Seleccione</option>
+                <option value="estudiante">Estudiante</option>
+                <option value="profesor">Profesor</option>
+                <option value="funcionario">Funcionario</option>
+              </select>
+            </div>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="register-campus">Sede</label>
+              <select className="form-select" id="register-campus" name="sede" required defaultValue="">
+                <option value="">Seleccione</option>
+                <option value="Valdivia">Valdivia</option>
+              </select>
+            </div>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="register-sex">Sexo (opcional)</label>
+              <select className="form-select" id="register-sex" name="sexo" defaultValue="">
+                <option value="">Seleccione / prefiero no decirlo</option>
+                <option value="Femenino">Femenino</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Otro">Otro</option>
+                <option value="Prefiero no decirlo">Prefiero no decirlo</option>
+              </select>
+            </div>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="register-birth-date">Fecha de nacimiento</label>
+              <input className="form-control" id="register-birth-date" name="fechaNacimiento" type="date" autoComplete="bday" max={maxBirthDate} required />
             </div>
             <div className="mb-4">
               <label className="form-label" htmlFor="register-password">Contraseña</label>

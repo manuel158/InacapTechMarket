@@ -11,8 +11,19 @@ function categoriaValida(categoria, subcategoria) {
     }
     const subcategoriasAntiguas = {
         'Avisos y Oportunidades': ['Prácticas profesionales'],
-        'Comunidad y Recreación': ['Venta de entradas para eventos autorizados']
+        'Comunidad y Recreación': ['Venta de entradas para eventos autorizados'],
+        'Material Académico': [
+            'Compra de libros usados',
+            'Venta de libros usados',
+            'Intercambio de libros',
+            'Donación de libros',
+            'Donación de materiales académicos',
+            'Préstamo de libros'
+        ]
     };
+    if (categoria === 'Material Académico') {
+        return subcategoriasAntiguas[categoria].includes(subcategoria);
+    }
     return Object.prototype.hasOwnProperty.call(categorias, categoriaActual) &&
         (categorias[categoriaActual].includes(subcategoria) ||
             subcategoriasAntiguas[categoriaActual]?.includes(subcategoria));
@@ -62,7 +73,7 @@ const crearProducto = async (req, res) => {
                     req.body.descripcion,
 
                 precio:
-                    req.body.precio,
+                    req.body.precio || 0,
 
                 categoria:
                     req.body.categoria,
@@ -71,7 +82,7 @@ const crearProducto = async (req, res) => {
                     req.body.subcategoria,
 
                 whatsapp:
-                    req.body.whatsapp,
+                    '',
 
                 comentario:
                     req.body.comentario,
@@ -286,10 +297,9 @@ const actualizarMiProducto = async (req, res) => {
 
         producto.nombre = req.body.nombre;
         producto.descripcion = req.body.descripcion;
-        producto.precio = req.body.precio;
+        producto.precio = req.body.precio || 0;
         producto.categoria = req.body.categoria;
         producto.subcategoria = req.body.subcategoria;
-        producto.whatsapp = req.body.whatsapp;
         producto.comentario = req.body.comentario;
         producto.sePermutaPor = req.body.sePermutaPor || '';
         producto.detalleCategoria = req.body.detalleCategoria || '';
