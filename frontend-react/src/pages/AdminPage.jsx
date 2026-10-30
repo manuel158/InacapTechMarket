@@ -64,7 +64,7 @@ export default function AdminPage() {
 
   return (
     <SiteLayout>
-      <main className="container mt-4">
+      <main className="container mt-4 admin-dashboard">
         <h1 className="mb-4">Panel Administrador</h1>
         <Feedback error={error} />
         {loading && <p role="status">Cargando panel…</p>}
@@ -72,38 +72,41 @@ export default function AdminPage() {
           <>
             <div className="row g-3 mb-4">
               {[
-                ['Total Usuarios', users.length],
-                ['Publicaciones', products.length],
-                ['Pendientes de revisión', products.filter(product => product.estado === 'pendiente').length],
-                ['Administradores', adminCount],
-                ['Categorías', Object.keys(categoryCounts).length]
-              ].map(([label, value]) => (
+                ['Total Usuarios', users.length, 'purple'],
+                ['Publicaciones', products.length, 'blue'],
+                ['Pendientes de revisión', products.filter(product => product.estado === 'pendiente').length, 'amber'],
+                ['Administradores', adminCount, 'green'],
+                ['Categorías', Object.keys(categoryCounts).length, 'pink']
+              ].map(([label, value, color]) => (
                 <div className="col-6 col-lg-4" key={label}>
-                  <div className="card text-center shadow">
-                    <div className="card-body"><h2 className="h6">{label}</h2><p className="h2 mb-0">{value}</p></div>
+                  <div className={`card admin-stat-card admin-stat-${color} text-center`}>
+                    <div className="card-body">
+                      <h2 className="h6 text-muted mb-0">{label}</h2>
+                      <p className="h2 admin-stat-value mb-0">{value}</p>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-            <section className="card shadow mb-4">
-              <div className="card-header"><h2 className="h4 mb-0">Reporte de Categorías</h2></div>
+            <section className="card admin-section mb-4">
+              <div className="card-header admin-section-header"><h2 className="h4 mb-0">Reporte de Categorías</h2></div>
               <div className="card-body">
                 {Object.entries(categoryCounts).map(([category, count]) => (
-                  <div className="d-flex justify-content-between border-bottom py-2" key={category}>
-                    <strong>{category}</strong><span>{count}</span>
+                  <div className="d-flex justify-content-between align-items-center admin-list-row border-bottom py-2" key={category}>
+                    <strong>{category}</strong><span className="admin-category-count">{count}</span>
                   </div>
                 ))}
                 {!Object.keys(categoryCounts).length && <p className="mb-0">Sin productos registrados.</p>}
               </div>
             </section>
-            <section className="card shadow mb-4">
-              <div className="card-header"><h2 className="h4 mb-0">Usuarios</h2></div>
+            <section className="card admin-section mb-4">
+              <div className="card-header admin-section-header"><h2 className="h4 mb-0">Usuarios</h2></div>
               <div className="card-body">
                 {users.map(user => (
-                  <div className="d-flex justify-content-between align-items-center border-bottom py-2 gap-3" key={user._id}>
+                  <div className="d-flex justify-content-between align-items-center admin-list-row border-bottom py-2 gap-3" key={user._id}>
                     <div>
                       <strong>{user.nombre}</strong><br />
-                      {user.correo}<span className="badge bg-primary ms-2">{user.rol}</span>
+                      {user.correo}<span className="badge admin-user-role ms-2">{user.rol}</span>
                     </div>
                     <button className="btn btn-danger btn-sm" onClick={() => remove(`/api/admin/usuario/${encodeURIComponent(user._id)}`, 'este usuario')}>
                       Eliminar
@@ -113,15 +116,18 @@ export default function AdminPage() {
                 {!users.length && <p className="mb-0">No hay usuarios.</p>}
               </div>
             </section>
-            <section className="card shadow">
-              <div className="card-header"><h2 className="h4 mb-0">Publicaciones</h2></div>
+            <section className="card admin-section">
+              <div className="card-header admin-section-header"><h2 className="h4 mb-0">Publicaciones</h2></div>
               <div className="card-body">
                 {products.map(product => (
-                  <div className="d-flex justify-content-between align-items-center border-bottom py-2 gap-3" key={product._id}>
+                  <div className="d-flex justify-content-between align-items-center admin-list-row border-bottom py-2 gap-3" key={product._id}>
                     <div>
                       <strong>{product.nombre}</strong>
-                      <div className="small text-muted">
-                        {product.categoria} · {product.estado || 'aprobada'}
+                      <div className="small text-muted d-flex align-items-center gap-2 mt-1">
+                        {product.categoria}
+                        <span className={`badge admin-product-status status-${product.estado || 'aprobada'}`}>
+                          {product.estado || 'Aprobada'}
+                        </span>
                       </div>
                       {product.estado === 'rechazada' && product.motivoRechazo && (
                         <div className="small text-danger">Motivo: {product.motivoRechazo}</div>
