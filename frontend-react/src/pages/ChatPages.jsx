@@ -24,6 +24,7 @@ export function ConversationsPage() {
   const [conversations, setConversations] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState('');
 
   useEffect(() => {
     apiRequest('/api/chat/conversaciones')
@@ -32,10 +33,29 @@ export function ConversationsPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  async function deleteConversation(conversationId) {
+    if (!window.confirm(
+      '¿Eliminar esta conversación de tu lista? La otra persona conservará la conversación y su historial.'
+    )) return;
+
+    setDeletingId(conversationId);
+    setError('');
+    try {
+      await apiRequest(`/api/chat/conversaciones/${encodeURIComponent(conversationId)}`, {
+        method: 'DELETE'
+      });
+      setConversations(current => current.filter(item => item._id !== conversationId));
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setDeletingId('');
+    }
+  }
+
   return (
     <SiteLayout>
       <main className="container py-4">
-        <h1 className="mb-4">Mis mensajes</h1>
+        <h1 className="mb-4">Mis conversaciones</h1>
         {loading && <p role="status">Cargando conversaciones…</p>}
         <Feedback error={error} />
         {!loading && !error && !conversations.length && (
@@ -46,24 +66,36 @@ export function ConversationsPage() {
             const participant = otherParticipant(conversation, user.id);
             const lastMessage = conversation.lastMessage;
             return (
-              <Link
-                className="list-group-item list-group-item-action py-3"
-                key={conversation._id}
-                to={`/mensajes/${conversation._id}`}
-              >
-                <div className="d-flex justify-content-between gap-3">
-                  <div>
-                    <strong>{participant?.nombre || 'Usuario'}</strong>
-                    <div>{conversation.publication?.nombre || 'Publicación eliminada'}</div>
-                    <small className="text-muted">
-                      {lastMessage?.text || 'Inicia la conversación'}
-                    </small>
-                  </div>
-                  <small className="text-muted text-nowrap">
-                    {new Date(conversation.updatedAt).toLocaleDateString('es-CL')}
-                  </small>
+              <div className="list-group-item py-3" key={conversation._id}>
+                <div className="d-flex align-items-center gap-3">
+                  <Link
+                    className="flex-grow-1 text-decoration-none text-reset"
+                    to={`/mensajes/${conversation._id}`}
+                  >
+                    <div className="d-flex justify-content-between gap-3">
+                      <div>
+                        <strong>{participant?.nombre || 'Usuario'}</strong>
+                        <div>{conversation.publication?.nombre || 'Publicación eliminada'}</div>
+                        <small className="text-muted">
+                          {lastMessage?.text || 'Inicia la conversación'}
+                        </small>
+                      </div>
+                      <small className="text-muted text-nowrap">
+                        {new Date(conversation.updatedAt).toLocaleDateString('es-CL')}
+                      </small>
+                    </div>
+                  </Link>
+                  <button
+                    className="btn btn-outline-danger btn-sm text-nowrap"
+                    type="button"
+                    disabled={deletingId === conversation._id}
+                    onClick={() => deleteConversation(conversation._id)}
+                    aria-label={`Eliminar conversación con ${participant?.nombre || 'Usuario'}`}
+                  >
+                    {deletingId === conversation._id ? 'Eliminando…' : 'Eliminar'}
+                  </button>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>
@@ -191,7 +223,7 @@ export function ConversationPage() {
   return (
     <SiteLayout>
       <main className="container py-4">
-        <Link to="/mensajes" className="text-decoration-none">← Volver a mis mensajes</Link>
+        <Link to="/mensajes" className="text-decoration-none">← Volver a mis conversaciones</Link>
         {conversation && (
           <section className="card shadow-sm mt-3 chat-panel">
             <header className="card-header d-flex justify-content-between align-items-center gap-3">

@@ -2,6 +2,7 @@ const express = require('express');
 const protegerRuta = require('../middlewares/authMiddleware');
 const {
     listarConversaciones,
+    eliminarConversacion,
     obtenerNoLeidos,
     iniciarConversacion,
     obtenerConversacion
@@ -12,6 +13,7 @@ const router = express.Router();
 router.use(protegerRuta);
 router.get('/no-leidos', obtenerNoLeidos);
 router.get('/conversaciones', listarConversaciones);
+router.delete('/conversaciones/:conversacionId', eliminarConversacion);
 router.post('/publicaciones/:publicacionId/conversacion', iniciarConversacion);
 router.get('/conversaciones/:conversacionId', obtenerConversacion);
 

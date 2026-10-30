@@ -78,7 +78,7 @@ export function SiteLayout({ children }) {
               <NavLink className="nav-link" to="/productos">Publicaciones</NavLink>
               {user && (
                 <NavLink className="nav-link" to="/mensajes">
-                  Mensajes
+                  Conversaciones
                   {unreadCount > 0 && (
                     <span className="badge rounded-pill bg-danger ms-2" aria-label={`${unreadCount} mensajes sin leer`}>
                       {unreadCount > 99 ? '99+' : unreadCount}

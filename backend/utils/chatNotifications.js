@@ -9,7 +9,8 @@ async function obtenerCantidadNoLeidos(usuarioId) {
         $or: [
             { seller: usuarioId },
             { interested: usuarioId }
-        ]
+        ],
+        hiddenFor: { $ne: usuarioId }
     })
         .select('seller sellerUnreadCount interestedUnreadCount')
         .lean();

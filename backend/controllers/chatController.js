@@ -23,7 +23,12 @@ function participantes(usuarioId) {
 const listarConversaciones = async (req, res) => {
     try {
         const conversaciones = await Conversacion.find(
-            participantes(req.usuario._id)
+            {
+                $and: [
+                    participantes(req.usuario._id),
+                    { hiddenFor: { $ne: req.usuario._id } }
+                ]
+            }
         )
             .populate(populateConversacion)
             .sort({ updatedAt: -1 });
@@ -33,6 +38,60 @@ const listarConversaciones = async (req, res) => {
         console.error('Error al listar conversaciones:', error);
         return res.status(500).json({
             mensaje: 'No se pudieron cargar las conversaciones'
+        });
+    }
+};
+
+const eliminarConversacion = async (req, res) => {
+    try {
+        const { conversacionId } = req.params;
+        if (!mongoose.isValidObjectId(conversacionId)) {
+            return res.status(400).json({
+                mensaje: 'La conversación no es válida'
+            });
+        }
+
+        const usuarioId = req.usuario._id;
+        const conversacion = await Conversacion.findOne({
+            _id: conversacionId,
+            ...participantes(usuarioId)
+        }).select('seller');
+        if (!conversacion) {
+            return res.status(404).json({
+                mensaje: 'No se encontró la conversación'
+            });
+        }
+
+        const unreadField = conversacion.seller.toString() === usuarioId.toString()
+            ? 'sellerUnreadCount'
+            : 'interestedUnreadCount';
+        const actualizacion = await Conversacion.updateOne(
+            {
+                _id: conversacionId,
+                ...participantes(usuarioId)
+            },
+            {
+                $addToSet: { hiddenFor: usuarioId },
+                $set: { [unreadField]: 0 }
+            }
+        );
+
+        if (!actualizacion.matchedCount) {
+            return res.status(404).json({
+                mensaje: 'No se encontró la conversación'
+            });
+        }
+
+        const count = await obtenerCantidadNoLeidos(usuarioId);
+        const io = req.app.get('io');
+        if (io) {
+            io.to(`usuario:${usuarioId}`).emit('chat:unread-count', { count });
+        }
+        return res.json({ mensaje: 'Conversación eliminada de tu lista' });
+    } catch (error) {
+        console.error('Error al eliminar conversación de la lista:', error);
+        return res.status(500).json({
+            mensaje: 'No se pudo eliminar la conversación'
         });
     }
 };
@@ -150,6 +209,7 @@ const obtenerConversacion = async (req, res) => {
 
 module.exports = {
     listarConversaciones,
+    eliminarConversacion,
     obtenerNoLeidos,
     iniciarConversacion,
     obtenerConversacion

@@ -26,6 +26,10 @@ const conversacionSchema = new mongoose.Schema({
         default: 0,
         min: 0
     },
+    hiddenFor: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Usuario'
+    }],
     firstMessageEmailClaimed: {
         type: Boolean,
         default: false

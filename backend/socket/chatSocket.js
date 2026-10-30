@@ -159,7 +159,8 @@ function inicializarChat(io) {
                         },
                         updatedAt: mensaje.createdAt
                     },
-                    $inc: { [campoNoLeidos]: 1 }
+                    $inc: { [campoNoLeidos]: 1 },
+                    $pull: { hiddenFor: { $in: [socket.data.usuarioId, destinatarioId] } }
                 });
 
                 io.to(conversacionId).emit('chat:message', {
