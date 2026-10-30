@@ -4,6 +4,16 @@ import { io } from 'socket.io-client';
 import { useAuth } from '../app/AuthContext.jsx';
 import { apiRequest } from '../services/api.js';
 
+function SiteBrand() {
+  return (
+    <span className="brand-name">
+      <span>Inacap</span>
+      <span className="brand-tech">Tech</span>
+      <span className="brand-market">Market</span>
+    </span>
+  );
+}
+
 export function SiteLayout({ children }) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -60,7 +70,7 @@ export function SiteLayout({ children }) {
       <nav className="navbar navbar-expand-lg navbar-dark navbar-inacap shadow">
         <div className="container">
           <Link className="navbar-brand fw-bold" to="/">
-            InacapTechMarket
+            <SiteBrand />
           </Link>
           <button
             className="navbar-toggler"
@@ -112,7 +122,7 @@ export function SiteLayout({ children }) {
       {children ?? <Outlet />}
       <footer className="footer-inacap">
         <div className="container">
-          <h2 className="h5">InacapTechMarket</h2>
+          <h2 className="h5"><SiteBrand /></h2>
           <p className="mb-0">Marketplace de la comunidad educativa.</p>
           <small>Valdivia, Chile · © 2026</small>
         </div>
@@ -126,7 +136,7 @@ export function AuthLayout({ children }) {
     <div className="min-vh-100 d-flex flex-column">
       <nav className="navbar navbar-dark navbar-inacap shadow">
         <div className="container">
-          <Link className="navbar-brand fw-bold" to="/">InacapTechMarket</Link>
+          <Link className="navbar-brand fw-bold" to="/"><SiteBrand /></Link>
           <Link className="nav-link text-white" to="/productos">Publicaciones</Link>
         </div>
       </nav>

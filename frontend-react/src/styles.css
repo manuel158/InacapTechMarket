@@ -75,7 +75,28 @@ main {
 }
 
 .navbar-brand {
-  font-size: 1.8rem;
+  font-size: 1.45rem;
+}
+
+.brand-name {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+  color: #fff;
+  letter-spacing: -0.045em;
+}
+
+.brand-tech {
+  color: #f04452;
+}
+
+.brand-market {
+  margin-left: 0.08em;
+  padding: 0.02em 0.18em 0.08em;
+  border-radius: 0.18em;
+  background: #111;
+  color: #fff;
+  letter-spacing: -0.04em;
 }
 
 h1 {
@@ -355,6 +376,230 @@ h1 {
 .admin-product-status.status-pausada {
   background: #eaf0f8;
   color: #445a78;
+}
+
+.admin-report-controls .card-body {
+  display: block;
+}
+
+.admin-report-print {
+  display: none;
+}
+
+.admin-report-header {
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: linear-gradient(115deg, #35216f, #5b3cc4 66%, #bd3344);
+  color: #fff;
+}
+
+.admin-report-brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.12rem;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  font-weight: 750;
+  letter-spacing: -0.04em;
+}
+
+.admin-report-brand strong {
+  color: #ff6570;
+}
+
+.admin-report-brand b {
+  padding: 0 0.25rem 0.05rem;
+  border-radius: 0.2rem;
+  background: #111;
+  color: #fff;
+}
+
+.admin-report-header p {
+  margin-bottom: 0.35rem;
+  color: rgb(255 255 255 / 78%);
+}
+
+.admin-report-header h1 {
+  margin-bottom: 0.75rem;
+  font-size: 1.8rem;
+}
+
+.admin-report-period {
+  display: inline-block;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid rgb(255 255 255 / 35%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  font-size: 0.9rem;
+}
+
+.admin-report-section {
+  margin-top: 1.25rem;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid var(--color-borde);
+  border-radius: 0.9rem;
+  background: #fff;
+}
+
+.admin-report-section h2 {
+  margin-bottom: 0.35rem;
+  color: var(--color-secundario);
+  font-size: 1.1rem;
+}
+
+.admin-report-intro,
+.admin-report-note {
+  color: #626176;
+  font-size: 0.82rem;
+}
+
+.admin-report-bar-row + .admin-report-bar-row {
+  margin-top: 0.8rem;
+}
+
+.admin-report-track {
+  height: 0.6rem;
+  margin-top: 0.25rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #eeeef4;
+}
+
+.admin-report-fill {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  border-radius: inherit;
+}
+
+.admin-report-fill.purple {
+  background: linear-gradient(90deg, #5b3cc4, #a18be9);
+}
+
+.admin-report-fill.blue {
+  background: linear-gradient(90deg, #2471a3, #66b2d8);
+}
+
+.admin-report-fill.green {
+  background: linear-gradient(90deg, #21865b, #5ac58d);
+}
+
+.admin-report-fill.amber {
+  background: linear-gradient(90deg, #b66a12, #f3bb52);
+}
+
+.admin-report-fill.red {
+  background: linear-gradient(90deg, #b63242, #ef7882);
+}
+
+.admin-report-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin: 0.8rem 0;
+}
+
+.admin-report-review-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem 0.9rem;
+  border-left: 4px solid currentColor;
+  border-radius: 0.5rem;
+  background: #f7f7fa;
+}
+
+.admin-report-review-card.green {
+  color: #21865b;
+  background: #eaf7f0;
+}
+
+.admin-report-review-card.red {
+  color: #b63242;
+  background: #fff0f1;
+}
+
+.admin-report-review-card strong {
+  font-size: 1.5rem;
+}
+
+.admin-report-review-card small {
+  color: #626176;
+}
+
+.admin-report-note {
+  margin-bottom: 0;
+}
+
+.admin-report-footer {
+  margin-top: 1rem;
+  color: #626176;
+  font-size: 0.75rem;
+  text-align: right;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body.printing-admin-report {
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body.printing-admin-report > #root > * {
+    visibility: hidden !important;
+  }
+
+  body.printing-admin-report .admin-report-print,
+  body.printing-admin-report .admin-report-print * {
+    visibility: visible !important;
+  }
+
+  body.printing-admin-report .admin-report-print {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    color: #25233a;
+    font-family: Arial, sans-serif;
+    font-size: 10pt;
+  }
+
+  body.printing-admin-report .admin-report-header {
+    padding: 1rem 1.2rem;
+    border-radius: 0.6rem;
+  }
+
+  body.printing-admin-report .admin-report-header h1 {
+    font-size: 20pt;
+  }
+
+  body.printing-admin-report .admin-report-section {
+    margin-top: 0.7rem;
+    padding: 0.75rem 0.9rem;
+    break-inside: avoid;
+  }
+
+  body.printing-admin-report .admin-report-section h2 {
+    font-size: 12pt;
+  }
+
+  body.printing-admin-report .admin-report-intro,
+  body.printing-admin-report .admin-report-note {
+    font-size: 8pt;
+  }
+
+  body.printing-admin-report .admin-report-bar-row + .admin-report-bar-row {
+    margin-top: 0.55rem;
+  }
+
+  body.printing-admin-report .admin-report-review-grid {
+    margin: 0.5rem 0;
+  }
 }
 
 @media (max-width: 576px) {
