@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { useAuth } from '../app/AuthContext.jsx';
 import { apiRequest } from '../services/api.js';
@@ -53,6 +53,7 @@ function SiteFooter({ user }) {
 
 export function SiteLayout({ children }) {
   const { user, signOut } = useAuth();
+  const { pathname } = useLocation();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadError, setUnreadError] = useState('');
@@ -122,7 +123,9 @@ export function SiteLayout({ children }) {
           </button>
           <div className="collapse navbar-collapse" id="reactNavbar">
             <div className="navbar-nav me-auto">
-              <NavLink className="nav-link" to="/productos">Publicaciones</NavLink>
+              {pathname !== '/' && (
+                <NavLink className="nav-link" to="/productos">Publicaciones</NavLink>
+              )}
               {user && (
                 <NavLink className="nav-link" to="/mensajes">
                   Conversaciones
