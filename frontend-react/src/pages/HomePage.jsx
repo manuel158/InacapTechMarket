@@ -49,6 +49,8 @@ const categoryDescriptions = {
   'Comunidad y Recreación': 'Organiza actividades y conecta con la comunidad.'
 };
 
+const androidReleaseUrl = 'https://github.com/manuel158/InacapTechMarket/releases/latest/download/InacapTechMarket.apk';
+
 export default function HomePage() {
   const { user } = useAuth();
   const [products, setProducts] = useState([]);
@@ -150,6 +152,20 @@ export default function HomePage() {
             <span className="home-shortcut-icon" aria-hidden="true">↗</span>
             Ver oportunidades
           </Link>
+        </section>
+
+        <section className="container home-app-download" aria-label="Aplicación para Android">
+          <div className="home-app-download-copy">
+            <span className="home-app-download-icon" aria-hidden="true">↓</span>
+            <div>
+              <p className="home-eyebrow home-eyebrow-light">Disponible para Android</p>
+              <h2>InacapTechMarket en tu teléfono</h2>
+              <p>Inicia sesión con las mismas credenciales del sitio.</p>
+            </div>
+          </div>
+          <a className="btn btn-primary" href={androidReleaseUrl}>
+            Descargar APK
+          </a>
         </section>
 
         <section className="container home-section home-listings">

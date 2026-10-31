@@ -143,11 +143,13 @@ try {
         Pop-Location
     }
 
-    $apkPath = Join-Path $frontendRoot 'android\app\build\outputs\apk\release\app-release.apk'
-    if (-not (Test-Path $apkPath)) {
-        throw "The release build completed but the APK was not found: $apkPath"
+    $buildApkPath = Join-Path $frontendRoot 'android\app\build\outputs\apk\release\app-release.apk'
+    if (-not (Test-Path $buildApkPath)) {
+        throw "The release build completed but the APK was not found: $buildApkPath"
     }
 
+    $apkPath = Join-Path (Split-Path -Parent $buildApkPath) 'InacapTechMarket.apk'
+    Copy-Item -LiteralPath $buildApkPath -Destination $apkPath -Force
     $apksigner = Join-Path $sdkRoot 'build-tools\36.0.0\apksigner.bat'
     if (-not (Test-Path $apksigner)) {
         throw "Android APK signer was not found: $apksigner"

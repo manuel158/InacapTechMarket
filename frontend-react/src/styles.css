@@ -927,6 +927,63 @@ h1 {
   background: var(--color-principal);
 }
 
+.home-app-download {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  padding: 1.35rem 1.5rem;
+  border: 1px solid #e8e2f6;
+  border-radius: 1rem;
+  background: linear-gradient(110deg, #f5f2ff, #fff 78%);
+  box-shadow: 0 4px 16px rgb(37 35 58 / 5%);
+}
+
+.home-app-download-copy {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 1rem;
+}
+
+.home-app-download-icon {
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 1rem;
+  background: #e8e1fb;
+  color: var(--color-secundario);
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.home-app-download-copy .home-eyebrow {
+  margin-bottom: 0.25rem;
+  color: var(--color-principal);
+}
+
+.home-app-download-copy h2 {
+  margin-bottom: 0.3rem;
+  color: var(--color-secundario);
+  font-size: clamp(1.15rem, 2.5vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+.home-app-download-copy p:last-child {
+  margin-bottom: 0;
+  color: #686777;
+}
+
+.home-app-download > .btn {
+  flex: 0 0 auto;
+  padding: 0.75rem 1.1rem;
+}
+
 .home-shortcuts {
   display: flex;
   min-height: 120px;
@@ -1267,6 +1324,15 @@ h1 {
   .home-shortcuts a {
     max-width: 115px;
     font-size: 0.78rem;
+  }
+
+  .home-app-download {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .home-app-download > .btn {
+    width: 100%;
   }
 
   .home-section {
