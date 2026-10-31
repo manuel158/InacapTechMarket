@@ -99,7 +99,7 @@ export default function HomePage() {
                 </Link>
               </div>
             </div>
-            <div className="home-hero-visual">
+            <div className={`home-hero-visual ${activeSlide === 1 ? 'home-hero-visual-pets' : ''}`}>
               <img src={featuredSlide.image} alt={featuredSlide.alt} />
             </div>
           </div>

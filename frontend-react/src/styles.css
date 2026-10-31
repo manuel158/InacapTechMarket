@@ -805,6 +805,14 @@ h1 {
   object-fit: cover;
 }
 
+.home-hero-visual-pets {
+  background: #7fd4d2;
+}
+
+.home-hero-visual-pets > img {
+  object-fit: contain;
+}
+
 .home-carousel-controls {
   background: #fff;
   color: var(--color-secundario);
