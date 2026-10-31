@@ -1,3 +1,5 @@
+import { apiUrl } from './platform.js';
+
 export async function apiRequest(path, options = {}) {
   const token = localStorage.getItem('token');
   const headers = new Headers(options.headers);
@@ -10,7 +12,7 @@ export async function apiRequest(path, options = {}) {
     headers.set('Content-Type', 'application/json');
   }
 
-  const response = await fetch(path, { ...options, headers });
+  const response = await fetch(apiUrl(path), { ...options, headers });
   const contentType = response.headers.get('content-type') || '';
   const data = contentType.includes('application/json')
     ? await response.json()

@@ -4,6 +4,7 @@ import { io } from 'socket.io-client';
 import { useAuth } from '../app/AuthContext.jsx';
 import { Feedback, SiteLayout } from '../components/SiteLayout.jsx';
 import { apiRequest } from '../services/api.js';
+import { socketUrl } from '../services/platform.js';
 
 function mergeMessages(current, incoming) {
   const messages = new Map(current.map(message => [message._id, message]));
@@ -124,7 +125,7 @@ export function ConversationPage() {
     setError('');
     setLoading(true);
 
-    const socket = io({
+    const socket = io(socketUrl(), {
       auth: { token: localStorage.getItem('token') }
     });
     socketRef.current = socket;

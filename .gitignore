@@ -1,4 +1,5 @@
 node_modules/
 frontend-react/dist/
+frontend-react/android/.gradle/
 backend/node_modules/
 backend/.env

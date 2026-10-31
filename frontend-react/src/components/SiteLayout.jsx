@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import { io } from 'socket.io-client';
 import { useAuth } from '../app/AuthContext.jsx';
 import { apiRequest } from '../services/api.js';
+import { socketUrl } from '../services/platform.js';
 
 function SiteBrand() {
   return (
@@ -67,7 +68,7 @@ export function SiteLayout({ children }) {
 
     let active = true;
     let receivedLiveCount = false;
-    const socket = io({
+    const socket = io(socketUrl(), {
       auth: { token: localStorage.getItem('token') }
     });
 

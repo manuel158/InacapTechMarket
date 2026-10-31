@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { apiDelete, apiPost, apiRequest, formatPrice } from '../services/api.js';
 import { useAuth } from '../app/AuthContext.jsx';
 import { Feedback, SiteLayout } from '../components/SiteLayout.jsx';
+import { apiUrl } from '../services/platform.js';
 import {
   categoryNames,
   categorySubcategories,
@@ -578,16 +579,15 @@ export function ProductFormPage() {
     const formElement = event.currentTarget;
     const formData = new FormData(formElement);
     try {
-      const response = await fetch(
+      const response = await fetch(apiUrl(
         editing
           ? `/api/productos/mis-publicaciones/${encodeURIComponent(id)}`
-          : '/api/productos',
-        {
+          : '/api/productos'
+      ), {
           method: editing ? 'PUT' : 'POST',
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-          body: formData
-        }
-      );
+        body: formData
+      });
       const data = await response.json();
       if (!response.ok) throw new Error(data.mensaje || `Error del servidor (${response.status})`);
       setSuccess(editing

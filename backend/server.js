@@ -17,10 +17,26 @@ const path = require('path');
 const mongoose = require('mongoose');
 const { Server } = require('socket.io');
 const inicializarChat = require('./socket/chatSocket');
+const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const allowedOrigins = [
+    'https://inacaptechmarket.onrender.com',
+    'capacitor://localhost',
+    'http://localhost',
+    'https://localhost',
+    ...(process.env.FRONTEND_URL
+        ? [process.env.FRONTEND_URL.replace(/\/+$/, '')]
+        : [])
+];
+const corsMethods = ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'];
+const io = new Server(server, {
+    cors: {
+        origin: allowedOrigins,
+        methods: corsMethods
+    }
+});
 
 app.set('io', io);
 inicializarChat(io);
@@ -37,6 +53,16 @@ mongoose.connect(process.env.MONGO_URI)
 });
 
 const frontendDist = path.join(__dirname, '../frontend-react/dist');
+app.use(cors({
+    origin(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error('Origen no permitido por CORS'));
+    },
+    methods: corsMethods,
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.static(frontendDist));
 app.use(express.json());
 
