@@ -327,12 +327,12 @@ export default function AdminPage() {
               <div className="card-header admin-section-header"><h2 className="h4 mb-0">Usuarios</h2></div>
               <div className="card-body">
                 {users.map(user => (
-                  <div className="d-flex justify-content-between align-items-center admin-list-row border-bottom py-2 gap-3" key={user._id}>
-                    <div>
+                  <div className="d-flex justify-content-between align-items-center admin-user-row admin-list-row border-bottom py-2 gap-3" key={user._id}>
+                    <div className="admin-user-details">
                       <strong>{user.nombre}</strong><br />
                       {user.correo}<span className="badge admin-user-role ms-2">{user.rol}</span>
                     </div>
-                    <button className="btn btn-danger btn-sm" onClick={() => remove(`/api/admin/usuario/${encodeURIComponent(user._id)}`, 'este usuario')}>
+                    <button className="btn btn-danger btn-sm admin-user-delete" onClick={() => remove(`/api/admin/usuario/${encodeURIComponent(user._id)}`, 'este usuario')}>
                       Eliminar
                     </button>
                   </div>
@@ -344,10 +344,10 @@ export default function AdminPage() {
               <div className="card-header admin-section-header"><h2 className="h4 mb-0">Publicaciones</h2></div>
               <div className="card-body">
                 {products.map(product => (
-                  <div className="d-flex justify-content-between align-items-center admin-list-row border-bottom py-2 gap-3" key={product._id}>
-                    <div>
+                  <div className="d-flex justify-content-between align-items-center admin-product-row admin-list-row border-bottom py-2 gap-3" key={product._id}>
+                    <div className="admin-product-details">
                       <strong>{product.nombre}</strong>
-                      <div className="small text-muted d-flex align-items-center gap-2 mt-1">
+                      <div className="small text-muted d-flex align-items-center gap-2 mt-1 admin-product-meta">
                         {product.categoria}
                         <span className={`badge admin-product-status status-${product.estado || 'aprobada'}`}>
                           {product.estado || 'Aprobada'}
@@ -357,7 +357,7 @@ export default function AdminPage() {
                         <div className="small text-danger">Motivo: {product.motivoRechazo}</div>
                       )}
                     </div>
-                    <div className="d-flex gap-2">
+                    <div className="admin-product-actions">
                       <Link className="btn btn-outline-primary btn-sm" to={`/productos/${product._id}?origen=admin`}>
                         Ver publicación
                       </Link>
