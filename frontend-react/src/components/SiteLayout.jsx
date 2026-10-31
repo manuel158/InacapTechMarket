@@ -14,6 +14,43 @@ function SiteBrand() {
   );
 }
 
+function SiteFooter({ user }) {
+  return (
+    <footer className="footer-inacap">
+      <div className="container footer-inacap-content">
+        <div className="footer-inacap-about">
+          <Link className="navbar-brand fw-bold" to="/">
+            <SiteBrand />
+          </Link>
+          <p>
+            Un espacio para compartir, intercambiar y conectar con la comunidad educativa.
+          </p>
+          <small>Hecho para la comunidad INACAP · Valdivia, Chile</small>
+        </div>
+        <nav className="footer-inacap-links" aria-label="Enlaces del pie de página">
+          <div>
+            <h2>Explora</h2>
+            <Link to="/productos">Publicaciones</Link>
+            <Link to="/terminos">Términos y condiciones</Link>
+          </div>
+          <div>
+            <h2>Participa</h2>
+            {user && <Link to="/mensajes">Conversaciones</Link>}
+            <Link to={user ? '/publicar' : '/registro'}>
+              {user ? 'Crear publicación' : 'Crear una cuenta'}
+            </Link>
+            {!user && <Link to="/login">Iniciar sesión</Link>}
+          </div>
+        </nav>
+        <div className="footer-inacap-bottom">
+          <span>© {new Date().getFullYear()} InacapTechMarket</span>
+          <Link to="/terminos">Uso responsable de la plataforma</Link>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 export function SiteLayout({ children }) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -66,7 +103,7 @@ export function SiteLayout({ children }) {
   }
 
   return (
-    <>
+    <div className="site-layout">
       <nav className="navbar navbar-expand-lg navbar-dark navbar-inacap shadow">
         <div className="container">
           <Link className="navbar-brand fw-bold" to="/">
@@ -120,20 +157,16 @@ export function SiteLayout({ children }) {
         </div>
       </nav>
       {children ?? <Outlet />}
-      <footer className="footer-inacap">
-        <div className="container">
-          <h2 className="h5"><SiteBrand /></h2>
-          <p className="mb-0">Marketplace de la comunidad educativa.</p>
-          <small>Valdivia, Chile · © 2026</small>
-        </div>
-      </footer>
-    </>
+      <SiteFooter user={user} />
+    </div>
   );
 }
 
 export function AuthLayout({ children }) {
+  const { user } = useAuth();
+
   return (
-    <div className="min-vh-100 d-flex flex-column">
+    <div className="site-layout">
       <nav className="navbar navbar-dark navbar-inacap shadow">
         <div className="container">
           <Link className="navbar-brand fw-bold" to="/"><SiteBrand /></Link>
@@ -141,9 +174,7 @@ export function AuthLayout({ children }) {
         </div>
       </nav>
       <main className="container flex-grow-1 py-5">{children}</main>
-      <footer className="bg-dark text-white py-4 mt-auto">
-        <div className="container">Marketplace de la comunidad educativa · Valdivia, Chile</div>
-      </footer>
+      <SiteFooter user={user} />
     </div>
   );
 }

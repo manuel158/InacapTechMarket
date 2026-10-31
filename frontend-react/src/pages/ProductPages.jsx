@@ -4,9 +4,9 @@ import { apiDelete, apiPost, apiRequest, formatPrice } from '../services/api.js'
 import { useAuth } from '../app/AuthContext.jsx';
 import { Feedback, SiteLayout } from '../components/SiteLayout.jsx';
 import {
-  categoryDetails,
   categoryNames,
   categorySubcategories,
+  getCategoryDetails,
   getProductCategory
 } from '../utils/categories.js';
 
@@ -18,12 +18,33 @@ function productImages(product) {
   return product.imagenes?.length ? product.imagenes : [product.imagen].filter(Boolean);
 }
 
-function showsEstimatedValue(category) {
+function showsEstimatedValue(category, subcategory) {
   return ![
     'Comunidad y Recreación',
     'Avisos y Oportunidades',
-    'Objetos Perdidos y Encontrados'
-  ].includes(category);
+    'Objetos Perdidos y Encontrados',
+    'Todo mascotas'
+  ].includes(category) &&
+    !(category === 'Servicios Estudiantiles' &&
+      subcategory === 'Difusión de emprendimientos');
+}
+
+function descriptionPlaceholder(category, subcategory) {
+  const placeholders = {
+    'Todo mascotas': {
+      'Mascotas en adopción': 'Describe su personalidad, rutina, salud y condiciones que buscas para su nuevo hogar.',
+      'Busco adoptar una mascota': 'Cuéntanos qué mascota buscas y cómo será el hogar y cuidado que puedes ofrecer.'
+    },
+    'Servicios Estudiantiles': {
+      'Paseador de perros': 'Describe tu experiencia, cómo organizas los paseos y qué cuidados ofreces.',
+      'Difusión de emprendimientos': 'Describe tu emprendimiento, el público al que quieres llegar y el tipo de difusión que buscas.'
+    }
+  };
+
+  return placeholders[category]?.[subcategory] ||
+    (category === 'Trueques'
+      ? 'Describe lo que ofreces y las condiciones de la permuta.'
+      : 'Describe tu publicación.');
 }
 
 function publicationStatus(product) {
@@ -290,6 +311,9 @@ export function ProductDetailPage() {
     (product.estado === 'aprobada' || product.estado === undefined);
   const images = product ? productImages(product) : [];
   const productCategory = product ? getProductCategory(product) : null;
+  const productDetails = product
+    ? getCategoryDetails(productCategory.categoria, productCategory.subcategoria)
+    : null;
 
   async function startChat() {
     setChatError('');
@@ -363,7 +387,7 @@ export function ProductDetailPage() {
                       Se permuta por: {product.sePermutaPor}
                     </p>
                   )}
-                  {showsEstimatedValue(productCategory.categoria) &&
+                  {showsEstimatedValue(productCategory.categoria, productCategory.subcategoria) &&
                     product.precio !== undefined && product.precio !== null && (
                     <small className="text-muted d-block mb-3">
                       Producto / Servicio evaluado en: {formatListingPrice(product.precio)}
@@ -373,7 +397,7 @@ export function ProductDetailPage() {
                   <p className="text-muted">{product.descripcion}</p>
                   {product.detalleCategoria && (
                     <>
-                      <h2 className="h5">{categoryDetails[productCategory.categoria]?.label || 'Detalles'}</h2>
+                      <h2 className="h5">{productDetails?.label || 'Detalles'}</h2>
                       <p className="text-muted">{product.detalleCategoria}</p>
                     </>
                   )}
@@ -507,6 +531,7 @@ export function ProductFormPage() {
     comentario: ''
   });
   const validSubcategories = categorySubcategories[values.categoria] || [];
+  const formDetails = getCategoryDetails(values.categoria, values.subcategoria);
   const formSubcategories = editing && values.subcategoria &&
     !validSubcategories.includes(values.subcategoria)
     ? [...validSubcategories, values.subcategoria]
@@ -654,13 +679,11 @@ export function ProductFormPage() {
                         rows="4"
                         value={values.descripcion}
                         onChange={update}
-                        placeholder={values.categoria === 'Trueques'
-                          ? 'Describe lo que ofreces y las condiciones de la permuta.'
-                          : 'Describe tu publicación.'}
+                        placeholder={descriptionPlaceholder(values.categoria, values.subcategoria)}
                         required
                       />
                     </div>
-                    {showsEstimatedValue(values.categoria) && (
+                    {showsEstimatedValue(values.categoria, values.subcategoria) && (
                       <div className="mb-3">
                         <label className="form-label" htmlFor="product-price">
                           Producto / Servicio evaluado en:
@@ -669,10 +692,10 @@ export function ProductFormPage() {
                         <div className="form-text">Valor referencial; no se mostrará en el aviso.</div>
                       </div>
                     )}
-                    {categoryDetails[values.categoria] && (
+                    {formDetails && (
                       <div className="mb-3">
                         <label className="form-label" htmlFor="product-category-details">
-                          {categoryDetails[values.categoria].label}
+                          {formDetails.label}
                         </label>
                         <textarea
                           className="form-control"
@@ -681,7 +704,7 @@ export function ProductFormPage() {
                           rows="3"
                           value={values.detalleCategoria}
                           onChange={update}
-                          placeholder={categoryDetails[values.categoria].placeholder}
+                          placeholder={formDetails.placeholder}
                         />
                       </div>
                     )}

@@ -197,15 +197,87 @@ h1 {
   padding: 10px;
 }
 
-.footer-inacap {
-  background: #211744;
-  color: #fff;
-  padding: 30px 0;
-  margin-top: 60px;
+.site-layout {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
 }
 
-.footer-inacap h5 {
+.site-layout > main {
+  flex: 1 0 auto;
+}
+
+.footer-inacap {
+  margin-top: auto;
+  padding: 3rem 0 1.25rem;
+  background: #211744;
+  color: #fff;
+}
+
+.footer-inacap-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  gap: 2rem 4rem;
+}
+
+.footer-inacap-about .navbar-brand {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
+
+.footer-inacap-about p {
+  max-width: 28rem;
+  margin-bottom: 0.75rem;
+  color: rgb(255 255 255 / 78%);
+  line-height: 1.6;
+}
+
+.footer-inacap-about small {
+  color: rgb(255 255 255 / 62%);
+}
+
+.footer-inacap-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.footer-inacap-links > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+
+.footer-inacap-links h2 {
+  margin-bottom: 0.2rem;
+  color: #fff;
+  font-size: 0.95rem;
   font-weight: 700;
+}
+
+.footer-inacap-links a,
+.footer-inacap-bottom a {
+  color: rgb(255 255 255 / 76%);
+  font-size: 0.88rem;
+  text-decoration: none;
+}
+
+.footer-inacap-links a:hover,
+.footer-inacap-bottom a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.footer-inacap-bottom {
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgb(255 255 255 / 18%);
+  color: rgb(255 255 255 / 62%);
+  font-size: 0.82rem;
 }
 
 .botonVerDetalleProductos {
@@ -1266,6 +1338,27 @@ h1 {
 
   .home-hero-visual {
     min-height: 220px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .footer-inacap {
+    padding-top: 2.25rem;
+  }
+
+  .footer-inacap-content {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+
+  .footer-inacap-bottom {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-inacap-bottom {
+    flex-direction: column;
   }
 }
 

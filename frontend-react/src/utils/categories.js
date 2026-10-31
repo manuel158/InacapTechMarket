@@ -43,6 +43,33 @@ export const categoryDetails = {
   }
 };
 
+export function getCategoryDetails(category, subcategory) {
+  const subcategoryDetails = {
+    'Todo mascotas': {
+      'Mascotas en adopción': {
+        label: 'Información de la mascota',
+        placeholder: 'Indica especie, edad aproximada, salud, vacunas, personalidad, requisitos de adopción y comuna.'
+      },
+      'Busco adoptar una mascota': {
+        label: 'Mascota que buscas',
+        placeholder: 'Indica especie, edad o tamaño aproximado y las condiciones del hogar que puedes ofrecer.'
+      }
+    },
+    'Servicios Estudiantiles': {
+      'Paseador de perros': {
+        label: 'Detalles de los paseos',
+        placeholder: 'Indica comuna o sector, disponibilidad, duración, tamaño de perros que paseas y tarifa.'
+      },
+      'Difusión de emprendimientos': {
+        label: 'Datos del emprendimiento',
+        placeholder: 'Indica el nombre del emprendimiento, qué productos o servicios ofrece, sus redes o medio de contacto y qué difusión buscas.'
+      }
+    }
+  };
+
+  return subcategoryDetails[category]?.[subcategory] || categoryDetails[category];
+}
+
 export function getProductCategory(product) {
   const categoria = legacyCategories[product.categoria] ||
     (categories.Trueques.includes(product.categoria) ||

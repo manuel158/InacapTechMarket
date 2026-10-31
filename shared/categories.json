@@ -9,12 +9,15 @@
     "Componentes",
     "Impresoras",
     "Redes",
+    "Accesorios para mascotas",
     "Otros",
     "Libros"
   ],
   "Servicios Estudiantiles": [
     "Tutorías",
     "Clases particulares",
+    "Paseador de perros",
+    "Difusión de emprendimientos",
     "otros"
   ],
   "Avisos y Oportunidades": [
@@ -37,5 +40,9 @@
     "Organización de actividades recreativas",
     "Promoción de actividades de bienestar estudiantil",
     "Anuncios de actividades comunitarias"
+  ],
+  "Todo mascotas": [
+    "Mascotas en adopción",
+    "Busco adoptar una mascota"
   ]
 }
