@@ -2,12 +2,43 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../app/AuthContext.jsx';
 import { SiteLayout } from '../components/SiteLayout.jsx';
-import { apiRequest, formatPrice } from '../services/api.js';
+import { apiRequest } from '../services/api.js';
 import { categoryNames, getProductCategory } from '../utils/categories.js';
 
 function productImage(product) {
   return product.imagenes?.[0] || product.imagen;
 }
+
+const carouselSlides = [
+  {
+    image: '/images/home/club-lectura.jpg',
+    alt: 'Estudiantes reunidos compartiendo una sesión de lectura',
+    eyebrow: 'Comunidad y recreación',
+    title: 'Un espacio para compartir historias.',
+    description: 'Encuentra actividades, conoce nuevos intereses y participa junto a la comunidad.'
+  },
+  {
+    image: '/images/home/mascotas.jpg',
+    alt: 'Perro y gato juntos sobre un fondo turquesa',
+    eyebrow: 'Todo mascotas',
+    title: 'Un nuevo hogar puede cambiarlo todo.',
+    description: 'Conecta con personas que buscan dar o encontrar un hogar para una mascota.'
+  },
+  {
+    image: '/images/home/trekking.jpg',
+    alt: 'Grupo de excursionistas caminando por la montaña al atardecer',
+    eyebrow: 'Comunidad y recreación',
+    title: 'La próxima aventura se vive en comunidad.',
+    description: 'Descubre actividades y comparte experiencias con otros estudiantes.'
+  },
+  {
+    image: '/images/home/evento-musical.png',
+    alt: 'Público disfrutando de un concierto en vivo',
+    eyebrow: 'Eventos y comunidad',
+    title: 'Conecta con lo que está pasando.',
+    description: 'Explora eventos y oportunidades para participar en la vida estudiantil.'
+  }
+];
 
 const categoryDescriptions = {
   'Trueques': 'Encuentra artículos para intercambiar con otros estudiantes.',
@@ -40,12 +71,13 @@ export default function HomePage() {
   const newestProducts = [...products].sort(
     (left, right) => new Date(right.createdAt || 0) - new Date(left.createdAt || 0)
   );
-  const slides = newestProducts.slice(0, 3);
-  const featuredProduct = slides[activeSlide];
+  const featuredSlide = carouselSlides[activeSlide];
   const homeCategories = categoryNames.slice(0, 4);
 
   function moveSlide(direction) {
-    setActiveSlide(current => (current + direction + slides.length) % slides.length);
+    setActiveSlide(current => (
+      current + direction + carouselSlides.length
+    ) % carouselSlides.length);
   }
 
   return (
@@ -55,61 +87,20 @@ export default function HomePage() {
           <div className="container home-hero-content">
             <div className="home-hero-copy">
               <p className="home-eyebrow">La comunidad INACAP, más conectada</p>
-              {featuredProduct ? (
-                <>
-                  <p className="home-hero-kicker">Destacado de la comunidad</p>
-                  <h1>{featuredProduct.nombre}</h1>
-                  <p className="home-hero-description">
-                    {featuredProduct.descripcion || 'Descubre esta publicación y conecta con su autor.'}
-                  </p>
-                  <div className="home-hero-actions">
-                    <Link className="btn btn-light" to={`/productos/${featuredProduct._id}`}>
-                      Ver publicación
-                    </Link>
-                    <Link className="home-text-link" to="/productos">
-                      Explorar publicaciones <span aria-hidden="true">→</span>
-                    </Link>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p className="home-hero-kicker">Comparte, encuentra e intercambia</p>
-                  <h1>Tu comunidad tiene mucho para compartir.</h1>
-                  <p className="home-hero-description">
-                    Encuentra productos, servicios y nuevas oportunidades en un solo lugar.
-                  </p>
-                  <div className="home-hero-actions">
-                    <Link className="btn btn-light" to="/productos">Explorar publicaciones</Link>
-                    <Link className="home-text-link" to={user ? '/publicar' : '/registro'}>
-                      {user ? 'Publicar ahora' : 'Únete a la comunidad'} <span aria-hidden="true">→</span>
-                    </Link>
-                  </div>
-                </>
-              )}
+              <p className="home-hero-kicker">{featuredSlide.eyebrow}</p>
+              <h1>{featuredSlide.title}</h1>
+              <p className="home-hero-description">{featuredSlide.description}</p>
+              <div className="home-hero-actions">
+                <Link className="btn btn-light" to="/productos">
+                  Explorar publicaciones
+                </Link>
+                <Link className="home-text-link" to={user ? '/publicar' : '/registro'}>
+                  {user ? 'Publicar ahora' : 'Únete a la comunidad'} <span aria-hidden="true">→</span>
+                </Link>
+              </div>
             </div>
-            <div className={`home-hero-visual ${featuredProduct ? '' : 'home-hero-visual-empty'}`}>
-              {featuredProduct && productImage(featuredProduct) ? (
-                <>
-                  <img src={productImage(featuredProduct)} alt={featuredProduct.nombre} />
-                  <div className="home-hero-image-caption">
-                    <span>{getProductCategory(featuredProduct).categoria}</span>
-                    {featuredProduct.precio !== undefined && featuredProduct.precio !== null && (
-                      <strong>{Number(featuredProduct.precio) === 0
-                        ? 'Gratis / sin costo'
-                        : formatPrice(featuredProduct.precio)}</strong>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div className="home-hero-art" aria-hidden="true">
-                  <span className="home-art-orbit home-art-orbit-one" />
-                  <span className="home-art-orbit home-art-orbit-two" />
-                  <span className="home-art-tile home-art-tile-one">T</span>
-                  <span className="home-art-tile home-art-tile-two">+</span>
-                  <span className="home-art-tile home-art-tile-three">↗</span>
-                  <span className="home-art-caption">Conecta · Comparte · Crece</span>
-                </div>
-              )}
+            <div className="home-hero-visual">
+              <img src={featuredSlide.image} alt={featuredSlide.alt} />
             </div>
           </div>
           <div className="home-carousel-controls">
@@ -118,30 +109,27 @@ export default function HomePage() {
                 type="button"
                 className="home-carousel-arrow"
                 onClick={() => moveSlide(-1)}
-                disabled={slides.length < 2}
-                aria-label="Publicación destacada anterior"
+                aria-label="Diapositiva anterior"
               >
                 ←
               </button>
-              <div className="home-carousel-dots" aria-label="Elegir publicación destacada">
-                {slides.map((product, index) => (
+              <div className="home-carousel-dots" aria-label="Elegir diapositiva">
+                {carouselSlides.map((slide, index) => (
                   <button
-                    key={product._id}
+                    key={slide.image}
                     type="button"
                     className={`home-carousel-dot ${index === activeSlide ? 'active' : ''}`}
                     onClick={() => setActiveSlide(index)}
-                    aria-label={`Mostrar publicación ${index + 1}: ${product.nombre}`}
+                    aria-label={`Mostrar diapositiva ${index + 1}: ${slide.eyebrow}`}
                     aria-current={index === activeSlide ? 'true' : undefined}
                   />
                 ))}
-                {!slides.length && <span className="home-carousel-dot active" />}
               </div>
               <button
                 type="button"
                 className="home-carousel-arrow"
                 onClick={() => moveSlide(1)}
-                disabled={slides.length < 2}
-                aria-label="Siguiente publicación destacada"
+                aria-label="Siguiente diapositiva"
               >
                 →
               </button>
