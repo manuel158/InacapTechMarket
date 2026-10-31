@@ -116,7 +116,7 @@ function ProductCard({ product, mine = false, onDelete, onStatusChange }) {
           )}
         </div>
         <div className="card-footer bg-white border-0">
-          <div className="d-grid gap-2">
+          <div className={`d-grid gap-2 ${mine ? 'publication-card-actions' : ''}`}>
             <Link
               className={mine ? 'btn btn-success' : 'botonVerDetalleProductos'}
               to={`/productos/${product._id}${mine ? '?origen=mis-publicaciones' : ''}`}
