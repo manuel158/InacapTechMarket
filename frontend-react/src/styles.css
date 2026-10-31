@@ -743,18 +743,24 @@ h1 {
 }
 
 .home-hero h1 {
+  display: -webkit-box;
+  overflow: hidden;
   max-width: 12ch;
+  min-height: 3.18em;
   margin-bottom: 1.1rem;
   font-size: clamp(2.4rem, 5vw, 4.1rem);
   font-weight: 720;
   letter-spacing: -0.055em;
   line-height: 1.06;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
 
 .home-hero-description {
   display: -webkit-box;
   overflow: hidden;
   max-width: 37rem;
+  min-height: 4.95em;
   margin-bottom: 1.6rem;
   color: rgb(255 255 255 / 77%);
   font-size: 1.05rem;
@@ -1186,6 +1192,10 @@ h1 {
     min-height: auto;
     padding-top: 3rem;
     padding-bottom: 2.5rem;
+  }
+
+  .home-hero h1 {
+    max-width: 16ch;
   }
 
   .home-hero-visual {
