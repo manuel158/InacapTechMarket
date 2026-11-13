@@ -224,7 +224,10 @@ export function ConversationPage() {
   return (
     <SiteLayout>
       <main className="container py-4">
-        <Link to="/mensajes" className="text-decoration-none">← Volver a mis conversaciones</Link>
+        <Link to="/mensajes" className="chat-back-link">
+          <span aria-hidden="true">←</span>
+          Volver a mis conversaciones
+        </Link>
         {conversation && (
           <section className="card shadow-sm mt-3 chat-panel">
             <header className="card-header d-flex justify-content-between align-items-center gap-3">
