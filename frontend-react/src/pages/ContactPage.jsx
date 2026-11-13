@@ -2,12 +2,12 @@ import { SiteLayout } from '../components/SiteLayout.jsx';
 
 const contacts = [
   {
-    title: 'Contacto principal',
+    title: 'Administrador 1',
     email: 'manuel.trujillo02@inacapmail.cl',
     whatsapp: '+56974475963'
   },
   {
-    title: 'Contacto adicional',
+    title: 'Administrador 2',
     email: 'consuelo.flores04@inacapmail.cl',
     whatsapp: '+56942183968'
   }
