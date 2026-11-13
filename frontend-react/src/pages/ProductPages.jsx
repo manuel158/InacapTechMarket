@@ -785,7 +785,7 @@ export function ProductFormPage() {
                     {formDetails && (
                       <div className="mb-3">
                         <label className="form-label" htmlFor="product-category-details">
-                          {formDetails.label}
+                          {values.categoria === 'Trueques' ? 'Características y/o detalles' : formDetails.label}
                         </label>
                         <textarea
                           className="form-control"
