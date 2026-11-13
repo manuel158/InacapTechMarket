@@ -21,6 +21,32 @@ const listarUsuarios = async (req, res) => {
 
 };
 
+const reactivarUsuario = async (req, res) => {
+    try {
+        const usuario = await Usuario.findById(req.params.id);
+        if (!usuario) {
+            return res.status(404).json({
+                mensaje: 'Usuario no encontrado'
+            });
+        }
+        if (usuario.activo !== false) {
+            return res.status(400).json({
+                mensaje: 'La cuenta ya está activa'
+            });
+        }
+
+        usuario.activo = true;
+        await usuario.save();
+        return res.json({
+            mensaje: 'Cuenta reactivada correctamente'
+        });
+    } catch (error) {
+        return res.status(500).json({
+            mensaje: error.message
+        });
+    }
+};
+
 const eliminarUsuario = async (req, res) => {
 
     try {
@@ -158,6 +184,7 @@ const revisarProducto = async (req, res) => {
 
 module.exports = {
     listarUsuarios,
+    reactivarUsuario,
     eliminarUsuario,
     listarProductos,
     eliminarProducto,

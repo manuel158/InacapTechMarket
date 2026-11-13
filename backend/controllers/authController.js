@@ -324,6 +324,87 @@ const restablecerPassword = async (req, res) => {
     }
 };
 
+function enmascararWhatsapp(whatsapp) {
+    const digits = String(whatsapp || '').replace(/\D/g, '');
+    if (!digits) return '';
+
+    const visiblePrefixLength = Math.min(3, Math.max(digits.length - 2, 0));
+    const hiddenLength = Math.max(digits.length - visiblePrefixLength - 2, 0);
+    const prefix = String(whatsapp).trim().startsWith('+') ? '+' : '';
+
+    return `${prefix}${digits.slice(0, visiblePrefixLength)}${'*'.repeat(hiddenLength)}${digits.slice(-2)}`;
+}
+
+const obtenerPerfil = async (req, res) => {
+    try {
+        const usuario = await Usuario.findById(req.usuario._id)
+            .select('nombre correo rol +whatsapp +tipoIntegrante +sede +sexo');
+
+        if (!usuario || usuario.activo === false) {
+            return res.status(404).json({
+                mensaje: 'No se encontró el perfil'
+            });
+        }
+
+        return res.json({
+            id: usuario._id,
+            nombre: usuario.nombre,
+            correo: usuario.correo,
+            rol: usuario.rol,
+            whatsapp: enmascararWhatsapp(usuario.whatsapp),
+            tipoIntegrante: usuario.tipoIntegrante || '',
+            sede: usuario.sede || '',
+            sexo: usuario.sexo || ''
+        });
+    } catch (error) {
+        console.error('Error al cargar perfil:', error);
+        return res.status(500).json({
+            mensaje: 'No se pudo cargar el perfil'
+        });
+    }
+};
+
+const desactivarCuenta = async (req, res) => {
+    try {
+        const { password } = req.body || {};
+        if (typeof password !== 'string' || !password) {
+            return res.status(400).json({
+                mensaje: 'Ingresa tu contraseña para confirmar la baja'
+            });
+        }
+
+        const usuario = await Usuario.findById(req.usuario._id).select('+password');
+        if (!usuario || usuario.activo === false) {
+            return res.status(404).json({
+                mensaje: 'No se encontró una cuenta activa'
+            });
+        }
+
+        const coincidePassword = await bcrypt.compare(password, usuario.password);
+        if (!coincidePassword) {
+            return res.status(401).json({
+                mensaje: 'La contraseña no es correcta'
+            });
+        }
+
+        usuario.activo = false;
+        await usuario.save();
+
+        const io = req.app.get('io');
+        if (io) {
+            io.in(`usuario:${usuario._id}`).disconnectSockets(true);
+        }
+
+        return res.json({
+            mensaje: 'Cuenta desactivada. Tus publicaciones se ocultaron y el historial de conversaciones se conservó. Contacta a administración para solicitar la reactivación.'
+        });
+    } catch (error) {
+        console.error('Error al desactivar cuenta:', error);
+        return res.status(500).json({
+            mensaje: 'No se pudo desactivar la cuenta'
+        });
+    }
+};
 
 const loginUsuario = async (req, res) => {
 
@@ -353,6 +434,12 @@ const loginUsuario = async (req, res) => {
         if (!coincidePassword) {
             return res.status(401).json({
                 mensaje: 'Credenciales incorrectas'
+            });
+        }
+
+        if (usuario.activo === false) {
+            return res.status(403).json({
+                mensaje: 'La cuenta está desactivada. Contacta a administración para solicitar su reactivación.'
             });
         }
 
@@ -388,5 +475,7 @@ module.exports = {
     loginUsuario,
     verificarCuenta,
     solicitarRecuperacionPassword,
-    restablecerPassword
+    restablecerPassword,
+    obtenerPerfil,
+    desactivarCuenta
 };

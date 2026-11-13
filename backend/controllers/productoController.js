@@ -1,5 +1,12 @@
 const Producto = require('../models/Producto');
+const Usuario = require('../models/Usuario');
 const categorias = require('../../shared/categories.json');
+const condicionesProducto = [
+    'nuevo',
+    'usado-excelente',
+    'usado-buen-estado',
+    'usado-aceptable'
+];
 
 const publicacionesVisibles = {
     $or: [
@@ -42,10 +49,27 @@ function imagenesSubidas(req) {
 }
 
 function datosPermutaValidos(categoria, sePermutaPor) {
-    const esTrueque = categoria === 'Trueques' ||
+    return !esCategoriaTrueque(categoria) || Boolean(sePermutaPor?.trim());
+}
+
+function esCategoriaTrueque(categoria) {
+    return categoria === 'Trueques' ||
         ['Material Académico', 'Tecnología'].includes(categoria) ||
         categorias.Trueques.includes(categoria);
-    return !esTrueque || Boolean(sePermutaPor?.trim());
+}
+
+function condicionValida(categoria, condicion) {
+    return !esCategoriaTrueque(categoria) ||
+        condicionesProducto.includes(condicion);
+}
+
+async function buscarPublicacionesVisibles(filtro = {}) {
+    const usuariosInactivos = await Usuario.find({ activo: false }).distinct('_id');
+    const consulta = { ...publicacionesVisibles, ...filtro };
+    if (usuariosInactivos.length) {
+        consulta.usuario = { $nin: usuariosInactivos };
+    }
+    return Producto.find(consulta).populate('usuario', 'nombre correo activo');
 }
 
 const crearProducto = async (req, res) => {
@@ -60,6 +84,12 @@ const crearProducto = async (req, res) => {
         if (!datosPermutaValidos(req.body.categoria, req.body.sePermutaPor)) {
             return res.status(400).json({
                 mensaje: 'Indica qué producto aceptarías a cambio'
+            });
+        }
+
+        if (!condicionValida(req.body.categoria, req.body.condicion)) {
+            return res.status(400).json({
+                mensaje: 'Selecciona la condición del producto'
             });
         }
 
@@ -87,6 +117,9 @@ const crearProducto = async (req, res) => {
 
                 subcategoria:
                     req.body.subcategoria,
+
+                condicion:
+                    esCategoriaTrueque(req.body.categoria) ? req.body.condicion : '',
 
                 whatsapp:
                     '',
@@ -133,8 +166,7 @@ const obtenerProductos = async (req, res) => {
 
     try {
 
-        const productos = await Producto.find(publicacionesVisibles)
-            .populate('usuario', 'nombre correo');
+        const productos = await buscarPublicacionesVisibles();
 
         res.json(productos);
 
@@ -165,9 +197,13 @@ const obtenerProductoPorId = async (req, res) => {
         const propietario = req.usuario &&
             producto.usuario?.toString() === req.usuario._id.toString();
         const administrador = req.usuario?.rol === 'admin';
+        const usuarioActivo = administrador || await Usuario.exists({
+            _id: producto.usuario,
+            activo: { $ne: false }
+        });
         const publicacionVisible = producto.estado === 'aprobada' ||
             producto.estado === undefined;
-        if (!publicacionVisible && !propietario && !administrador) {
+        if ((!publicacionVisible || !usuarioActivo) && !propietario && !administrador) {
             return res.status(404).json({
                 mensaje: 'Producto no encontrado'
             });
@@ -190,11 +226,9 @@ async (req, res) => {
 
     try {
 
-        const productos =
-            await Producto.find({
-                ...publicacionesVisibles,
-                categoria: req.params.categoria
-            });
+        const productos = await buscarPublicacionesVisibles({
+            categoria: req.params.categoria
+        });
 
         res.json(productos);
 
@@ -318,11 +352,20 @@ const actualizarMiProducto = async (req, res) => {
             });
         }
 
+        if (!condicionValida(req.body.categoria, req.body.condicion)) {
+            return res.status(400).json({
+                mensaje: 'Selecciona la condición del producto'
+            });
+        }
+
         producto.nombre = req.body.nombre;
         producto.descripcion = req.body.descripcion;
         producto.precio = req.body.precio || 0;
         producto.categoria = req.body.categoria;
         producto.subcategoria = req.body.subcategoria;
+        producto.condicion = esCategoriaTrueque(req.body.categoria)
+            ? req.body.condicion
+            : '';
         producto.comentario = req.body.comentario;
         producto.sePermutaPor = req.body.sePermutaPor || '';
         producto.detalleCategoria = req.body.detalleCategoria || '';
@@ -332,14 +375,51 @@ const actualizarMiProducto = async (req, res) => {
         producto.revisadoPor = null;
 
         const files = imagenesSubidas(req);
-        if (files.length > 3) {
+        const imagenesActuales = producto.imagenes?.length
+            ? producto.imagenes
+            : [producto.imagen].filter(Boolean);
+        let imagenesFinales;
+
+        if (req.body.imagenesMantener !== undefined) {
+            let imagenesMantener;
+            try {
+                imagenesMantener = JSON.parse(req.body.imagenesMantener);
+            } catch {
+                return res.status(400).json({
+                    mensaje: 'La selección de imágenes existentes no es válida'
+                });
+            }
+
+            if (
+                !Array.isArray(imagenesMantener) ||
+                imagenesMantener.some(image =>
+                    typeof image !== 'string' || !imagenesActuales.includes(image)
+                ) ||
+                new Set(imagenesMantener).size !== imagenesMantener.length
+            ) {
+                return res.status(400).json({
+                    mensaje: 'La selección de imágenes existentes no es válida'
+                });
+            }
+            imagenesFinales = [
+                ...imagenesMantener,
+                ...files.map(file => file.path)
+            ];
+        } else if (files.length) {
+            imagenesFinales = files.map(file => file.path);
+        }
+
+        if (imagenesFinales && (!imagenesFinales.length || imagenesFinales.length > 3)) {
             return res.status(400).json({
-                mensaje: 'Puedes subir como máximo 3 imágenes'
+                mensaje: imagenesFinales.length
+                    ? 'Puedes guardar como máximo 3 imágenes'
+                    : 'Debes conservar o agregar al menos una imagen'
             });
         }
-        if (files.length) {
-            producto.imagen = files[0].path;
-            producto.imagenes = files.map(file => file.path);
+
+        if (imagenesFinales) {
+            producto.imagen = imagenesFinales[0];
+            producto.imagenes = imagenesFinales;
         }
 
         await producto.save();

@@ -66,7 +66,7 @@ export function LoginPage() {
             {busy ? 'Iniciando sesión…' : 'Iniciar sesión'}
           </button>
         </form>
-        <Feedback error={error} />
+        <Feedback error={error} success={location.state?.notice} />
         <p className="text-center mt-3 mb-0">
           <Link to="/recuperar-password">¿Olvidaste tu contraseña?</Link>
         </p>

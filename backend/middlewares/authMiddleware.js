@@ -35,6 +35,12 @@ const protegerRuta = async (req, res, next) => {
             });
         }
 
+        if (req.usuario.activo === false) {
+            return res.status(403).json({
+                mensaje: 'La cuenta está desactivada. Contacta a administración para solicitar su reactivación.'
+            });
+        }
+
         next();
 
     } catch (error) {

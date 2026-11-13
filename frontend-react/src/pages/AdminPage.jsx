@@ -236,6 +236,18 @@ export default function AdminPage() {
     }
   }
 
+  async function reactivateUser(user) {
+    if (!window.confirm(`¿Reactivar la cuenta de ${user.nombre}?`)) return;
+    try {
+      await apiRequest(`/api/admin/usuario/${encodeURIComponent(user._id)}/reactivar`, {
+        method: 'PATCH'
+      });
+      await load();
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  }
+
   const categoryCounts = products.reduce((result, product) => {
     const { categoria } = getProductCategory(product);
     result[categoria] = (result[categoria] || 0) + 1;
@@ -331,10 +343,23 @@ export default function AdminPage() {
                     <div className="admin-user-details">
                       <strong>{user.nombre}</strong><br />
                       {user.correo}<span className="badge admin-user-role ms-2">{user.rol}</span>
+                      {user.activo === false && (
+                        <span className="badge bg-secondary ms-2">Cuenta desactivada</span>
+                      )}
                     </div>
-                    <button className="btn btn-danger btn-sm admin-user-delete" onClick={() => remove(`/api/admin/usuario/${encodeURIComponent(user._id)}`, 'este usuario')}>
-                      Eliminar
-                    </button>
+                    <div className="d-flex gap-2">
+                      {user.activo === false && (
+                        <button
+                          className="btn btn-success btn-sm"
+                          onClick={() => reactivateUser(user)}
+                        >
+                          Reactivar
+                        </button>
+                      )}
+                      <button className="btn btn-danger btn-sm admin-user-delete" onClick={() => remove(`/api/admin/usuario/${encodeURIComponent(user._id)}`, 'este usuario')}>
+                        Eliminar
+                      </button>
+                    </div>
                   </div>
                 ))}
                 {!users.length && <p className="mb-0">No hay usuarios.</p>}
@@ -349,6 +374,15 @@ export default function AdminPage() {
                       <strong>{product.nombre}</strong>
                       <div className="small text-muted d-flex align-items-center gap-2 mt-1 admin-product-meta">
                         {product.categoria}
+                        {product.condicion && (
+                          <span className="badge bg-light text-dark">
+                            {product.condicion === 'nuevo' ? 'Nuevo'
+                              : product.condicion === 'usado-excelente' ? 'Usado: excelente estado'
+                                : product.condicion === 'usado-buen-estado' ? 'Usado: buen estado'
+                                  : product.condicion === 'usado-aceptable' ? 'Usado: aceptable'
+                                    : product.condicion}
+                          </span>
+                        )}
                         <span className={`badge admin-product-status status-${product.estado || 'aprobada'}`}>
                           {product.estado || 'Aprobada'}
                         </span>

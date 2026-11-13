@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Usuario = require('../models/Usuario');
 const Conversacion = require('../models/Conversacion');
 const Mensaje = require('../models/Mensaje');
 const Producto = require('../models/Producto');
@@ -6,10 +7,28 @@ const { obtenerCantidadNoLeidos } = require('../utils/chatNotifications');
 
 const populateConversacion = [
     { path: 'publication', select: 'nombre imagen categoria subcategoria precio' },
-    { path: 'seller', select: 'nombre' },
-    { path: 'interested', select: 'nombre' },
-    { path: 'lastMessage.sender', select: 'nombre' }
+    { path: 'seller', select: 'nombre activo' },
+    { path: 'interested', select: 'nombre activo' },
+    { path: 'lastMessage.sender', select: 'nombre activo' }
 ];
+
+function anonimizarUsuario(usuario) {
+    if (!usuario || usuario.activo !== false) return usuario;
+    return {
+        _id: usuario._id,
+        nombre: 'Usuario eliminado'
+    };
+}
+
+function anonimizarConversacion(conversacion) {
+    const data = conversacion.toObject();
+    data.seller = anonimizarUsuario(data.seller);
+    data.interested = anonimizarUsuario(data.interested);
+    if (data.lastMessage) {
+        data.lastMessage.sender = anonimizarUsuario(data.lastMessage.sender);
+    }
+    return data;
+}
 
 function participantes(usuarioId) {
     return {
@@ -33,7 +52,7 @@ const listarConversaciones = async (req, res) => {
             .populate(populateConversacion)
             .sort({ updatedAt: -1 });
 
-        return res.json(conversaciones);
+        return res.json(conversaciones.map(anonimizarConversacion));
     } catch (error) {
         console.error('Error al listar conversaciones:', error);
         return res.status(500).json({
@@ -124,6 +143,16 @@ const iniciarConversacion = async (req, res) => {
             });
         }
 
+        const publicadorActivo = await Usuario.findOne({
+            _id: publicacion.usuario,
+            activo: { $ne: false }
+        }).select('_id');
+        if (!publicadorActivo) {
+            return res.status(404).json({
+                mensaje: 'No se encontró la publicación'
+            });
+        }
+
         if (publicacion.estado &&
             publicacion.estado !== 'aprobada') {
             return res.status(404).json({
@@ -162,7 +191,9 @@ const iniciarConversacion = async (req, res) => {
         }
 
         await conversacion.populate(populateConversacion);
-        return res.status(creada ? 201 : 200).json(conversacion);
+        return res.status(creada ? 201 : 200).json(
+            anonimizarConversacion(conversacion)
+        );
     } catch (error) {
         console.error('Error al iniciar conversación:', error);
         return res.status(500).json({
@@ -192,12 +223,16 @@ const obtenerConversacion = async (req, res) => {
         }
 
         const mensajes = await Mensaje.find({ conversation: conversacion._id })
-            .populate('sender', 'nombre')
+            .populate('sender', 'nombre activo')
             .sort({ createdAt: 1, _id: 1 });
 
         return res.json({
-            ...conversacion.toObject(),
-            messages: mensajes
+            ...anonimizarConversacion(conversacion),
+            messages: mensajes.map(mensaje => {
+                const data = mensaje.toObject();
+                data.sender = anonimizarUsuario(data.sender);
+                return data;
+            })
         });
     } catch (error) {
         console.error('Error al cargar conversación:', error);

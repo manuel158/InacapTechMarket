@@ -7,7 +7,10 @@ import {
   PasswordRecoveryPage,
   RegisterPage
 } from './pages/AuthPages.jsx';
+import ContactPage from './pages/ContactPage.jsx';
 import HomePage from './pages/HomePage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
+import SafetyTipsPage from './pages/SafetyTipsPage.jsx';
 import TermsPage from './pages/TermsPage.jsx';
 import {
   MyListingsPage,
@@ -32,10 +35,13 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/registro" element={<RegisterPage />} />
       <Route path="/terminos" element={<TermsPage />} />
+      <Route path="/consejos-trueque" element={<SafetyTipsPage />} />
+      <Route path="/contacto" element={<ContactPage />} />
       <Route path="/recuperar-password" element={<PasswordRecoveryPage />} />
       <Route path="/productos" element={<ProductsPage />} />
       <Route path="/productos/:id" element={<ProductDetailPage />} />
       <Route element={<RequireAuth />}>
+        <Route path="/perfil" element={<ProfilePage />} />
         <Route path="/mensajes" element={<ConversationsPage />} />
         <Route path="/mensajes/:id" element={<ConversationPage />} />
         <Route path="/mis-publicaciones" element={<MyListingsPage />} />

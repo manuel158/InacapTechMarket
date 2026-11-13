@@ -54,8 +54,8 @@ function inicializarChat(io) {
             }
 
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            const usuario = await Usuario.findById(decoded.id).select('_id nombre');
-            if (!usuario) {
+            const usuario = await Usuario.findById(decoded.id).select('_id nombre activo');
+            if (!usuario || usuario.activo === false) {
                 return next(new Error('No autorizado'));
             }
 
@@ -125,6 +125,17 @@ function inicializarChat(io) {
                 const conversacion = await Conversacion.findById(conversacionId);
                 if (!conversacion || !esParticipante(conversacion, socket.data.usuarioId)) {
                     return respond({ ok: false, mensaje: 'No tienes acceso a esta conversación' });
+                }
+
+                const participanteDesactivado = await Usuario.exists({
+                    _id: { $in: [conversacion.seller, conversacion.interested] },
+                    activo: false
+                });
+                if (participanteDesactivado) {
+                    return respond({
+                        ok: false,
+                        mensaje: 'No se pueden enviar mensajes en una conversación con una cuenta desactivada'
+                    });
                 }
 
                 const mensaje = await Mensaje.create({

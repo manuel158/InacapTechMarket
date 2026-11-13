@@ -32,15 +32,18 @@ function SiteFooter({ user }) {
           <div>
             <h2>Explora</h2>
             <Link to="/productos">Publicaciones</Link>
+            <Link to="/consejos-trueque">Consejos para trueques seguros</Link>
             <Link to="/terminos">Términos y condiciones</Link>
           </div>
           <div>
             <h2>Participa</h2>
             {user && <Link to="/mensajes">Conversaciones</Link>}
+            {user && <Link to="/perfil">Mi perfil</Link>}
             <Link to={user ? '/publicar' : '/registro'}>
               {user ? 'Crear publicación' : 'Crear una cuenta'}
             </Link>
             {!user && <Link to="/login">Iniciar sesión</Link>}
+            <Link to="/contacto">Contáctanos</Link>
           </div>
         </nav>
         <div className="footer-inacap-bottom">
@@ -139,6 +142,7 @@ export function SiteLayout({ children }) {
               )}
               {user && <NavLink className="nav-link" to="/publicar">Publicar</NavLink>}
               {user && <NavLink className="nav-link" to="/mis-publicaciones">Mis publicaciones</NavLink>}
+              {user && <NavLink className="nav-link" to="/perfil">Mi perfil</NavLink>}
               {user?.rol === 'admin' && <NavLink className="nav-link" to="/admin">Panel Admin</NavLink>}
             </div>
             {user && unreadError && (

@@ -4,6 +4,7 @@ const router = express.Router();
 
 const {
     listarUsuarios,
+    reactivarUsuario,
     eliminarUsuario,
     listarProductos,
     eliminarProducto,
@@ -28,6 +29,13 @@ router.delete(
     protegerRuta,
     esAdministrador,
     eliminarUsuario
+);
+
+router.patch(
+    '/usuario/:id/reactivar',
+    protegerRuta,
+    esAdministrador,
+    reactivarUsuario
 );
 
 router.get(

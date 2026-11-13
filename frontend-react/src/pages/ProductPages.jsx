@@ -52,6 +52,15 @@ function publicationStatus(product) {
   return product.estado || 'aprobada';
 }
 
+function productConditionLabel(condition) {
+  return ({
+    nuevo: 'Nuevo',
+    'usado-excelente': 'Usado: excelente estado',
+    'usado-buen-estado': 'Usado: buen estado',
+    'usado-aceptable': 'Usado: aceptable'
+  })[condition] || '';
+}
+
 function searchWords(value) {
   return String(value || '')
     .normalize('NFD')
@@ -100,6 +109,11 @@ function ProductCard({ product, mine = false, onDelete, onStatusChange }) {
           <span className="badge mb-2">
             {categoria}{subcategoria ? ` · ${subcategoria}` : ''}
           </span>
+          {productConditionLabel(product.condicion) && (
+            <span className="badge bg-light text-dark mb-2 ms-1">
+              {productConditionLabel(product.condicion)}
+            </span>
+          )}
           {mine && (
             <span className={`badge ms-2 mb-2 ${status === 'aprobada' ? 'bg-success' : status === 'rechazada' ? 'bg-danger' : 'bg-secondary'}`}>
               {statusLabels[status] || status}
@@ -369,6 +383,11 @@ export function ProductDetailPage() {
                       : ''}
                   </span>
                   <h2 className="card-title">{product.nombre}</h2>
+                  {productConditionLabel(product.condicion) && (
+                    <p className="text-muted">
+                      Condición: {productConditionLabel(product.condicion)}
+                    </p>
+                  )}
                   {(fromMine || isAdmin) && product.estado && (
                     <p className="text-muted">
                       Estado: {product.estado === 'pendiente'
@@ -521,6 +540,9 @@ export function ProductFormPage() {
   const [success, setSuccess] = useState('');
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(editing);
+  const [existingImages, setExistingImages] = useState([]);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [selectedImagePreviews, setSelectedImagePreviews] = useState([]);
   const [values, setValues] = useState({
     nombre: '',
     descripcion: '',
@@ -528,6 +550,7 @@ export function ProductFormPage() {
     categoria: '',
     subcategoria: '',
     sePermutaPor: '',
+    condicion: '',
     detalleCategoria: '',
     comentario: ''
   });
@@ -537,6 +560,19 @@ export function ProductFormPage() {
     !validSubcategories.includes(values.subcategoria)
     ? [...validSubcategories, values.subcategoria]
     : validSubcategories;
+  const totalImageCount = existingImages.length + selectedImages.length;
+
+  useEffect(() => {
+    const previews = selectedImages.map(file => ({
+      file,
+      url: URL.createObjectURL(file)
+    }));
+    setSelectedImagePreviews(previews);
+
+    return () => {
+      previews.forEach(preview => URL.revokeObjectURL(preview.url));
+    };
+  }, [selectedImages]);
 
   useEffect(() => {
     if (!editing) return;
@@ -545,6 +581,7 @@ export function ProductFormPage() {
         const product = products.find(item => item._id === id);
         if (!product) throw new Error('No se encontró la publicación en tu cuenta.');
         const productCategory = getProductCategory(product);
+        setExistingImages(productImages(product));
         setValues({
           nombre: product.nombre || '',
           descripcion: product.descripcion || '',
@@ -552,6 +589,7 @@ export function ProductFormPage() {
           categoria: productCategory.categoria || '',
           subcategoria: productCategory.subcategoria || '',
           sePermutaPor: product.sePermutaPor || '',
+          condicion: product.condicion || '',
           detalleCategoria: product.detalleCategoria || '',
           comentario: product.comentario || ''
         });
@@ -566,7 +604,7 @@ export function ProductFormPage() {
       ...current,
       [name]: value,
       ...(name === 'categoria'
-        ? { subcategoria: '', sePermutaPor: '', detalleCategoria: '' }
+        ? { subcategoria: '', sePermutaPor: '', condicion: '', detalleCategoria: '' }
         : {})
     }));
   }
@@ -575,9 +613,21 @@ export function ProductFormPage() {
     event.preventDefault();
     setError('');
     setSuccess('');
+    if (!totalImageCount || (!editing && !selectedImages.length)) {
+      setError('Debes agregar al menos una imagen.');
+      return;
+    }
+    if (totalImageCount > 3) {
+      setError('Puedes guardar como máximo 3 imágenes.');
+      return;
+    }
     setBusy(true);
     const formElement = event.currentTarget;
     const formData = new FormData(formElement);
+    selectedImages.forEach(file => formData.append('imagenes', file));
+    if (editing) {
+      formData.append('imagenesMantener', JSON.stringify(existingImages));
+    }
     try {
       const response = await fetch(apiUrl(
         editing
@@ -604,9 +654,12 @@ export function ProductFormPage() {
           categoria: '',
           subcategoria: '',
           sePermutaPor: '',
+          condicion: '',
           detalleCategoria: '',
           comentario: ''
         });
+        setSelectedImages([]);
+        setExistingImages([]);
       }
     } catch (requestError) {
       setError(requestError.message);
@@ -650,6 +703,25 @@ export function ProductFormPage() {
                         ))}
                       </select>
                     </div>
+                    {values.categoria === 'Trueques' && (
+                      <div className="mb-3">
+                        <label className="form-label" htmlFor="product-condition">Condición del producto</label>
+                        <select
+                          className="form-select"
+                          id="product-condition"
+                          name="condicion"
+                          value={values.condicion}
+                          onChange={update}
+                          required
+                        >
+                          <option value="">Seleccione</option>
+                          <option value="nuevo">Nuevo</option>
+                          <option value="usado-excelente">Usado: excelente estado</option>
+                          <option value="usado-buen-estado">Usado: buen estado</option>
+                          <option value="usado-aceptable">Usado: aceptable</option>
+                        </select>
+                      </div>
+                    )}
                     <div className="mb-3">
                       <label className="form-label" htmlFor="product-name">
                         {values.categoria === 'Trueques' ? 'Producto a publicar' : 'Título'}
@@ -714,26 +786,80 @@ export function ProductFormPage() {
                     </div>
                     <div className="mb-4">
                       <label className="form-label" htmlFor="product-images">Fotos (máximo 3)</label>
+                      <p className="form-text">
+                        {totalImageCount} de 3 fotos agregadas. Puedes elegir más fotos en varias selecciones.
+                      </p>
                       <input
                         className="form-control"
                         id="product-images"
-                        name="imagenes"
                         type="file"
                         accept="image/*"
                         multiple
-                        required={!editing}
+                        disabled={totalImageCount >= 3}
                         onChange={event => {
-                          if (event.target.files.length > 3) {
-                            setError('Puedes seleccionar como máximo 3 fotos.');
-                            event.target.value = '';
-                          } else {
-                            setError('');
+                          const addedFiles = Array.from(event.target.files || []);
+                          event.target.value = '';
+                          if (totalImageCount + addedFiles.length > 3) {
+                            setError(`Solo puedes agregar ${3 - totalImageCount} foto(s) más.`);
+                            return;
                           }
+                          setError('');
+                          setSelectedImages(current => [...current, ...addedFiles]);
                         }}
                       />
+                      {Boolean(existingImages.length || selectedImagePreviews.length) && (
+                        <div className="row row-cols-2 row-cols-sm-3 g-3 mt-1">
+                          {existingImages.map((image, index) => (
+                            <div className="col" key={`existing-${image}-${index}`}>
+                              <div className="card h-100">
+                                <img
+                                  src={image}
+                                  className="card-img-top"
+                                  alt={`Foto existente ${index + 1}`}
+                                  style={{ height: '140px', objectFit: 'cover' }}
+                                />
+                                <div className="card-body p-2">
+                                  <button
+                                    className="btn btn-outline-danger btn-sm w-100"
+                                    type="button"
+                                    onClick={() => setExistingImages(current =>
+                                      current.filter((_, imageIndex) => imageIndex !== index)
+                                    )}
+                                  >
+                                    Quitar foto
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          {selectedImagePreviews.map((preview, index) => (
+                            <div className="col" key={`selected-${preview.file.name}-${index}`}>
+                              <div className="card h-100">
+                                <img
+                                  src={preview.url}
+                                  className="card-img-top"
+                                  alt={`Foto nueva ${index + 1}`}
+                                  style={{ height: '140px', objectFit: 'cover' }}
+                                />
+                                <div className="card-body p-2">
+                                  <button
+                                    className="btn btn-outline-danger btn-sm w-100"
+                                    type="button"
+                                    onClick={() => setSelectedImages(current =>
+                                      current.filter((_, imageIndex) => imageIndex !== index)
+                                    )}
+                                  >
+                                    Quitar foto
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                       {editing && (
                         <small className="form-text text-muted">
-                          Si seleccionas fotos nuevas, reemplazarán las fotos actuales. Si no seleccionas ninguna, se conservarán.
+                          Las fotos existentes se conservan. Puedes quitarlas o agregar fotos nuevas; los cambios se aplicarán al guardar.
                         </small>
                       )}
                     </div>

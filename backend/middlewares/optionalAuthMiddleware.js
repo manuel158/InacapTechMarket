@@ -18,6 +18,9 @@ const autenticarOpcional = async (req, res, next) => {
 
     try {
         req.usuario = await Usuario.findById(decoded.id).select('-password');
+        if (req.usuario?.activo === false) {
+            req.usuario = null;
+        }
     } catch (error) {
         return res.status(500).json({
             mensaje: 'No se pudo validar la sesión'

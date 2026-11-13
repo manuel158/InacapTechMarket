@@ -24,6 +24,13 @@ const subcategoriasPermitidas = [
     ...Object.values(categorias).flat(),
     ...Object.values(subcategoriasAntiguas).flat()
 ];
+const condicionesProducto = [
+    '',
+    'nuevo',
+    'usado-excelente',
+    'usado-buen-estado',
+    'usado-aceptable'
+];
 
 const productoSchema = new mongoose.Schema({
 
@@ -70,6 +77,12 @@ const productoSchema = new mongoose.Schema({
             },
             message: 'La subcategoría no corresponde a la categoría seleccionada'
         }
+    },
+
+    condicion: {
+        type: String,
+        enum: condicionesProducto,
+        default: ''
     },
 
     imagen: {
