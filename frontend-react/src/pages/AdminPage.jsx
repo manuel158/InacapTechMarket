@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { apiDelete, apiRequest } from '../services/api.js';
 import { Feedback, SiteLayout } from '../components/SiteLayout.jsx';
 import { getProductCategory } from '../utils/categories.js';
@@ -32,6 +33,58 @@ function formatDate(value) {
   });
 }
 
+function getActivityPeriod(start, end) {
+  const firstDay = new Date(`${start}T00:00:00`);
+  const lastDay = new Date(`${end}T00:00:00`);
+  const dayCount = Math.floor((lastDay - firstDay) / 86400000) + 1;
+  if (dayCount <= 31) return 'day';
+  if (dayCount <= 366) return 'month';
+  if (dayCount <= 1096) return 'quarter';
+  return 'year';
+}
+
+function activityBucket(value, period) {
+  const date = new Date(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+
+  if (period === 'day') {
+    return {
+      key: `${year}-${month}-${String(date.getDate()).padStart(2, '0')}`,
+      label: date.toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })
+    };
+  }
+  if (period === 'month') {
+    return {
+      key: `${year}-${month}`,
+      label: date.toLocaleDateString('es-CL', { month: 'short', year: 'numeric' })
+    };
+  }
+  if (period === 'quarter') {
+    const quarter = Math.floor(date.getMonth() / 3) + 1;
+    return { key: `${year}-T${quarter}`, label: `T${quarter} ${year}` };
+  }
+  return { key: String(year), label: String(year) };
+}
+
+function buildActivityBuckets(start, end, users, products) {
+  const period = getActivityPeriod(start, end);
+  const buckets = new Map();
+  const addRecords = (records, field) => {
+    records.forEach(record => {
+      if (!isWithinRange(record.createdAt, start, end)) return;
+      const { key, label } = activityBucket(record.createdAt, period);
+      const bucket = buckets.get(key) || { key, label, users: 0, products: 0 };
+      bucket[field] += 1;
+      buckets.set(key, bucket);
+    });
+  };
+
+  addRecords(users, 'users');
+  addRecords(products, 'products');
+  return [...buckets.values()].sort((left, right) => left.key.localeCompare(right.key));
+}
+
 function ReportBar({ label, value, total, color }) {
   const percent = total ? Math.min((value / total) * 100, 100) : 0;
   return (
@@ -43,6 +96,29 @@ function ReportBar({ label, value, total, color }) {
       <div className="admin-report-track" role="img" aria-label={`${label}: ${value} de ${total}, ${formatPercent(value, total)}`}>
         <span className={`admin-report-fill ${color}`} style={{ width: `${percent}%` }} />
       </div>
+    </div>
+  );
+}
+
+function ActivityChart({ title, field, color, buckets }) {
+  const maxValue = Math.max(0, ...buckets.map(bucket => bucket[field]));
+  return (
+    <div className="admin-report-activity">
+      <h3>{title}</h3>
+      {buckets.length ? buckets.map(bucket => (
+        <div className="admin-report-activity-row" key={`${field}-${bucket.key}`}>
+          <span>{bucket.label}</span>
+          <div className="admin-report-track" role="img" aria-label={`${title}, ${bucket.label}: ${bucket[field]}`}>
+            <span
+              className={`admin-report-fill ${color}`}
+              style={{ width: `${maxValue ? (bucket[field] / maxValue) * 100 : 0}%` }}
+            />
+          </div>
+          <strong>{bucket[field].toLocaleString('es-CL')}</strong>
+        </div>
+      )) : (
+        <p className="admin-report-empty">No se registraron datos en este período.</p>
+      )}
     </div>
   );
 }
@@ -73,7 +149,28 @@ function AdminReport({ report }) {
       </header>
 
       <section className="admin-report-section">
-        <h2>Actividad en el período frente al total actual</h2>
+        <h2>Resumen general</h2>
+        <div className="admin-report-summary-grid">
+          <div className="admin-report-summary-card purple">
+            <span>Cuentas activas</span>
+            <strong>{report.activeUserTotal.toLocaleString('es-CL')}</strong>
+            <small>{report.inactiveUserTotal.toLocaleString('es-CL')} desactivadas · {report.usersInRange.toLocaleString('es-CL')} nuevas en el período</small>
+          </div>
+          <div className="admin-report-summary-card blue">
+            <span>Publicaciones registradas</span>
+            <strong>{report.productTotal.toLocaleString('es-CL')}</strong>
+            <small>{report.productsInRange.toLocaleString('es-CL')} creadas en el período</small>
+          </div>
+          <div className="admin-report-summary-card green">
+            <span>Promedio de publicaciones por cuenta activa</span>
+            <strong>{report.averageProductsPerActiveUser.toLocaleString('es-CL', { maximumFractionDigits: 1 })}</strong>
+            <small>Indicador general de actividad de la plataforma</small>
+          </div>
+        </div>
+      </section>
+
+      <section className="admin-report-section">
+        <h2>Registros del período frente al total actual</h2>
         <p className="admin-report-intro">
           El porcentaje compara los registros del período con las cuentas o publicaciones existentes actualmente.
         </p>
@@ -85,9 +182,9 @@ function AdminReport({ report }) {
       </section>
 
       <section className="admin-report-section">
-        <h2>Estado actual de las publicaciones</h2>
+        <h2>Publicaciones por estado</h2>
         <p className="admin-report-intro">
-          Se compara el estado actual de las publicaciones creadas en el período con todas las publicaciones actuales en ese mismo estado.
+          Se muestra cuántas publicaciones actuales hay en cada estado y cuántas de ellas se crearon durante el período seleccionado.
         </p>
         {publicationStatuses.map(status => (
           <ReportBar
@@ -101,7 +198,36 @@ function AdminReport({ report }) {
       </section>
 
       <section className="admin-report-section">
-        <h2>Revisiones registradas en el período</h2>
+        <h2>Publicaciones por categoría</h2>
+        <p className="admin-report-intro">
+          Comparación entre el total actual de cada categoría y las publicaciones de esa categoría creadas durante el período.
+        </p>
+        {report.categories.length ? report.categories.map(category => (
+          <ReportBar
+            key={category.name}
+            label={category.name}
+            value={category.inRange}
+            total={category.total}
+            color="blue"
+          />
+        )) : (
+          <p className="admin-report-empty">No hay publicaciones registradas.</p>
+        )}
+      </section>
+
+      <section className="admin-report-section">
+        <h2>Actividad a través del tiempo</h2>
+        <p className="admin-report-intro">
+          Altas de cuentas y publicaciones agrupadas por {report.activityPeriodLabel}. Los intervalos sin actividad no se muestran.
+        </p>
+        <div className="admin-report-activity-grid">
+          <ActivityChart title="Cuentas registradas" field="users" color="purple" buckets={report.activityBuckets} />
+          <ActivityChart title="Publicaciones creadas" field="products" color="blue" buckets={report.activityBuckets} />
+        </div>
+      </section>
+
+      <section className="admin-report-section">
+        <h2>Última revisión registrada en el período</h2>
         <div className="admin-report-review-grid">
           <div className="admin-report-review-card green">
             <span>Aprobadas</span>
@@ -120,6 +246,8 @@ function AdminReport({ report }) {
       </section>
 
       <footer className="admin-report-footer">
+        Este informe refleja los datos actualmente almacenados y no incluye compras ni transacciones.
+        <br />
         Informe generado el {new Date(report.generatedAt).toLocaleString('es-CL')}
       </footer>
     </article>
@@ -193,17 +321,50 @@ export default function AdminPage() {
       status,
       rangeProducts.filter(product => getPublicationStatus(product) === status).length
     ]));
+    const currentCategoryCounts = products.reduce((result, product) => {
+      const { categoria } = getProductCategory(product);
+      result[categoria] = (result[categoria] || 0) + 1;
+      return result;
+    }, {});
+    const rangeCategoryCounts = rangeProducts.reduce((result, product) => {
+      const { categoria } = getProductCategory(product);
+      result[categoria] = (result[categoria] || 0) + 1;
+      return result;
+    }, {});
+    const activeUserTotal = users.filter(user => user.activo !== false).length;
+    const categories = Object.keys(currentCategoryCounts)
+      .sort((left, right) => left.localeCompare(right, 'es'))
+      .map(name => ({
+        name,
+        total: currentCategoryCounts[name],
+        inRange: rangeCategoryCounts[name] || 0
+      }));
+    const activityPeriod = getActivityPeriod(reportStart, reportEnd);
+    const activityPeriodLabels = {
+      day: 'día',
+      month: 'mes',
+      quarter: 'trimestre',
+      year: 'año'
+    };
 
     setReport({
       start: reportStart,
       end: reportEnd,
       generatedAt: new Date().toISOString(),
       userTotal: users.length,
+      activeUserTotal,
+      inactiveUserTotal: users.length - activeUserTotal,
       usersInRange: rangeUsers.length,
       productTotal: products.length,
       productsInRange: rangeProducts.length,
+      averageProductsPerActiveUser: activeUserTotal
+        ? products.length / activeUserTotal
+        : 0,
       currentStatuses,
       rangeStatuses,
+      categories,
+      activityBuckets: buildActivityBuckets(reportStart, reportEnd, users, products),
+      activityPeriodLabel: activityPeriodLabels[activityPeriod],
       reviewedApproved: reviewedProducts.filter(product => product.estado === 'aprobada').length,
       reviewedRejected: reviewedProducts.filter(product => product.estado === 'rechazada').length
     });
@@ -414,7 +575,7 @@ export default function AdminPage() {
                 {!products.length && <p className="mb-0">No hay publicaciones.</p>}
               </div>
             </section>
-            {report && <AdminReport report={report} />}
+            {report && createPortal(<AdminReport report={report} />, document.body)}
           </>
         )}
       </main>

@@ -303,6 +303,7 @@ export function ProductDetailPage() {
   const fromAdmin = searchParams.get('origen') === 'admin';
   const [product, setProduct] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [showReferenceValue, setShowReferenceValue] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [chatBusy, setChatBusy] = useState(false);
@@ -310,6 +311,7 @@ export function ProductDetailPage() {
 
   useEffect(() => {
     setLoading(true);
+    setShowReferenceValue(false);
     apiRequest(`/api/productos/${encodeURIComponent(id)}`)
       .then(data => {
         setProduct(data);
@@ -407,12 +409,6 @@ export function ProductDetailPage() {
                       Se permuta por: {product.sePermutaPor}
                     </p>
                   )}
-                  {showsEstimatedValue(productCategory.categoria, productCategory.subcategoria) &&
-                    product.precio !== undefined && product.precio !== null && (
-                    <small className="text-muted d-block mb-3">
-                      Producto / Servicio evaluado en: {formatListingPrice(product.precio)}
-                    </small>
-                  )}
                   <h2 className="h5">Descripción</h2>
                   <p className="text-muted">{product.descripcion}</p>
                   {product.detalleCategoria && (
@@ -423,6 +419,28 @@ export function ProductDetailPage() {
                   )}
                   <h2 className="h5">Comentario</h2>
                   <p>{product.comentario || 'Sin comentarios'}</p>
+                  {showsEstimatedValue(productCategory.categoria, productCategory.subcategoria) &&
+                    product.precio !== undefined && product.precio !== null && (
+                    <div className="mt-4">
+                      <div className="form-check">
+                        <input
+                          className="form-check-input"
+                          id="show-reference-value"
+                          type="checkbox"
+                          checked={showReferenceValue}
+                          onChange={event => setShowReferenceValue(event.target.checked)}
+                        />
+                        <label className="form-check-label" htmlFor="show-reference-value">
+                          Mostrar valor referencial
+                        </label>
+                      </div>
+                      {showReferenceValue && (
+                        <p className="text-muted mt-2 mb-0">
+                          Producto / Servicio evaluado en: {formatListingPrice(product.precio)}
+                        </p>
+                      )}
+                    </div>
+                  )}
                   <Feedback error={chatError} />
                   <div className="d-grid gap-2 mt-4">
                     {fromMine && (
