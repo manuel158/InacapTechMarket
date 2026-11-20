@@ -17,6 +17,7 @@ const eliminaciones = {
 let conversacionDisponible = true;
 let sessionIniciada = false;
 let sessionFinalizada = false;
+let cantidadNoLeidos = 0;
 
 const sessionMock = {
     async withTransaction(callback) {
@@ -63,10 +64,16 @@ function reemplazarModulo(ruta, exports) {
 reemplazarModulo('../models/Conversacion', conversacionMock);
 reemplazarModulo('../models/Mensaje', mensajeMock);
 reemplazarModulo('../utils/chatNotifications', {
+    async obtenerCantidadNoLeidos() {
+        return cantidadNoLeidos;
+    },
     async emitirCantidadNoLeidos() {}
 });
 
-const { eliminarConversacion } = require('../controllers/chatController');
+const {
+    eliminarConversacion,
+    obtenerNoLeidos
+} = require('../controllers/chatController');
 const startSessionOriginal = mongoose.startSession;
 
 beforeEach(() => {
@@ -75,6 +82,7 @@ beforeEach(() => {
     conversacionDisponible = true;
     sessionIniciada = false;
     sessionFinalizada = false;
+    cantidadNoLeidos = 0;
     mongoose.startSession = async () => {
         sessionIniciada = true;
         return sessionMock;
@@ -99,6 +107,18 @@ function crearResponse() {
         }
     };
 }
+
+test('devuelve el contador de mensajes sin leer', async () => {
+    cantidadNoLeidos = 3;
+    const response = crearResponse();
+
+    await obtenerNoLeidos({
+        usuario: { _id: vendedorId }
+    }, response);
+
+    assert.equal(response.statusCode, 200);
+    assert.deepEqual(response.body, { count: 3 });
+});
 
 test('el participante borra permanentemente la conversación y sus mensajes', async () => {
     const response = crearResponse();

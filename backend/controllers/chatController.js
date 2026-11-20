@@ -3,7 +3,10 @@ const Usuario = require('../models/Usuario');
 const Conversacion = require('../models/Conversacion');
 const Mensaje = require('../models/Mensaje');
 const Producto = require('../models/Producto');
-const { emitirCantidadNoLeidos } = require('../utils/chatNotifications');
+const {
+    obtenerCantidadNoLeidos,
+    emitirCantidadNoLeidos
+} = require('../utils/chatNotifications');
 
 const populateConversacion = [
     { path: 'publication', select: 'nombre imagen categoria subcategoria precio' },
