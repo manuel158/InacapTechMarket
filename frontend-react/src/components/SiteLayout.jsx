@@ -134,7 +134,7 @@ export function SiteLayout({ children }) {
 
   return (
     <div className="site-layout">
-      <nav className="navbar navbar-expand-lg navbar-light navbar-inacap shadow">
+      <nav className="navbar navbar-expand-xxl navbar-light navbar-inacap shadow">
         <div className="container">
           <Link className="navbar-brand fw-bold" to="/">
             <SiteBrand />

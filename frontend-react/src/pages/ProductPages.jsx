@@ -98,71 +98,80 @@ function ProductCard({ product, mine = false, onDelete, onStatusChange }) {
     pausada: 'Pausada'
   };
 
-  return (
-    <div className={mine ? 'col-12 col-sm-6 col-lg-3' : 'col'}>
-      <article className={`card shadow-sm h-100 ${mine ? 'card-publicacion' : 'card-producto'}`}>
-        <img
-          src={productImages(product)[0]}
-          className="imagen-publicacion card-img-top"
-          alt={product.nombre}
-        />
-        <div className="card-body">
-          <span className="badge product-category-badge mb-2">
-            {categoria}{subcategoria ? ` · ${subcategoria}` : ''}
+  const card = (
+    <article className={`card shadow-sm h-100 ${mine ? 'card-publicacion' : 'card-producto'}`}>
+      <img
+        src={productImages(product)[0]}
+        className="imagen-publicacion card-img-top"
+        alt={product.nombre}
+      />
+      <div className="card-body">
+        <span className="badge product-category-badge mb-2">
+          {categoria}{subcategoria ? ` · ${subcategoria}` : ''}
+        </span>
+        {productConditionLabel(product.condicion) && (
+          <span className="badge bg-light text-dark mb-2 ms-1">
+            {productConditionLabel(product.condicion)}
           </span>
-          {productConditionLabel(product.condicion) && (
-            <span className="badge bg-light text-dark mb-2 ms-1">
-              {productConditionLabel(product.condicion)}
-            </span>
-          )}
-          {mine && (
-            <span className={`badge ms-2 mb-2 ${status === 'aprobada' ? 'bg-success' : status === 'rechazada' ? 'bg-danger' : 'bg-secondary'}`}>
-              {statusLabels[status] || status}
-            </span>
-          )}
-          <h2 className="h5 card-title">{product.nombre}</h2>
-          {mine && status === 'rechazada' && product.motivoRechazo && (
-            <p className="small text-danger">Motivo: {product.motivoRechazo}</p>
-          )}
-          {categoria === 'Trueques' && product.sePermutaPor && (
-            <p className="fw-semibold mb-3">Se permuta por: {product.sePermutaPor}</p>
-          )}
-          {!mine && product.usuario?.nombre && (
-            <p className="text-muted">Publicado por {product.usuario.nombre}</p>
-          )}
-        </div>
+        )}
+        {mine && (
+          <span className={`badge ms-2 mb-2 ${status === 'aprobada' ? 'bg-success' : status === 'rechazada' ? 'bg-danger' : 'bg-secondary'}`}>
+            {statusLabels[status] || status}
+          </span>
+        )}
+        <h2 className="h5 card-title">{product.nombre}</h2>
+        {mine && status === 'rechazada' && product.motivoRechazo && (
+          <p className="small text-danger">Motivo: {product.motivoRechazo}</p>
+        )}
+        {categoria === 'Trueques' && product.sePermutaPor && (
+          <p className="fw-semibold mb-3">Se permuta por: {product.sePermutaPor}</p>
+        )}
+        {!mine && product.usuario?.nombre && (
+          <p className="text-muted">Publicado por {product.usuario.nombre}</p>
+        )}
+      </div>
+      {mine && (
         <div className="card-footer bg-white border-0">
-          <div className={`d-grid gap-2 ${mine ? 'publication-card-actions' : ''}`}>
-            <Link
-              className={mine ? 'btn btn-success' : 'botonVerDetalleProductos'}
-              to={`/productos/${product._id}${mine ? '?origen=mis-publicaciones' : ''}`}
-            >
+          <div className="d-grid gap-2 publication-card-actions">
+            <Link className="btn btn-success" to={`/productos/${product._id}?origen=mis-publicaciones`}>
               Ver detalle
             </Link>
-            {mine && (
-              <>
-                <Link className="btn btn-warning" to={`/publicar/${product._id}/editar`}>
-                  Editar
-                </Link>
-                {['aprobada', 'pausada'].includes(status) && (
-                  <button
-                    className="btn btn-outline-secondary"
-                    onClick={() => onStatusChange(
-                      product._id,
-                      status === 'aprobada' ? 'pausada' : 'aprobada'
-                    )}
-                  >
-                    {status === 'aprobada' ? 'Pausar publicación' : 'Reanudar publicación'}
-                  </button>
+            <Link className="btn btn-warning" to={`/publicar/${product._id}/editar`}>
+              Editar
+            </Link>
+            {['aprobada', 'pausada'].includes(status) && (
+              <button
+                className="btn btn-outline-secondary"
+                onClick={() => onStatusChange(
+                  product._id,
+                  status === 'aprobada' ? 'pausada' : 'aprobada'
                 )}
-                <button className="btn btn-danger" onClick={() => onDelete(product._id)}>
-                  Eliminar
-                </button>
-              </>
+              >
+                {status === 'aprobada' ? 'Pausar publicación' : 'Reanudar publicación'}
+              </button>
             )}
+            <button className="btn btn-danger" onClick={() => onDelete(product._id)}>
+              Eliminar
+            </button>
           </div>
         </div>
-      </article>
+      )}
+    </article>
+  );
+
+  return (
+    <div className={mine ? 'col-12 col-sm-6 col-lg-3' : 'col'}>
+      {mine
+        ? card
+        : (
+          <Link
+            className="product-card-link"
+            to={`/productos/${product._id}`}
+            aria-label={`Ver detalle de ${product.nombre}`}
+          >
+            {card}
+          </Link>
+        )}
     </div>
   );
 }
@@ -426,7 +435,7 @@ export function ProductDetailPage() {
               </div>
               <div className="col-md-6">
                 <div className="card-body p-4">
-                  <span className="badge bg-primary mb-3">
+                  <span className="badge product-category-badge product-detail-category-badge mb-3">
                     {productCategory.categoria}
                     {productCategory.subcategoria
                       ? ` · ${productCategory.subcategoria}`
