@@ -485,8 +485,10 @@ export default function AdminPage() {
                 </div>
               ))}
             </div>
-            <section className="card admin-section mb-4">
-              <div className="card-header admin-section-header"><h2 className="h4 mb-0">Reporte de Categorías</h2></div>
+            <details className="card admin-section mb-4">
+              <summary className="card-header admin-section-header admin-section-summary">
+                <span className="h4 mb-0" role="heading" aria-level="2">Reporte de Categorías</span>
+              </summary>
               <div className="card-body">
                 {Object.entries(categoryCounts).map(([category, count]) => (
                   <div className="d-flex justify-content-between align-items-center admin-list-row border-bottom py-2" key={category}>
@@ -495,9 +497,11 @@ export default function AdminPage() {
                 ))}
                 {!Object.keys(categoryCounts).length && <p className="mb-0">Sin productos registrados.</p>}
               </div>
-            </section>
-            <section className="card admin-section mb-4">
-              <div className="card-header admin-section-header"><h2 className="h4 mb-0">Usuarios</h2></div>
+            </details>
+            <details className="card admin-section mb-4">
+              <summary className="card-header admin-section-header admin-section-summary">
+                <span className="h4 mb-0" role="heading" aria-level="2">Usuarios</span>
+              </summary>
               <div className="card-body">
                 {users.map(user => (
                   <div className="d-flex justify-content-between align-items-center admin-user-row admin-list-row border-bottom py-2 gap-3" key={user._id}>
@@ -525,9 +529,11 @@ export default function AdminPage() {
                 ))}
                 {!users.length && <p className="mb-0">No hay usuarios.</p>}
               </div>
-            </section>
-            <section className="card admin-section">
-              <div className="card-header admin-section-header"><h2 className="h4 mb-0">Publicaciones</h2></div>
+            </details>
+            <details className="card admin-section">
+              <summary className="card-header admin-section-header admin-section-summary">
+                <span className="h4 mb-0" role="heading" aria-level="2">Publicaciones</span>
+              </summary>
               <div className="card-body">
                 {products.map(product => (
                   <div className="d-flex justify-content-between align-items-center admin-product-row admin-list-row border-bottom py-2 gap-3" key={product._id}>
@@ -574,7 +580,7 @@ export default function AdminPage() {
                 ))}
                 {!products.length && <p className="mb-0">No hay publicaciones.</p>}
               </div>
-            </section>
+            </details>
             {report && createPortal(<AdminReport report={report} />, document.body)}
           </>
         )}

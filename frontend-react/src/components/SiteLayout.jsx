@@ -134,7 +134,7 @@ export function SiteLayout({ children }) {
 
   return (
     <div className="site-layout">
-      <nav className="navbar navbar-expand-lg navbar-dark navbar-inacap shadow">
+      <nav className="navbar navbar-expand-lg navbar-light navbar-inacap shadow">
         <div className="container">
           <Link className="navbar-brand fw-bold" to="/">
             <SiteBrand />
@@ -179,15 +179,15 @@ export function SiteLayout({ children }) {
             <div className="d-flex align-items-center gap-2">
               {user ? (
                 <>
-                  <span className="navbar-text text-white">{`Hola, ${user.nombre}`}</span>
+                  <span className="navbar-text">{`Hola, ${user.nombre}`}</span>
                   <button className="btn btn-light" onClick={handleSignOut} disabled={signingOut}>
                     {signingOut ? 'Cerrando…' : 'Cerrar sesión'}
                   </button>
                 </>
               ) : (
                 <>
-                  <Link className="btn btn-outline-light" to="/login">Iniciar sesión</Link>
-                  <Link className="btn btn-light" to="/registro">Registrarse</Link>
+                  <Link className="btn btn-outline-primary" to="/login">Iniciar sesión</Link>
+                  <Link className="btn btn-primary" to="/registro">Registrarse</Link>
                 </>
               )}
             </div>
@@ -205,10 +205,10 @@ export function AuthLayout({ children }) {
 
   return (
     <div className="site-layout">
-      <nav className="navbar navbar-dark navbar-inacap shadow">
+      <nav className="navbar navbar-light navbar-inacap shadow">
         <div className="container">
           <Link className="navbar-brand fw-bold" to="/"><SiteBrand /></Link>
-          <Link className="nav-link text-white" to="/productos">Publicaciones</Link>
+          <Link className="nav-link" to="/productos">Publicaciones</Link>
         </div>
       </nav>
       <main className="container flex-grow-1 py-5">{children}</main>
