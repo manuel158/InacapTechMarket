@@ -736,7 +736,9 @@ export function ProductFormPage() {
           detalleCategoria: '',
           comentario: ''
         });
-        setSelectedImages([]);
+        previewUrls.current.forEach(url => URL.revokeObjectURL(url));
+        previewUrls.current.clear();
+        setSelectedImagePreviews([]);
         setExistingImages([]);
       }
     } catch (requestError) {
