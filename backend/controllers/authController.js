@@ -173,7 +173,7 @@ const verificarCuenta = async (req, res) => {
         if (
             (correo !== undefined && !correoNormalizado) ||
             typeof codigo !== 'string' ||
-            !/^\d{8}$/.test(codigo)
+            !/^\d{6}$/.test(codigo)
         ) {
             return res.status(400).json({
                 mensaje: 'El correo o código de verificación no son válidos'

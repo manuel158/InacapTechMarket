@@ -155,11 +155,12 @@ test('registra una cuenta pendiente por correo y envía el código', async () =>
     assert.notEqual(registroPendienteMock.registros[0].password, 'clave-segura');
     assert.equal(await bcrypt.compare('clave-segura', registroPendienteMock.registros[0].password), true);
     assert.equal(registroPendienteMock.registros[0].codigoVerificacion, undefined);
+    const codigoEnviado = correoMock.llamadas[0].message.match(/\d+$/)[0];
+    assert.match(codigoEnviado, /^\d{6}$/);
     assert.notEqual(
         registroPendienteMock.registros[0].codigoHash,
-        correoMock.llamadas[0].message.match(/\d{8}/)[0]
+        codigoEnviado
     );
-    assert.match(correoMock.llamadas[0].message, /\d{8}/);
 });
 
 test('rechaza contraseñas demasiado cortas o que exceden el límite de bcrypt', async () => {
@@ -189,8 +190,8 @@ test('permite completar registros pendientes de distintos correos', async () => 
         })
     }, crearResponse());
 
-    const codigoManuel = correoMock.llamadas[0].message.match(/\d{8}/)[0];
-    const codigoAna = correoMock.llamadas[1].message.match(/\d{8}/)[0];
+    const codigoManuel = correoMock.llamadas[0].message.match(/\d+$/)[0];
+    const codigoAna = correoMock.llamadas[1].message.match(/\d+$/)[0];
     const responseManuel = crearResponse();
     const responseAna = crearResponse();
 
@@ -210,7 +211,7 @@ test('permite completar registros pendientes de distintos correos', async () => 
 
 test('mantiene la verificación compatible con clientes que solo envían el código', async () => {
     await registrarUsuario({ body: datosRegistro() }, crearResponse());
-    const codigo = correoMock.llamadas[0].message.match(/\d{8}/)[0];
+    const codigo = correoMock.llamadas[0].message.match(/\d+$/)[0];
     const response = crearResponse();
 
     await verificarCuenta({ body: { codigo } }, response);
@@ -225,7 +226,7 @@ test('rechaza un código incorrecto y consume el límite de intentos', async () 
     for (let intento = 0; intento < 5; intento += 1) {
         const response = crearResponse();
         await verificarCuenta({
-            body: { correo: 'manuel@inacapmail.cl', codigo: '00000000' }
+            body: { correo: 'manuel@inacapmail.cl', codigo: '000000' }
         }, response);
         assert.equal(response.statusCode, 400);
     }
@@ -234,13 +235,28 @@ test('rechaza un código incorrecto y consume el límite de intentos', async () 
     assert.equal(registroPendienteMock.registros.length, 0);
 });
 
+test('rechaza códigos de verificación que no tienen seis dígitos', async () => {
+    await registrarUsuario({ body: datosRegistro() }, crearResponse());
+
+    for (const codigo of ['1234', '12345678']) {
+        const response = crearResponse();
+        await verificarCuenta({
+            body: { correo: 'manuel@inacapmail.cl', codigo }
+        }, response);
+        assert.equal(response.statusCode, 400);
+    }
+
+    assert.equal(registroPendienteMock.registros[0].intentos, 0);
+    assert.equal(usuarioMock.creado, null);
+});
+
 test('rechaza un código expirado', async () => {
     await registrarUsuario({ body: datosRegistro() }, crearResponse());
     registroPendienteMock.registros[0].expiresAt = new Date(Date.now() - 1);
     const response = crearResponse();
 
     await verificarCuenta({
-        body: { correo: 'manuel@inacapmail.cl', codigo: '12345678' }
+        body: { correo: 'manuel@inacapmail.cl', codigo: '123456' }
     }, response);
 
     assert.equal(response.statusCode, 400);

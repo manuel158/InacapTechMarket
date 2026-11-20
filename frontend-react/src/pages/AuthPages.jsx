@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { apiPost } from '../services/api.js';
 import { useAuth } from '../app/AuthContext.jsx';
@@ -84,6 +84,8 @@ export function RegisterPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [verificationCode, setVerificationCode] = useState(() => Array(6).fill(''));
+  const verificationInputs = useRef([]);
   const today = new Date();
   const maxBirthDate = [
     today.getFullYear(),
@@ -110,6 +112,7 @@ export function RegisterPage() {
         fechaNacimiento: form.get('fechaNacimiento'),
         aceptaTerminos: form.get('aceptaTerminos') === 'on'
       });
+      setVerificationCode(Array(6).fill(''));
       setPendingEmail(correo);
       setPending(true);
       setSuccess(data.mensaje);
@@ -125,11 +128,10 @@ export function RegisterPage() {
     setError('');
     setSuccess('');
     setBusy(true);
-    const form = new FormData(event.currentTarget);
     try {
       const data = await apiPost('/api/auth/verificar', {
         correo: pendingEmail,
-        codigo: form.get('codigo').trim()
+        codigo: verificationCode.join('')
       });
       setPending(false);
       setSuccess(data.mensaje || 'Usuario creado correctamente. Ya puedes iniciar sesión.');
@@ -138,6 +140,23 @@ export function RegisterPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  function setVerificationDigits(index, value) {
+    const digits = value.replace(/\D/g, '').slice(0, 6 - index);
+    if (!digits) {
+      const nextCode = [...verificationCode];
+      nextCode[index] = '';
+      setVerificationCode(nextCode);
+      return;
+    }
+
+    const nextCode = [...verificationCode];
+    digits.split('').forEach((digit, offset) => {
+      nextCode[index + offset] = digit;
+    });
+    setVerificationCode(nextCode);
+    verificationInputs.current[Math.min(index + digits.length, 5)]?.focus();
   }
 
   return (
@@ -211,8 +230,45 @@ export function RegisterPage() {
         {pending && (
           <form onSubmit={verify}>
             <div className="mb-3">
-              <label className="form-label" htmlFor="register-code">Código de verificación</label>
-              <input className="form-control" id="register-code" name="codigo" type="text" inputMode="numeric" pattern="[0-9]{8}" minLength="8" maxLength="8" autoComplete="one-time-code" required />
+              <label className="form-label" htmlFor="register-code-1">Código de verificación</label>
+              <div className="d-flex justify-content-center gap-2">
+                {verificationCode.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={element => {
+                      verificationInputs.current[index] = element;
+                    }}
+                    className="form-control text-center fw-bold fs-4"
+                    id={`register-code-${index + 1}`}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={index === 0 ? 6 : 1}
+                    autoComplete={index === 0 ? 'one-time-code' : 'off'}
+                    aria-label={`Dígito ${index + 1} del código`}
+                    style={{ width: '2.75rem' }}
+                    value={digit}
+                    onChange={event => setVerificationDigits(index, event.target.value)}
+                    onPaste={event => {
+                      event.preventDefault();
+                      setVerificationDigits(
+                        index,
+                        event.clipboardData.getData('text')
+                      );
+                    }}
+                    onKeyDown={event => {
+                      if (
+                        event.key === 'Backspace' &&
+                        !digit &&
+                        index > 0
+                      ) {
+                        verificationInputs.current[index - 1]?.focus();
+                      }
+                    }}
+                    required
+                  />
+                ))}
+              </div>
             </div>
             <button className="btn btn-primary w-100" disabled={busy}>
               {busy ? 'Verificando…' : 'Verificar cuenta'}
