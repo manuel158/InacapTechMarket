@@ -40,6 +40,10 @@ export const categoryDetails = {
   'Comunidad y Recreación': {
     label: 'Detalles de la actividad',
     placeholder: 'Indica fecha, hora, lugar y cómo participar.'
+  },
+  'Juegos': {
+    label: 'Detalles del juego',
+    placeholder: 'Indica el estado, las piezas o accesorios incluidos, la edad recomendada y cualquier dato útil para jugar.'
   }
 };
 
