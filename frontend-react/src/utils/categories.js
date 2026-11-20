@@ -53,6 +53,14 @@ export function getCategoryDetails(category, subcategory) {
       'Busco adoptar una mascota': {
         label: 'Mascota que buscas',
         placeholder: 'Indica especie, edad o tamaño aproximado y las condiciones del hogar que puedes ofrecer.'
+      },
+      'Mascota perdida': {
+        label: 'Información de la búsqueda',
+        placeholder: 'Agrega características que ayuden a reconocerla, sin compartir información sensible.'
+      },
+      'Mascota encontrada': {
+        label: 'Información del hallazgo',
+        placeholder: 'Describe el estado en que la encontraste y cómo coordinar una devolución segura.'
       }
     },
     'Servicios Estudiantiles': {

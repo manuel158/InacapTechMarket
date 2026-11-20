@@ -33,7 +33,9 @@ function descriptionPlaceholder(category, subcategory) {
   const placeholders = {
     'Todo mascotas': {
       'Mascotas en adopción': 'Describe su personalidad, rutina, salud y condiciones que buscas para su nuevo hogar.',
-      'Busco adoptar una mascota': 'Cuéntanos qué mascota buscas y cómo será el hogar y cuidado que puedes ofrecer.'
+      'Busco adoptar una mascota': 'Cuéntanos qué mascota buscas y cómo será el hogar y cuidado que puedes ofrecer.',
+      'Mascota perdida': 'Indica especie, características, lugar y fecha en que se perdió, y un medio seguro para contactarte.',
+      'Mascota encontrada': 'Indica especie, características, lugar y fecha en que la encontraste, y cómo coordinar una devolución segura.'
     },
     'Servicios Estudiantiles': {
       'Paseador de perros': 'Describe tu experiencia, cómo organizas los paseos y qué cuidados ofreces.',
@@ -105,7 +107,7 @@ function ProductCard({ product, mine = false, onDelete, onStatusChange }) {
           alt={product.nombre}
         />
         <div className="card-body">
-          <span className="badge mb-2">
+          <span className="badge product-category-badge mb-2">
             {categoria}{subcategoria ? ` · ${subcategoria}` : ''}
           </span>
           {productConditionLabel(product.condicion) && (

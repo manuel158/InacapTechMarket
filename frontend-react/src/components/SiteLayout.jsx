@@ -99,6 +99,12 @@ export function SiteLayout({ children }) {
           setUnreadCount(payload.count);
           setUnreadError('');
         });
+        socket.on('chat:conversation-deleted', payload => {
+          if (!active || typeof payload?.conversacionId !== 'string') return;
+          window.dispatchEvent(new CustomEvent('chat:conversation-deleted', {
+            detail: payload
+          }));
+        });
         socket.on('connect_error', () => {
           if (active) setUnreadError('No se pudo actualizar el contador de mensajes.');
         });

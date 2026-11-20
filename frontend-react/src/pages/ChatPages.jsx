@@ -34,9 +34,24 @@ export function ConversationsPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    function handleConversationDeleted(event) {
+      const conversationId = event.detail?.conversacionId;
+      if (typeof conversationId !== 'string') return;
+      setConversations(current =>
+        current.filter(item => item._id !== conversationId)
+      );
+    }
+
+    window.addEventListener('chat:conversation-deleted', handleConversationDeleted);
+    return () => {
+      window.removeEventListener('chat:conversation-deleted', handleConversationDeleted);
+    };
+  }, []);
+
   async function deleteConversation(conversationId) {
     if (!window.confirm(
-      '¿Eliminar esta conversación de tu lista? La otra persona conservará la conversación y su historial.'
+      '¿Eliminar esta conversación y todos sus mensajes para ambos participantes? Esta acción es permanente.'
     )) return;
 
     setDeletingId(conversationId);
@@ -178,6 +193,15 @@ export function ConversationPage() {
               }
             });
           }
+        });
+
+        socket.on('chat:conversation-deleted', payload => {
+          if (String(payload?.conversacionId) !== String(id)) return;
+          setConversation(null);
+          setMessages([]);
+          setError('Esta conversación fue eliminada por uno de sus participantes.');
+          setLoading(false);
+          socket.disconnect();
         });
 
         socket.on('connect_error', () => {

@@ -3,7 +3,7 @@ const Usuario = require('../models/Usuario');
 const Conversacion = require('../models/Conversacion');
 const Mensaje = require('../models/Mensaje');
 const Producto = require('../models/Producto');
-const { obtenerCantidadNoLeidos } = require('../utils/chatNotifications');
+const { emitirCantidadNoLeidos } = require('../utils/chatNotifications');
 
 const populateConversacion = [
     { path: 'publication', select: 'nombre imagen categoria subcategoria precio' },
@@ -62,6 +62,7 @@ const listarConversaciones = async (req, res) => {
 };
 
 const eliminarConversacion = async (req, res) => {
+    let session;
     try {
         const { conversacionId } = req.params;
         if (!mongoose.isValidObjectId(conversacionId)) {
@@ -71,47 +72,67 @@ const eliminarConversacion = async (req, res) => {
         }
 
         const usuarioId = req.usuario._id;
-        const conversacion = await Conversacion.findOne({
-            _id: conversacionId,
-            ...participantes(usuarioId)
-        }).select('seller');
-        if (!conversacion) {
-            return res.status(404).json({
-                mensaje: 'No se encontró la conversación'
-            });
-        }
-
-        const unreadField = conversacion.seller.toString() === usuarioId.toString()
-            ? 'sellerUnreadCount'
-            : 'interestedUnreadCount';
-        const actualizacion = await Conversacion.updateOne(
-            {
+        let participantesIds = null;
+        session = await mongoose.startSession();
+        await session.withTransaction(async () => {
+            const conversacion = await Conversacion.findOne({
                 _id: conversacionId,
                 ...participantes(usuarioId)
-            },
-            {
-                $addToSet: { hiddenFor: usuarioId },
-                $set: { [unreadField]: 0 }
-            }
-        );
+            }).select('seller interested').session(session);
+            if (!conversacion) return;
 
-        if (!actualizacion.matchedCount) {
+            const resultado = await Conversacion.deleteOne({
+                _id: conversacionId,
+                ...participantes(usuarioId)
+            }, { session });
+            if (resultado.deletedCount !== 1) return;
+
+            await Mensaje.deleteMany(
+                { conversation: conversacion._id },
+                { session }
+            );
+            participantesIds = [
+                conversacion.seller.toString(),
+                conversacion.interested.toString()
+            ];
+        });
+        if (!participantesIds) {
             return res.status(404).json({
                 mensaje: 'No se encontró la conversación'
             });
         }
 
-        const count = await obtenerCantidadNoLeidos(usuarioId);
         const io = req.app.get('io');
         if (io) {
-            io.to(`usuario:${usuarioId}`).emit('chat:unread-count', { count });
+            for (const id of new Set(participantesIds)) {
+                io.to(`usuario:${id}`).emit('chat:conversation-deleted', {
+                    conversacionId
+                });
+            }
+            try {
+                await Promise.all([...new Set(participantesIds)].map(id =>
+                    emitirCantidadNoLeidos(io, id)
+                ));
+            } catch (error) {
+                console.error('No se pudieron actualizar los contadores de mensajes:', error);
+            }
         }
-        return res.json({ mensaje: 'Conversación eliminada de tu lista' });
+        return res.json({
+            mensaje: 'La conversación y sus mensajes se eliminaron permanentemente'
+        });
     } catch (error) {
-        console.error('Error al eliminar conversación de la lista:', error);
+        console.error('Error al eliminar conversación y mensajes:', error);
         return res.status(500).json({
             mensaje: 'No se pudo eliminar la conversación'
         });
+    } finally {
+        if (session) {
+            try {
+                await session.endSession();
+            } catch (error) {
+                console.error('No se pudo cerrar la sesión de MongoDB:', error);
+            }
+        }
     }
 };
 
