@@ -310,6 +310,8 @@ export function ProductDetailPage() {
 
   useEffect(() => {
     setLoading(true);
+    setError('');
+    setProduct(null);
     setShowReferenceValue(false);
     apiRequest(`/api/productos/${encodeURIComponent(id)}`)
       .then(data => {
