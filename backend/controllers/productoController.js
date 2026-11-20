@@ -1,6 +1,7 @@
 const Producto = require('../models/Producto');
 const Usuario = require('../models/Usuario');
 const categorias = require('../../shared/categories.json');
+const { notificarNuevaPublicacionPendiente } = require('../utils/adminNotifications');
 const condicionesProducto = [
     'nuevo',
     'usado-excelente',
@@ -147,6 +148,7 @@ const crearProducto = async (req, res) => {
 
             });
 
+        void notificarNuevaPublicacionPendiente(producto);
         res.status(201).json(
             producto
         );
@@ -424,6 +426,7 @@ const actualizarMiProducto = async (req, res) => {
 
         await producto.save();
 
+        void notificarNuevaPublicacionPendiente(producto);
         res.json(producto);
 
     } catch (error) {

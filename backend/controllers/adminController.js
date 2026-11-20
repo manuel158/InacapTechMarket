@@ -106,6 +106,17 @@ const listarProductos = async (req, res) => {
 
 };
 
+const contarPublicacionesPendientes = async (_req, res) => {
+    try {
+        const count = await Producto.countDocuments({ estado: 'pendiente' });
+        return res.json({ count });
+    } catch (error) {
+        return res.status(500).json({
+            mensaje: error.message
+        });
+    }
+};
+
 const eliminarProducto = async (req, res) => {
 
     try {
@@ -187,6 +198,7 @@ module.exports = {
     reactivarUsuario,
     eliminarUsuario,
     listarProductos,
+    contarPublicacionesPendientes,
     eliminarProducto,
     revisarProducto
 };

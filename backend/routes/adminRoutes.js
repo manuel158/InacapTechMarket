@@ -7,6 +7,7 @@ const {
     reactivarUsuario,
     eliminarUsuario,
     listarProductos,
+    contarPublicacionesPendientes,
     eliminarProducto,
     revisarProducto
 } = require('../controllers/adminController');
@@ -43,6 +44,13 @@ router.get(
     protegerRuta,
     esAdministrador,
     listarProductos
+);
+
+router.get(
+    '/productos/pendientes/count',
+    protegerRuta,
+    esAdministrador,
+    contarPublicacionesPendientes
 );
 
 router.patch(

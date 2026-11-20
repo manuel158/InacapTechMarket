@@ -19,6 +19,15 @@ function getPublicationStatus(product) {
   return publicationStatuses.includes(product.estado) ? product.estado : 'aprobada';
 }
 
+function getPublicationStatusLabel(product) {
+  return ({
+    aprobada: 'Aprobada',
+    pendiente: 'Pendiente de revisión',
+    rechazada: 'Rechazada',
+    pausada: 'Pausada'
+  })[getPublicationStatus(product)];
+}
+
 function formatPercent(value, total) {
   return total
     ? `${((value / total) * 100).toLocaleString('es-CL', { maximumFractionDigits: 1 })}%`
@@ -544,6 +553,13 @@ export default function AdminPage() {
                 <span className="h4 mb-0" role="heading" aria-level="2">Publicaciones</span>
               </summary>
               <div className="card-body">
+                {products.length > 0 && (
+                  <div className="admin-product-table-header" aria-hidden="true">
+                    <span>Publicación</span>
+                    <span>Estado</span>
+                    <span>Acciones</span>
+                  </div>
+                )}
                 {products.map(product => (
                   <div className="d-flex justify-content-between align-items-center admin-product-row admin-list-row border-bottom py-2 gap-3" key={product._id}>
                     <div className="admin-product-details">
@@ -567,15 +583,15 @@ export default function AdminPage() {
                                     : product.condicion}
                           </span>
                         )}
-                        <span className={`badge admin-product-status status-${product.estado || 'aprobada'}`}>
-                          {product.estado === 'pendiente'
-                            ? 'Pendiente de revisión'
-                            : product.estado || 'Aprobada'}
-                        </span>
                       </div>
                       {product.estado === 'rechazada' && product.motivoRechazo && (
                         <div className="small text-danger">Motivo: {product.motivoRechazo}</div>
                       )}
+                    </div>
+                    <div className="admin-product-status-column">
+                      <span className={`badge admin-product-status status-${product.estado || 'aprobada'}`}>
+                        {getPublicationStatusLabel(product)}
+                      </span>
                     </div>
                     <div className="admin-product-actions">
                       {product.estado === 'pendiente' && (

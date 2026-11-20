@@ -61,6 +61,8 @@ export function SiteLayout({ children }) {
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadError, setUnreadError] = useState('');
+  const [pendingReviewCount, setPendingReviewCount] = useState(0);
+  const [pendingReviewError, setPendingReviewError] = useState('');
   const [logoutError, setLogoutError] = useState('');
   const [signingOut, setSigningOut] = useState(false);
 
@@ -119,6 +121,54 @@ export function SiteLayout({ children }) {
     };
   }, [user]);
 
+  useEffect(() => {
+    if (user?.rol !== 'admin') {
+      setPendingReviewCount(0);
+      setPendingReviewError('');
+      return undefined;
+    }
+
+    let active = true;
+    let loading = false;
+    let timer;
+
+    async function refreshPendingReviews() {
+      if (!active || loading) return;
+      loading = true;
+      try {
+        const data = await apiRequest('/api/admin/productos/pendientes/count');
+        if (!Number.isInteger(data.count) || data.count < 0) {
+          throw new Error('El contador de publicaciones pendientes no es válido.');
+        }
+        if (active) {
+          setPendingReviewCount(data.count);
+          setPendingReviewError('');
+        }
+      } catch (error) {
+        if (active) setPendingReviewError(error.message);
+      } finally {
+        loading = false;
+        if (active) timer = window.setTimeout(refreshPendingReviews, 30000);
+      }
+    }
+
+    function refreshWhenVisible() {
+      if (document.visibilityState !== 'visible' || loading) return;
+      window.clearTimeout(timer);
+      refreshPendingReviews();
+    }
+
+    refreshPendingReviews();
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+    window.addEventListener('focus', refreshWhenVisible);
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
+      window.removeEventListener('focus', refreshWhenVisible);
+    };
+  }, [user, pathname]);
+
   async function handleSignOut() {
     setLogoutError('');
     setSigningOut(true);
@@ -168,8 +218,25 @@ export function SiteLayout({ children }) {
               {user && <NavLink className="nav-link" to="/publicar">Publicar</NavLink>}
               {user && <NavLink className="nav-link" to="/mis-publicaciones">Mis publicaciones</NavLink>}
               {user && <NavLink className="nav-link" to="/perfil">Mi perfil</NavLink>}
-              {user?.rol === 'admin' && <NavLink className="nav-link" to="/admin">Panel Admin</NavLink>}
+              {user?.rol === 'admin' && (
+                <NavLink className="nav-link" to="/admin">
+                  Panel Admin
+                  {pendingReviewCount > 0 && (
+                    <span
+                      className="badge rounded-pill admin-pending-badge ms-2"
+                      aria-label={`${pendingReviewCount} publicaciones pendientes de revisión`}
+                    >
+                      {pendingReviewCount > 99 ? '99+' : pendingReviewCount}
+                    </span>
+                  )}
+                </NavLink>
+              )}
             </div>
+            {user?.rol === 'admin' && pendingReviewError && (
+              <span className="small text-warning ms-lg-2" role="status">
+                No se pudo consultar las revisiones pendientes.
+              </span>
+            )}
             {user && unreadError && (
               <span className="small text-warning ms-lg-2" role="status">{unreadError}</span>
             )}
