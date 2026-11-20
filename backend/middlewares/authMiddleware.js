@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Usuario = require('../models/Usuario');
+const { getSessionToken } = require('../utils/sessionCookie');
 
 const protegerRuta = async (req, res, next) => {
 
@@ -12,6 +13,9 @@ const protegerRuta = async (req, res, next) => {
             req.headers.authorization.startsWith('Bearer')
         ) {
             token = req.headers.authorization.split(' ')[1];
+        }
+        if (!token) {
+            token = getSessionToken(req.headers.cookie);
         }
 
         if (!token) {

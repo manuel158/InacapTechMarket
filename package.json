@@ -1,8 +1,12 @@
 {
   "name": "inacap-tech-market",
   "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
-    "build": "npm --prefix frontend-react ci --include=dev && npm --prefix frontend-react run build && npm --prefix backend ci",
+    "build": "npm --prefix frontend-react ci --include=dev && npm --prefix frontend-react run build && npm --prefix backend ci && npm --prefix backend test",
+    "test": "npm --prefix backend test",
     "start": "npm --prefix backend start"
   }
 }

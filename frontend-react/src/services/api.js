@@ -1,7 +1,8 @@
 import { apiUrl } from './platform.js';
+import { getAccessToken } from './session.js';
 
 export async function apiRequest(path, options = {}) {
-  const token = localStorage.getItem('token');
+  const token = await getAccessToken();
   const headers = new Headers(options.headers);
 
   if (token) {
@@ -12,7 +13,11 @@ export async function apiRequest(path, options = {}) {
     headers.set('Content-Type', 'application/json');
   }
 
-  const response = await fetch(apiUrl(path), { ...options, headers });
+  const response = await fetch(apiUrl(path), {
+    ...options,
+    headers,
+    credentials: 'include'
+  });
   const contentType = response.headers.get('content-type') || '';
   const data = contentType.includes('application/json')
     ? await response.json()
@@ -22,7 +27,9 @@ export async function apiRequest(path, options = {}) {
     const message = typeof data === 'object' && data?.mensaje
       ? data.mensaje
       : `Error del servidor (${response.status})`;
-    throw new Error(message);
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
   }
 
   return data;

@@ -1,23 +1,40 @@
+import { lazy, Suspense } from 'react';
 import { Link, Route, Routes } from 'react-router-dom';
 import { RequireAdmin, RequireAuth } from './app/RouteGuards.jsx';
-import AdminPage from './pages/AdminPage.jsx';
-import { ConversationPage, ConversationsPage } from './pages/ChatPages.jsx';
-import {
-  LoginPage,
-  PasswordRecoveryPage,
-  RegisterPage
-} from './pages/AuthPages.jsx';
-import ContactPage from './pages/ContactPage.jsx';
-import HomePage from './pages/HomePage.jsx';
-import ProfilePage from './pages/ProfilePage.jsx';
-import SafetyTipsPage from './pages/SafetyTipsPage.jsx';
-import TermsPage from './pages/TermsPage.jsx';
-import {
-  MyListingsPage,
-  ProductDetailPage,
-  ProductFormPage,
-  ProductsPage
-} from './pages/ProductPages.jsx';
+
+const AdminPage = lazy(() => import('./pages/AdminPage.jsx'));
+const ConversationPage = lazy(() => import('./pages/ChatPages.jsx').then(module => ({
+  default: module.ConversationPage
+})));
+const ConversationsPage = lazy(() => import('./pages/ChatPages.jsx').then(module => ({
+  default: module.ConversationsPage
+})));
+const LoginPage = lazy(() => import('./pages/AuthPages.jsx').then(module => ({
+  default: module.LoginPage
+})));
+const PasswordRecoveryPage = lazy(() => import('./pages/AuthPages.jsx').then(module => ({
+  default: module.PasswordRecoveryPage
+})));
+const RegisterPage = lazy(() => import('./pages/AuthPages.jsx').then(module => ({
+  default: module.RegisterPage
+})));
+const ContactPage = lazy(() => import('./pages/ContactPage.jsx'));
+const HomePage = lazy(() => import('./pages/HomePage.jsx'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage.jsx'));
+const SafetyTipsPage = lazy(() => import('./pages/SafetyTipsPage.jsx'));
+const TermsPage = lazy(() => import('./pages/TermsPage.jsx'));
+const MyListingsPage = lazy(() => import('./pages/ProductPages.jsx').then(module => ({
+  default: module.MyListingsPage
+})));
+const ProductDetailPage = lazy(() => import('./pages/ProductPages.jsx').then(module => ({
+  default: module.ProductDetailPage
+})));
+const ProductFormPage = lazy(() => import('./pages/ProductPages.jsx').then(module => ({
+  default: module.ProductFormPage
+})));
+const ProductsPage = lazy(() => import('./pages/ProductPages.jsx').then(module => ({
+  default: module.ProductsPage
+})));
 
 function NotFound() {
   return (
@@ -30,28 +47,30 @@ function NotFound() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/registro" element={<RegisterPage />} />
-      <Route path="/terminos" element={<TermsPage />} />
-      <Route path="/consejos-trueque" element={<SafetyTipsPage />} />
-      <Route path="/contacto" element={<ContactPage />} />
-      <Route path="/recuperar-password" element={<PasswordRecoveryPage />} />
-      <Route path="/productos" element={<ProductsPage />} />
-      <Route path="/productos/:id" element={<ProductDetailPage />} />
-      <Route element={<RequireAuth />}>
-        <Route path="/perfil" element={<ProfilePage />} />
-        <Route path="/mensajes" element={<ConversationsPage />} />
-        <Route path="/mensajes/:id" element={<ConversationPage />} />
-        <Route path="/mis-publicaciones" element={<MyListingsPage />} />
-        <Route path="/publicar" element={<ProductFormPage />} />
-        <Route path="/publicar/:id/editar" element={<ProductFormPage />} />
-        <Route element={<RequireAdmin />}>
-          <Route path="/admin" element={<AdminPage />} />
+    <Suspense fallback={<main className="container py-5 text-center" role="status">Cargando página…</main>}>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/registro" element={<RegisterPage />} />
+        <Route path="/terminos" element={<TermsPage />} />
+        <Route path="/consejos-trueque" element={<SafetyTipsPage />} />
+        <Route path="/contacto" element={<ContactPage />} />
+        <Route path="/recuperar-password" element={<PasswordRecoveryPage />} />
+        <Route path="/productos" element={<ProductsPage />} />
+        <Route path="/productos/:id" element={<ProductDetailPage />} />
+        <Route element={<RequireAuth />}>
+          <Route path="/perfil" element={<ProfilePage />} />
+          <Route path="/mensajes" element={<ConversationsPage />} />
+          <Route path="/mensajes/:id" element={<ConversationPage />} />
+          <Route path="/mis-publicaciones" element={<MyListingsPage />} />
+          <Route path="/publicar" element={<ProductFormPage />} />
+          <Route path="/publicar/:id/editar" element={<ProductFormPage />} />
+          <Route element={<RequireAdmin />}>
+            <Route path="/admin" element={<AdminPage />} />
+          </Route>
         </Route>
-      </Route>
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
 }

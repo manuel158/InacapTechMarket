@@ -7,16 +7,19 @@ const {
     verificarCuenta,
     solicitarRecuperacionPassword,
     restablecerPassword,
+    cerrarSesion,
     obtenerPerfil,
     desactivarCuenta
 } = require('../controllers/authController');
 const protegerRuta = require('../middlewares/authMiddleware');
+const limitadores = require('../middlewares/authRateLimiters');
 
-router.post('/registro', registrarUsuario);
-router.post('/login', loginUsuario);
-router.post('/verificar', verificarCuenta);
-router.post('/recuperar-password', solicitarRecuperacionPassword);
-router.post('/restablecer-password', restablecerPassword);
+router.post('/registro', limitadores.registro, registrarUsuario);
+router.post('/login', limitadores.inicioSesion, loginUsuario);
+router.post('/verificar', limitadores.verificacion, verificarCuenta);
+router.post('/recuperar-password', limitadores.recuperacion, solicitarRecuperacionPassword);
+router.post('/restablecer-password', limitadores.restablecimiento, restablecerPassword);
+router.post('/logout', cerrarSesion);
 router.get('/perfil', protegerRuta, obtenerPerfil);
 router.delete('/cuenta', protegerRuta, desactivarCuenta);
 

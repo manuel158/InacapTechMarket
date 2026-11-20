@@ -1,7 +1,7 @@
+const { randomInt } = require('crypto');
+
 const generarCodigo = () => {
-    return Math.floor(
-        1000 + Math.random() * 9000
-    ).toString();
+    return randomInt(10000000, 100000000).toString();
 };
 
 module.exports = generarCodigo;

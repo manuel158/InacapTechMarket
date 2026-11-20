@@ -3,6 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -12,6 +15,7 @@
     "android:release": "powershell -NoProfile -ExecutionPolicy Bypass -File ./android/build-release.ps1"
   },
   "dependencies": {
+    "@aparajita/capacitor-secure-storage": "^8.0.1",
     "@capacitor/android": "^8.6.0",
     "@capacitor/core": "^8.6.0",
     "react": "^19.0.0",

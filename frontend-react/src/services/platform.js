@@ -2,6 +2,8 @@ import { Capacitor } from '@capacitor/core';
 
 const defaultApiBaseUrl = 'https://inacaptechmarket.onrender.com';
 
+export const isNativePlatform = () => Capacitor.isNativePlatform();
+
 export const apiBaseUrl = Capacitor.isNativePlatform()
   ? (import.meta.env.VITE_API_BASE_URL || defaultApiBaseUrl).replace(/\/+$/, '')
   : '';

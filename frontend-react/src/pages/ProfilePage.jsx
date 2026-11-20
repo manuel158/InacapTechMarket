@@ -39,7 +39,7 @@ export default function ProfilePage() {
         method: 'DELETE',
         body: JSON.stringify({ password })
       });
-      signOut();
+      await signOut();
       navigate('/login', {
         replace: true,
         state: { notice: result.mensaje }

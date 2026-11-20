@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { io } from 'socket.io-client';
 import { useAuth } from '../app/AuthContext.jsx';
 import { Feedback, SiteLayout } from '../components/SiteLayout.jsx';
 import { apiRequest } from '../services/api.js';
 import { socketUrl } from '../services/platform.js';
+import { createAuthenticatedSocket } from '../services/socket.js';
 
 function mergeMessages(current, incoming) {
   const messages = new Map(current.map(message => [message._id, message]));
@@ -124,70 +124,82 @@ export function ConversationPage() {
     setMessages([]);
     setError('');
     setLoading(true);
+    setConnected(false);
 
-    const socket = io(socketUrl(), {
-      auth: { token: localStorage.getItem('token') }
-    });
-    socketRef.current = socket;
-
-    socket.on('connect', () => {
-      socket.emit('chat:join', { conversacionId: id }, result => {
-        if (!active) return;
-        if (!result?.ok) {
-          setError(result?.mensaje || 'No se pudo abrir esta conversación.');
-          setLoading(false);
+    let socket;
+    createAuthenticatedSocket(socketUrl())
+      .then(authenticatedSocket => {
+        if (!active) {
+          authenticatedSocket.disconnect();
           return;
         }
+        socket = authenticatedSocket;
+        socketRef.current = socket;
 
-        setConnected(true);
-        setError('');
-        socket.emit('chat:read', { conversacionId: id }, result => {
-          if (active && !result?.ok) {
-            setError(result?.mensaje || 'No se pudo actualizar el contador de mensajes.');
-          }
-        });
-        apiRequest(`/api/chat/conversaciones/${encodeURIComponent(id)}`)
-          .then(data => {
+        socket.on('connect', () => {
+          socket.emit('chat:join', { conversacionId: id }, result => {
             if (!active) return;
-            setConversation(data);
-            setMessages(current => mergeMessages(current, data.messages || []));
-          })
-          .catch(requestError => {
-            if (active) setError(requestError.message);
-          })
-          .finally(() => {
-            if (active) setLoading(false);
-          });
-      });
-    });
+            if (!result?.ok) {
+              setError(result?.mensaje || 'No se pudo abrir esta conversación.');
+              setLoading(false);
+              return;
+            }
 
-    socket.on('chat:message', message => {
-      if (!active) return;
-      setMessages(current => mergeMessages(current, [message]));
-      const senderId = message.sender?._id || message.sender;
-      if (String(senderId) !== String(user.id)) {
-        socket.emit('chat:read', { conversacionId: id }, result => {
-          if (active && !result?.ok) {
-            setError(result?.mensaje || 'No se pudo actualizar el contador de mensajes.');
+            setConnected(true);
+            setError('');
+            socket.emit('chat:read', { conversacionId: id }, result => {
+              if (active && !result?.ok) {
+                setError(result?.mensaje || 'No se pudo actualizar el contador de mensajes.');
+              }
+            });
+            apiRequest(`/api/chat/conversaciones/${encodeURIComponent(id)}`)
+              .then(data => {
+                if (!active) return;
+                setConversation(data);
+                setMessages(current => mergeMessages(current, data.messages || []));
+              })
+              .catch(requestError => {
+                if (active) setError(requestError.message);
+              })
+              .finally(() => {
+                if (active) setLoading(false);
+              });
+          });
+        });
+
+        socket.on('chat:message', message => {
+          if (!active) return;
+          setMessages(current => mergeMessages(current, [message]));
+          const senderId = message.sender?._id || message.sender;
+          if (String(senderId) !== String(user.id)) {
+            socket.emit('chat:read', { conversacionId: id }, result => {
+              if (active && !result?.ok) {
+                setError(result?.mensaje || 'No se pudo actualizar el contador de mensajes.');
+              }
+            });
           }
         });
-      }
-    });
 
-    socket.on('connect_error', () => {
-      if (!active) return;
-      setConnected(false);
-      setLoading(false);
-      setError('No se pudo conectar al chat. Inicia sesión nuevamente e inténtalo otra vez.');
-    });
+        socket.on('connect_error', () => {
+          if (!active) return;
+          setConnected(false);
+          setLoading(false);
+          setError('No se pudo conectar al chat. Inicia sesión nuevamente e inténtalo otra vez.');
+        });
 
-    socket.on('disconnect', () => {
-      if (active) setConnected(false);
-    });
+        socket.on('disconnect', () => {
+          if (active) setConnected(false);
+        });
+      })
+      .catch(requestError => {
+        if (!active) return;
+        setLoading(false);
+        setError(requestError.message);
+      });
 
     return () => {
       active = false;
-      socket.disconnect();
+      socket?.disconnect();
       socketRef.current = null;
     };
   }, [id]);

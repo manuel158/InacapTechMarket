@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { io } from 'socket.io-client';
 import { useAuth } from '../app/AuthContext.jsx';
 import { apiRequest } from '../services/api.js';
 import { socketUrl } from '../services/platform.js';
+import { createAuthenticatedSocket } from '../services/socket.js';
 
 function SiteBrand() {
   return (
@@ -61,6 +61,8 @@ export function SiteLayout({ children }) {
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadError, setUnreadError] = useState('');
+  const [logoutError, setLogoutError] = useState('');
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -71,9 +73,7 @@ export function SiteLayout({ children }) {
 
     let active = true;
     let receivedLiveCount = false;
-    const socket = io(socketUrl(), {
-      auth: { token: localStorage.getItem('token') }
-    });
+    let socket;
 
     apiRequest('/api/chat/no-leidos')
       .then(data => {
@@ -86,25 +86,44 @@ export function SiteLayout({ children }) {
         if (active) setUnreadError(error.message);
       });
 
-    socket.on('chat:unread-count', payload => {
-      if (!active || !Number.isFinite(payload?.count)) return;
-      receivedLiveCount = true;
-      setUnreadCount(payload.count);
-      setUnreadError('');
-    });
-    socket.on('connect_error', () => {
-      if (active) setUnreadError('No se pudo actualizar el contador de mensajes.');
-    });
+    createAuthenticatedSocket(socketUrl())
+      .then(authenticatedSocket => {
+        if (!active) {
+          authenticatedSocket.disconnect();
+          return;
+        }
+        socket = authenticatedSocket;
+        socket.on('chat:unread-count', payload => {
+          if (!active || !Number.isFinite(payload?.count)) return;
+          receivedLiveCount = true;
+          setUnreadCount(payload.count);
+          setUnreadError('');
+        });
+        socket.on('connect_error', () => {
+          if (active) setUnreadError('No se pudo actualizar el contador de mensajes.');
+        });
+      })
+      .catch(error => {
+        if (active) setUnreadError(error.message);
+      });
 
     return () => {
       active = false;
-      socket.disconnect();
+      socket?.disconnect();
     };
   }, [user]);
 
-  function handleSignOut() {
-    signOut();
-    navigate('/login');
+  async function handleSignOut() {
+    setLogoutError('');
+    setSigningOut(true);
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (error) {
+      setLogoutError(error.message);
+    } finally {
+      setSigningOut(false);
+    }
   }
 
   return (
@@ -148,11 +167,16 @@ export function SiteLayout({ children }) {
             {user && unreadError && (
               <span className="small text-warning ms-lg-2" role="status">{unreadError}</span>
             )}
+            {user && logoutError && (
+              <span className="small text-warning ms-lg-2" role="alert">{logoutError}</span>
+            )}
             <div className="d-flex align-items-center gap-2">
               {user ? (
                 <>
                   <span className="navbar-text text-white">{`Hola, ${user.nombre}`}</span>
-                  <button className="btn btn-light" onClick={handleSignOut}>Cerrar sesión</button>
+                  <button className="btn btn-light" onClick={handleSignOut} disabled={signingOut}>
+                    {signingOut ? 'Cerrando…' : 'Cerrar sesión'}
+                  </button>
                 </>
               ) : (
                 <>

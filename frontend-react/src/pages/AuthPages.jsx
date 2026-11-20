@@ -40,7 +40,7 @@ export function LoginPage() {
         correo: form.get('correo').trim(),
         password: form.get('password')
       });
-      signIn(data);
+      await signIn(data);
       navigate(location.state?.from?.pathname || '/productos', { replace: true });
     } catch (requestError) {
       setError(requestError.message);
@@ -66,7 +66,7 @@ export function LoginPage() {
             {busy ? 'Iniciando sesión…' : 'Iniciar sesión'}
           </button>
         </form>
-        <Feedback error={error} success={location.state?.notice} />
+        <Feedback error={error || location.state?.error} success={location.state?.notice} />
         <p className="text-center mt-3 mb-0">
           <Link to="/recuperar-password">¿Olvidaste tu contraseña?</Link>
         </p>
@@ -80,6 +80,7 @@ export function LoginPage() {
 
 export function RegisterPage() {
   const [pending, setPending] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -96,10 +97,11 @@ export function RegisterPage() {
     setSuccess('');
     setBusy(true);
     const form = new FormData(event.currentTarget);
+    const correo = form.get('correo').trim().toLowerCase();
     try {
       const data = await apiPost('/api/auth/registro', {
         nombre: form.get('nombre').trim(),
-        correo: form.get('correo').trim(),
+        correo,
         password: form.get('password'),
         whatsapp: form.get('whatsapp').trim(),
         tipoIntegrante: form.get('tipoIntegrante'),
@@ -108,6 +110,7 @@ export function RegisterPage() {
         fechaNacimiento: form.get('fechaNacimiento'),
         aceptaTerminos: form.get('aceptaTerminos') === 'on'
       });
+      setPendingEmail(correo);
       setPending(true);
       setSuccess(data.mensaje);
     } catch (requestError) {
@@ -124,7 +127,10 @@ export function RegisterPage() {
     setBusy(true);
     const form = new FormData(event.currentTarget);
     try {
-      const data = await apiPost('/api/auth/verificar', { codigo: form.get('codigo').trim() });
+      const data = await apiPost('/api/auth/verificar', {
+        correo: pendingEmail,
+        codigo: form.get('codigo').trim()
+      });
       setPending(false);
       setSuccess(data.mensaje || 'Usuario creado correctamente. Ya puedes iniciar sesión.');
     } catch (requestError) {
@@ -150,7 +156,7 @@ export function RegisterPage() {
             </div>
             <div className="mb-4">
               <label className="form-label" htmlFor="register-password">Contraseña</label>
-              <input className="form-control" id="register-password" name="password" type="password" autoComplete="new-password" required />
+              <input className="form-control" id="register-password" name="password" type="password" minLength={8} maxLength={72} autoComplete="new-password" required />
             </div>
             <div className="mb-3">
               <label className="form-label" htmlFor="register-whatsapp">WhatsApp (opcional)</label>
@@ -206,7 +212,7 @@ export function RegisterPage() {
           <form onSubmit={verify}>
             <div className="mb-3">
               <label className="form-label" htmlFor="register-code">Código de verificación</label>
-              <input className="form-control" id="register-code" name="codigo" autoComplete="one-time-code" required />
+              <input className="form-control" id="register-code" name="codigo" type="text" inputMode="numeric" pattern="[0-9]{8}" minLength="8" maxLength="8" autoComplete="one-time-code" required />
             </div>
             <button className="btn btn-primary w-100" disabled={busy}>
               {busy ? 'Verificando…' : 'Verificar cuenta'}
@@ -289,7 +295,7 @@ export function PasswordRecoveryPage() {
             <>
               <div className="mb-3">
                 <label className="form-label" htmlFor="new-password">Nueva contraseña</label>
-                <input className="form-control" id="new-password" name="password" type="password" minLength={8} autoComplete="new-password" required />
+                <input className="form-control" id="new-password" name="password" type="password" minLength={8} maxLength={72} autoComplete="new-password" required />
                 <div className="form-text">Debe tener al menos 8 caracteres.</div>
               </div>
               <div className="mb-4">

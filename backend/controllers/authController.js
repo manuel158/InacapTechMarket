@@ -2,11 +2,42 @@ const enviarCorreo =
 require('../config/emailConfig');
 
 const Usuario = require('../models/Usuario');
+const RegistroPendiente = require('../models/RegistroPendiente');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const {
+    serializeClearedSessionCookie,
+    serializeSessionCookie
+} = require('../utils/sessionCookie');
 const generarCodigo = require('../utils/generarCodigo');
 const terms = require('../../shared/terms.json');
+const DURACION_CODIGO_MS = 15 * 60 * 1000;
+const MAX_INTENTOS_CODIGO = 5;
+const ORIGENES_NATIVOS = new Set([
+    'capacitor://localhost',
+    'http://localhost',
+    'https://localhost'
+]);
+
+const hashCodigo = codigo =>
+    crypto.createHash('sha256').update(codigo).digest('hex');
+
+const codigoCoincide = (codigo, codigoHash) => {
+    const hashRecibido = Buffer.from(hashCodigo(codigo), 'hex');
+    const hashAlmacenado = Buffer.from(codigoHash, 'hex');
+    return hashRecibido.length === hashAlmacenado.length &&
+        crypto.timingSafeEqual(hashRecibido, hashAlmacenado);
+};
+
+const passwordValida = password =>
+    typeof password === 'string' &&
+    password.length >= 8 &&
+    Buffer.byteLength(password, 'utf8') <= 72;
+
+function esSolicitudNativa(req) {
+    return ORIGENES_NATIVOS.has(req.get('origin'));
+}
 
 const generarToken = (id, rol) => {
     return jwt.sign(
@@ -36,6 +67,15 @@ const registrarUsuario = async (req, res) => {
             fechaNacimiento,
             aceptaTerminos
         } = req.body;
+        const correoNormalizado = typeof correo === 'string'
+            ? correo.trim().toLowerCase()
+            : '';
+
+        if (!passwordValida(password)) {
+            return res.status(400).json({
+                mensaje: 'La contraseña debe tener al menos 8 caracteres y un máximo de 72 bytes'
+            });
+        }
 
         const tiposIntegrante = ['estudiante', 'profesor', 'funcionario'];
         const sexosPermitidos = ['Femenino', 'Masculino', 'Otro', 'Prefiero no decirlo', ''];
@@ -62,14 +102,14 @@ const registrarUsuario = async (req, res) => {
             });
         }
 
-        if (!correo.endsWith('@inacapmail.cl')) {
+        if (!correoNormalizado.endsWith('@inacapmail.cl')) {
             return res.status(400).json({
                 mensaje: 'Debe utilizar un correo @inacapmail.cl'
             });
         }
 
         const existeUsuario =
-            await Usuario.findOne({ correo });
+            await Usuario.findOne({ correo: correoNormalizado });
 
         if (existeUsuario) {
             return res.status(400).json({
@@ -78,33 +118,38 @@ const registrarUsuario = async (req, res) => {
         }
 
         const codigoVerificacion = generarCodigo();
-
-        global.registroTemporal = {
+        const passwordHash = await bcrypt.hash(password, 10);
+        const registroPendiente = {
             nombre,
-            correo,
-            password,
-            codigoVerificacion,
+            correo: correoNormalizado,
+            password: passwordHash,
+            codigoHash: hashCodigo(codigoVerificacion),
+            intentos: 0,
             whatsapp: whatsapp?.trim() || '',
             tipoIntegrante,
             sede,
             sexo: sexo || '',
             fechaNacimiento,
             terminosVersionAceptada: terms.version,
-            terminosAceptadosEn: new Date()
+            terminosAceptadosEn: new Date(),
+            expiresAt: new Date(Date.now() + DURACION_CODIGO_MS)
         };
 
+        await RegistroPendiente.findOneAndUpdate(
+            { correo: correoNormalizado },
+            { $set: registroPendiente },
+            { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
+        );
+
         await enviarCorreo({
-            toEmail: correo,
+            toEmail: correoNormalizado,
             toName: nombre,
             subject: 'Código de verificación',
             message: `Tu código de verificación es: ${codigoVerificacion}`
         });
 
         res.status(200).json({
-
-            mensaje:
-                'Código enviado al correo'
-
+            mensaje: 'Código enviado al correo. Tienes 15 minutos para verificar la cuenta.'
         });
 
     } catch (error) {
@@ -121,74 +166,77 @@ const verificarCuenta = async (req, res) => {
 
     try {
 
-        const { codigo } = req.body;
-
+        const { codigo, correo } = req.body || {};
+        const correoNormalizado = typeof correo === 'string'
+            ? correo.trim().toLowerCase()
+            : '';
         if (
-            !global.registroTemporal
+            (correo !== undefined && !correoNormalizado) ||
+            typeof codigo !== 'string' ||
+            !/^\d{8}$/.test(codigo)
         ) {
+            return res.status(400).json({
+                mensaje: 'El correo o código de verificación no son válidos'
+            });
+        }
+
+        const filtroRegistro = {
+            expiresAt: { $gt: new Date() }
+        };
+        let registro;
+        if (correoNormalizado) {
+            filtroRegistro.correo = correoNormalizado;
+            registro = await RegistroPendiente.findOne(filtroRegistro)
+                .select('+password +codigoHash');
+        } else {
+            filtroRegistro.codigoHash = hashCodigo(codigo);
+            const registros = await RegistroPendiente.find(filtroRegistro)
+                .limit(2)
+                .select('+password +codigoHash');
+            registro = registros.length === 1 ? registros[0] : null;
+        }
+
+        if (!registro) {
             return res.status(400).json({
                 mensaje:
                     'No existe registro pendiente'
             });
         }
 
-        if (
-            codigo !==
-            global.registroTemporal.codigoVerificacion
-        ) {
+        if (!codigoCoincide(codigo, registro.codigoHash)) {
+            const intento = await RegistroPendiente.findOneAndUpdate(
+                {
+                    _id: registro._id,
+                    expiresAt: { $gt: new Date() },
+                    intentos: { $lt: MAX_INTENTOS_CODIGO }
+                },
+                { $inc: { intentos: 1 } },
+                { new: true }
+            );
+            if (intento?.intentos >= MAX_INTENTOS_CODIGO) {
+                await RegistroPendiente.deleteOne({ _id: registro._id });
+            }
             return res.status(400).json({
                 mensaje:
-                    'Código incorrecto'
+                    'Código incorrecto o expirado'
             });
         }
 
-        const salt =
-            await bcrypt.genSalt(10);
+        await Usuario.create({
+            nombre: registro.nombre,
+            correo: registro.correo,
+            password: registro.password,
+            whatsapp: registro.whatsapp,
+            tipoIntegrante: registro.tipoIntegrante,
+            sede: registro.sede,
+            sexo: registro.sexo,
+            fechaNacimiento: registro.fechaNacimiento,
+            terminosVersionAceptada: registro.terminosVersionAceptada,
+            terminosAceptadosEn: registro.terminosAceptadosEn,
+            verificado: true
+        });
 
-        const passwordHash =
-            await bcrypt.hash(
-                global.registroTemporal.password,
-                salt
-            );
-
-        const usuario =
-            await Usuario.create({
-
-                nombre:
-                    global.registroTemporal.nombre,
-
-                correo:
-                    global.registroTemporal.correo,
-
-                password:
-                    passwordHash,
-
-                whatsapp:
-                    global.registroTemporal.whatsapp,
-
-                tipoIntegrante:
-                    global.registroTemporal.tipoIntegrante,
-
-                sede:
-                    global.registroTemporal.sede,
-
-                sexo:
-                    global.registroTemporal.sexo,
-
-                fechaNacimiento:
-                    global.registroTemporal.fechaNacimiento,
-
-                terminosVersionAceptada:
-                    global.registroTemporal.terminosVersionAceptada,
-
-                terminosAceptadosEn:
-                    global.registroTemporal.terminosAceptadosEn,
-
-                verificado: true
-
-            });
-
-        global.registroTemporal = null;
+        await RegistroPendiente.deleteOne({ _id: registro._id });
 
         res.status(201).json({
 
@@ -268,8 +316,7 @@ const restablecerPassword = async (req, res) => {
 
         if (
             typeof token !== 'string' ||
-            typeof password !== 'string' ||
-            password.length < 8
+            !passwordValida(password)
         ) {
             return res.status(400).json({
                 mensaje: 'El enlace o la contraseña no son válidos'
@@ -449,16 +496,23 @@ const loginUsuario = async (req, res) => {
             });
         }
 
-        res.json({
+        const token = generarToken(usuario._id, usuario.rol);
+        const datosUsuario = {
             id: usuario._id,
             nombre: usuario.nombre,
             correo: usuario.correo,
-            rol: usuario.rol,
-            token: generarToken(
-                usuario._id,
-                usuario.rol
-            )
-        });
+            rol: usuario.rol
+        };
+
+        if (esSolicitudNativa(req)) {
+            return res.json({ ...datosUsuario, token });
+        }
+
+        res.setHeader(
+            'Set-Cookie',
+            serializeSessionCookie(token, req.secure)
+        );
+        return res.json(datosUsuario);
 
     } catch (error) {
 
@@ -470,12 +524,21 @@ const loginUsuario = async (req, res) => {
 
 };
 
+const cerrarSesion = (req, res) => {
+    res.setHeader(
+        'Set-Cookie',
+        serializeClearedSessionCookie(req.secure)
+    );
+    return res.sendStatus(204);
+};
+
 module.exports = {
     registrarUsuario,
     loginUsuario,
     verificarCuenta,
     solicitarRecuperacionPassword,
     restablecerPassword,
+    cerrarSesion,
     obtenerPerfil,
     desactivarCuenta
 };

@@ -4,6 +4,7 @@ const Usuario = require('../models/Usuario');
 const Conversacion = require('../models/Conversacion');
 const Mensaje = require('../models/Mensaje');
 const enviarCorreo = require('../config/emailConfig');
+const { getSessionToken } = require('../utils/sessionCookie');
 const {
     userRoom,
     emitirCantidadNoLeidos
@@ -48,7 +49,8 @@ async function enviarAvisoPrimerMensaje(conversacionId, nombreRemitente) {
 function inicializarChat(io) {
     io.use(async (socket, next) => {
         try {
-            const token = socket.handshake.auth?.token;
+            const token = socket.handshake.auth?.token ||
+                getSessionToken(socket.handshake.headers.cookie);
             if (typeof token !== 'string' || !token) {
                 return next(new Error('No autorizado'));
             }

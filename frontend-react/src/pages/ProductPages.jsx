@@ -3,7 +3,6 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { apiDelete, apiPost, apiRequest, formatPrice } from '../services/api.js';
 import { useAuth } from '../app/AuthContext.jsx';
 import { Feedback, SiteLayout } from '../components/SiteLayout.jsx';
-import { apiUrl } from '../services/platform.js';
 import {
   categoryNames,
   categorySubcategories,
@@ -647,17 +646,15 @@ export function ProductFormPage() {
       formData.append('imagenesMantener', JSON.stringify(existingImages));
     }
     try {
-      const response = await fetch(apiUrl(
+      await apiRequest(
         editing
           ? `/api/productos/mis-publicaciones/${encodeURIComponent(id)}`
-          : '/api/productos'
-      ), {
+          : '/api/productos',
+        {
           method: editing ? 'PUT' : 'POST',
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-        body: formData
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.mensaje || `Error del servidor (${response.status})`);
+          body: formData
+        }
+      );
       setSuccess(editing
         ? 'Cambios enviados a revisión. La publicación no será visible hasta que se apruebe.'
         : 'Publicación enviada a revisión. Será visible cuando administración la apruebe.');
