@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { apiDelete, apiPost, apiRequest, formatPrice } from '../services/api.js';
 import { useAuth } from '../app/AuthContext.jsx';
@@ -625,8 +625,8 @@ export function ProductFormPage() {
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(editing);
   const [existingImages, setExistingImages] = useState([]);
-  const [selectedImages, setSelectedImages] = useState([]);
   const [selectedImagePreviews, setSelectedImagePreviews] = useState([]);
+  const previewUrls = useRef(new Set());
   const [values, setValues] = useState({
     nombre: '',
     descripcion: '',
@@ -644,19 +644,15 @@ export function ProductFormPage() {
     !validSubcategories.includes(values.subcategoria)
     ? [...validSubcategories, values.subcategoria]
     : validSubcategories;
-  const totalImageCount = existingImages.length + selectedImages.length;
+  const selectedImages = selectedImagePreviews.map(preview => preview.file);
+  const totalImageCount = existingImages.length + selectedImagePreviews.length;
 
   useEffect(() => {
-    const previews = selectedImages.map(file => ({
-      file,
-      url: URL.createObjectURL(file)
-    }));
-    setSelectedImagePreviews(previews);
-
     return () => {
-      previews.forEach(preview => URL.revokeObjectURL(preview.url));
+      previewUrls.current.forEach(url => URL.revokeObjectURL(url));
+      previewUrls.current.clear();
     };
-  }, [selectedImages]);
+  }, []);
 
   useEffect(() => {
     if (!editing) return;
@@ -886,7 +882,12 @@ export function ProductFormPage() {
                             return;
                           }
                           setError('');
-                          setSelectedImages(current => [...current, ...addedFiles]);
+                          const previews = addedFiles.map(file => {
+                            const url = URL.createObjectURL(file);
+                            previewUrls.current.add(url);
+                            return { file, url };
+                          });
+                          setSelectedImagePreviews(current => [...current, ...previews]);
                         }}
                       />
                       {Boolean(existingImages.length || selectedImagePreviews.length) && (
@@ -927,9 +928,16 @@ export function ProductFormPage() {
                                   <button
                                     className="btn btn-outline-danger btn-sm w-100"
                                     type="button"
-                                    onClick={() => setSelectedImages(current =>
-                                      current.filter((_, imageIndex) => imageIndex !== index)
-                                    )}
+                                    onClick={() => {
+                                      const preview = selectedImagePreviews[index];
+                                      if (preview) {
+                                        URL.revokeObjectURL(preview.url);
+                                        previewUrls.current.delete(preview.url);
+                                      }
+                                      setSelectedImagePreviews(current =>
+                                        current.filter((_, imageIndex) => imageIndex !== index)
+                                      );
+                                    }}
                                   >
                                     Quitar foto
                                   </button>
