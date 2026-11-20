@@ -549,7 +549,7 @@ details.admin-section:not([open]) > .card-body {
 .admin-product-table-header,
 .admin-product-row {
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) minmax(9rem, 11rem) auto;
+  grid-template-columns: minmax(0, 1fr) 11rem 12rem;
   align-items: center;
   gap: 1rem;
 }
