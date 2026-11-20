@@ -44,9 +44,9 @@ body {
 }
 
 .navbar-inacap {
-  background: #f4eddf;
+  background: var(--color-principal);
   box-shadow: 0 4px 16px rgb(73 59 39 / 12%);
-  border-bottom: 1px solid var(--color-borde);
+  border-bottom: 2px solid var(--color-secundario);
 }
 
 .btn-primary {
@@ -125,6 +125,36 @@ h1 {
 .form-select:focus {
   border-color: var(--color-principal);
   box-shadow: 0 0 0 0.2rem rgb(102 116 97 / 18%);
+}
+
+.product-form-card {
+  border-color: #b6a486;
+  background: #fffefa;
+  box-shadow: 0 10px 28px rgb(73 59 39 / 14%);
+}
+
+.product-form-card .form-label {
+  color: var(--color-secundario);
+  font-weight: 600;
+}
+
+.product-form-card .form-control,
+.product-form-card .form-select {
+  border-color: #b6a486;
+  background-color: #fff;
+}
+
+.product-form-card .form-control:focus,
+.product-form-card .form-select:focus {
+  border-color: var(--color-principal);
+  box-shadow: 0 0 0 0.2rem rgb(102 116 97 / 24%);
+}
+
+.product-form-card .form-select:disabled {
+  border-color: #c9b89b;
+  background-color: #eee7dc;
+  color: var(--color-texto-suave);
+  opacity: 1;
 }
 
 .card-detalle-imagen {
@@ -1684,16 +1714,57 @@ a:hover {
 
 .navbar-inacap .navbar-nav .nav-link,
 .navbar-inacap .navbar-text {
-  color: var(--color-texto);
+  color: var(--color-superficie);
 }
 
-.navbar-inacap .navbar-nav .nav-link:hover,
+.navbar-inacap .navbar-nav .nav-link:hover {
+  color: #ead9bb;
+}
+
 .navbar-inacap .navbar-nav .nav-link.active {
-  color: var(--color-acento);
+  color: var(--color-superficie);
+  text-decoration: underline;
+  text-decoration-color: #d6a184;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.35em;
 }
 
 .navbar-inacap .navbar-toggler {
-  border-color: var(--color-borde);
+  border-color: #d8cbb7;
+}
+
+.navbar-inacap .brand-name {
+  color: var(--color-superficie);
+}
+
+.navbar-inacap .brand-tech {
+  color: #e2b199;
+}
+
+.navbar-inacap .brand-market {
+  color: #e5d5b9;
+}
+
+.navbar-inacap .btn-outline-primary {
+  border-color: #e5d5b9;
+  color: var(--color-superficie);
+}
+
+.navbar-inacap .btn-outline-primary:hover {
+  border-color: var(--color-superficie);
+  background: var(--color-superficie);
+  color: var(--color-secundario);
+}
+
+.navbar-inacap .btn-primary {
+  border-color: var(--color-acento) !important;
+  background: var(--color-acento) !important;
+  color: var(--color-superficie);
+}
+
+.navbar-inacap .btn-primary:hover {
+  border-color: #824a3c !important;
+  background: #824a3c !important;
 }
 
 .admin-pending-badge {

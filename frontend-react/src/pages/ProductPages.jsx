@@ -762,7 +762,7 @@ export function ProductFormPage() {
       <main className="container mt-5 mb-5">
         <div className="row justify-content-center">
           <div className="col-md-8 col-lg-6">
-            <section className="card shadow">
+            <section className="card shadow product-form-card">
               <div className="card-body">
                 <h1 className="h2 text-center mb-4">{editing ? 'Editar publicación' : 'Crear publicación'}</h1>
                 {loading && <p role="status">Cargando publicación…</p>}

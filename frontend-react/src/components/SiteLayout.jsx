@@ -184,7 +184,7 @@ export function SiteLayout({ children }) {
 
   return (
     <div className="site-layout">
-      <nav className="navbar navbar-expand-xxl navbar-light navbar-inacap shadow">
+      <nav className="navbar navbar-expand-xxl navbar-dark navbar-inacap shadow">
         <div className="container">
           <Link className="navbar-brand fw-bold" to="/">
             <SiteBrand />
@@ -272,7 +272,7 @@ export function AuthLayout({ children }) {
 
   return (
     <div className="site-layout">
-      <nav className="navbar navbar-light navbar-inacap shadow">
+      <nav className="navbar navbar-dark navbar-inacap shadow">
         <div className="container">
           <Link className="navbar-brand fw-bold" to="/"><SiteBrand /></Link>
           <Link className="nav-link" to="/productos">Publicaciones</Link>
