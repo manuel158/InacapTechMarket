@@ -59,7 +59,7 @@ app.use(helmet({
             fontSrc: ["'self'", 'https:', 'data:'],
             formAction: ["'self'"],
             frameAncestors: ["'self'"],
-            imgSrc: ["'self'", 'data:', 'https:'],
+            imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
             objectSrc: ["'none'"],
             scriptSrc: ["'self'", 'https://cdn.jsdelivr.net'],
             styleSrc: ["'self'", 'https://cdn.jsdelivr.net', "'unsafe-inline'"],
