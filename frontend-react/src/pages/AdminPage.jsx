@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { apiDelete, apiRequest } from '../services/api.js';
 import { Feedback, SiteLayout } from '../components/SiteLayout.jsx';
 import { getProductCategory } from '../utils/categories.js';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 const publicationStatuses = ['aprobada', 'pendiente', 'rechazada', 'pausada'];
 
@@ -259,6 +259,9 @@ export default function AdminPage() {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const publicationsRef = useRef(null);
+  const publicationsOpen = searchParams.get('seccion') === 'publicaciones';
   const today = new Date();
   const [reportStart, setReportStart] = useState(
     `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`
@@ -285,6 +288,15 @@ export default function AdminPage() {
   }
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    if (!publicationsOpen || loading || error) return undefined;
+
+    const frame = window.requestAnimationFrame(() => {
+      publicationsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [publicationsOpen, loading, error]);
 
   useEffect(() => {
     if (!report) return undefined;
@@ -374,23 +386,6 @@ export default function AdminPage() {
     if (!window.confirm(`¿Estás seguro de que deseas eliminar ${label}?`)) return;
     try {
       await apiDelete(path);
-      await load();
-    } catch (requestError) {
-      setError(requestError.message);
-    }
-  }
-
-  async function reviewProduct(product, estado) {
-    const motivoRechazo = estado === 'rechazada'
-      ? window.prompt('Indica el motivo del rechazo (máximo 500 caracteres):')
-      : '';
-    if (estado === 'rechazada' && motivoRechazo === null) return;
-
-    try {
-      await apiRequest(`/api/admin/producto/${encodeURIComponent(product._id)}/revision`, {
-        method: 'PATCH',
-        body: JSON.stringify({ estado, motivoRechazo })
-      });
       await load();
     } catch (requestError) {
       setError(requestError.message);
@@ -530,7 +525,21 @@ export default function AdminPage() {
                 {!users.length && <p className="mb-0">No hay usuarios.</p>}
               </div>
             </details>
-            <details className="card admin-section mb-4">
+            <details
+              className="card admin-section mb-4"
+              id="admin-publicaciones"
+              ref={publicationsRef}
+              open={publicationsOpen}
+              onToggle={event => {
+                const nextSearchParams = new URLSearchParams(searchParams);
+                if (event.currentTarget.open) {
+                  nextSearchParams.set('seccion', 'publicaciones');
+                } else {
+                  nextSearchParams.delete('seccion');
+                }
+                setSearchParams(nextSearchParams, { replace: true });
+              }}
+            >
               <summary className="card-header admin-section-header admin-section-summary">
                 <span className="h4 mb-0" role="heading" aria-level="2">Publicaciones</span>
               </summary>
@@ -541,6 +550,14 @@ export default function AdminPage() {
                       <strong>{product.nombre}</strong>
                       <div className="small text-muted d-flex align-items-center gap-2 mt-1 admin-product-meta">
                         {product.categoria}
+                        {product.estado === 'pendiente' && (
+                          <span
+                            className="admin-review-indicator"
+                            role="img"
+                            aria-label="Pendiente de revisión"
+                            title="Pendiente de revisión"
+                          />
+                        )}
                         {product.condicion && (
                           <span className="badge bg-light text-dark">
                             {product.condicion === 'nuevo' ? 'Nuevo'
@@ -551,7 +568,9 @@ export default function AdminPage() {
                           </span>
                         )}
                         <span className={`badge admin-product-status status-${product.estado || 'aprobada'}`}>
-                          {product.estado || 'Aprobada'}
+                          {product.estado === 'pendiente'
+                            ? 'Pendiente de revisión'
+                            : product.estado || 'Aprobada'}
                         </span>
                       </div>
                       {product.estado === 'rechazada' && product.motivoRechazo && (
@@ -559,18 +578,23 @@ export default function AdminPage() {
                       )}
                     </div>
                     <div className="admin-product-actions">
-                      <Link className="btn btn-outline-primary btn-sm" to={`/productos/${product._id}?origen=admin`}>
-                        Ver publicación
-                      </Link>
                       {product.estado === 'pendiente' && (
-                        <>
-                          <button className="btn btn-success btn-sm" onClick={() => reviewProduct(product, 'aprobada')}>
-                            Aprobar
-                          </button>
-                          <button className="btn btn-warning btn-sm" onClick={() => reviewProduct(product, 'rechazada')}>
-                            Rechazar
-                          </button>
-                        </>
+                        <Link
+                          className="btn btn-outline-primary btn-sm"
+                          to={`/productos/${product._id}?origen=admin`}
+                          state={{ fromAdmin: true }}
+                        >
+                          Revisar publicación
+                        </Link>
+                      )}
+                      {product.estado !== 'pendiente' && (
+                        <Link
+                          className="btn btn-outline-primary btn-sm"
+                          to={`/productos/${product._id}?origen=admin`}
+                          state={{ fromAdmin: true }}
+                        >
+                          Ver publicación
+                        </Link>
                       )}
                       <button className="btn btn-danger btn-sm" onClick={() => remove(`/api/admin/producto/${encodeURIComponent(product._id)}`, 'esta publicación')}>
                         Eliminar

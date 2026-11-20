@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { apiDelete, apiPost, apiRequest, formatPrice } from '../services/api.js';
 import { useAuth } from '../app/AuthContext.jsx';
 import { Feedback, SiteLayout } from '../components/SiteLayout.jsx';
@@ -298,6 +298,7 @@ export function ProductsPage() {
 export function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const fromMine = searchParams.get('origen') === 'mis-publicaciones';
@@ -309,6 +310,8 @@ export function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [chatBusy, setChatBusy] = useState(false);
   const [chatError, setChatError] = useState('');
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [reviewError, setReviewError] = useState('');
 
   useEffect(() => {
     setLoading(true);
@@ -327,6 +330,7 @@ export function ProductDetailPage() {
   const publicadorId = product?.usuario?._id || product?.usuario;
   const isOwner = user && String(publicadorId) === String(user.id);
   const isAdmin = user?.rol === 'admin';
+  const canReview = fromAdmin && isAdmin && product?.estado === 'pendiente';
   const canContact = product &&
     (product.estado === 'aprobada' || product.estado === undefined);
   const images = product ? productImages(product) : [];
@@ -349,6 +353,47 @@ export function ProductDetailPage() {
     } finally {
       setChatBusy(false);
     }
+  }
+
+  async function reviewProduct(estado) {
+    setReviewError('');
+    let motivoRechazo = '';
+    if (estado === 'rechazada') {
+      const response = window.prompt('Indica el motivo del rechazo (máximo 500 caracteres):');
+      if (response === null) return;
+      motivoRechazo = response.trim();
+      if (!motivoRechazo || motivoRechazo.length > 500) {
+        setReviewError('Indica un motivo de rechazo de hasta 500 caracteres.');
+        return;
+      }
+    }
+
+    setReviewBusy(true);
+    try {
+      await apiRequest(`/api/admin/producto/${encodeURIComponent(id)}/revision`, {
+        method: 'PATCH',
+        body: JSON.stringify({ estado, motivoRechazo })
+      });
+      setProduct(current => current
+        ? { ...current, estado, motivoRechazo }
+        : current);
+    } catch (requestError) {
+      setReviewError(requestError.message);
+    } finally {
+      setReviewBusy(false);
+    }
+  }
+
+  function returnToOrigin() {
+    if (fromAdmin && location.state?.fromAdmin) {
+      navigate(-1);
+      return;
+    }
+    navigate(fromAdmin
+      ? '/admin?seccion=publicaciones'
+      : fromMine
+        ? '/mis-publicaciones'
+        : '/productos', { replace: fromAdmin });
   }
 
   return (
@@ -393,7 +438,7 @@ export function ProductDetailPage() {
                       Condición: {productConditionLabel(product.condicion)}
                     </p>
                   )}
-                  {(fromMine || isAdmin) && product.estado && (
+                  {(fromMine || isAdmin) && product.estado && product.estado !== 'aprobada' && (
                     <p className="text-muted">
                       Estado: {product.estado === 'pendiente'
                         ? 'Pendiente de aprobación'
@@ -445,6 +490,7 @@ export function ProductDetailPage() {
                     </div>
                   )}
                   <Feedback error={chatError} />
+                  {canReview && <Feedback error={reviewError} />}
                   <div className="d-grid gap-2 mt-4">
                     {fromMine && (
                       <Link className="btn btn-warning" to={`/publicar/${product._id}/editar`}>
@@ -469,12 +515,29 @@ export function ProductDetailPage() {
                         Inicia sesión para enviar un mensaje
                       </Link>
                     )}
-                    <Link
-                      className="btn btn-dark"
-                      to={fromAdmin ? '/admin' : fromMine ? '/mis-publicaciones' : '/productos'}
-                    >
+                    {canReview && (
+                      <>
+                        <button
+                          className="btn btn-success"
+                          type="button"
+                          onClick={() => reviewProduct('aprobada')}
+                          disabled={reviewBusy}
+                        >
+                          Aceptar
+                        </button>
+                        <button
+                          className="btn btn-danger"
+                          type="button"
+                          onClick={() => reviewProduct('rechazada')}
+                          disabled={reviewBusy}
+                        >
+                          Rechazar
+                        </button>
+                      </>
+                    )}
+                    <button className="btn btn-dark" type="button" onClick={returnToOrigin}>
                       Volver
-                    </Link>
+                    </button>
                   </div>
                 </div>
               </div>

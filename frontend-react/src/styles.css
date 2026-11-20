@@ -527,6 +527,17 @@ details.admin-section:not([open]) > .card-body {
   min-width: 0;
 }
 
+.admin-review-indicator {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  flex: 0 0 0.75rem;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  background: #4d8c59;
+  box-shadow: 0 0 0 2px rgb(77 140 89 / 18%), 0 0 8px rgb(77 140 89 / 55%);
+}
+
 .admin-category-count {
   min-width: 2rem;
   padding: 0.25rem 0.6rem;
