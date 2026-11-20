@@ -1985,6 +1985,22 @@ a:hover {
   background: #d5c29f;
 }
 
+.home-hero-visual-pets::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0.65rem;
+  border-radius: 0.35rem;
+  background: var(--home-hero-image) center / cover no-repeat;
+  content: '';
+  filter: blur(16px);
+  opacity: 0.7;
+  transform: scale(1.04);
+}
+
+.home-hero-visual-pets > img {
+  z-index: 1;
+}
+
 .home-carousel-controls {
   border-top: 1px solid #c9b89b;
   background: #d9c6a5;

@@ -463,7 +463,7 @@ export default function AdminPage() {
                   </div>
                 </form>
                 <small className="d-block text-muted mt-2">
-                  Se abrirá la impresión del navegador; selecciona «Guardar como PDF».
+                  Se abrirá el diálogo de impresión; selecciona «Guardar como PDF» y elige dónde guardar el archivo.
                 </small>
               </div>
             </section>
@@ -530,7 +530,7 @@ export default function AdminPage() {
                 {!users.length && <p className="mb-0">No hay usuarios.</p>}
               </div>
             </details>
-            <details className="card admin-section">
+            <details className="card admin-section mb-4">
               <summary className="card-header admin-section-header admin-section-summary">
                 <span className="h4 mb-0" role="heading" aria-level="2">Publicaciones</span>
               </summary>
