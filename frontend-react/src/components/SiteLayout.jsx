@@ -203,7 +203,7 @@ export function SiteLayout({ children }) {
           <div className="collapse navbar-collapse" id="reactNavbar">
             <div className="navbar-nav me-auto">
               {pathname !== '/' && (
-                <NavLink className="nav-link" to="/productos">Publicaciones</NavLink>
+                <NavLink className="nav-link navbar-publications-link" to="/productos">Publicaciones</NavLink>
               )}
               {user && (
                 <NavLink className="nav-link" to="/mensajes">

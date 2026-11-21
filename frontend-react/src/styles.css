@@ -1796,6 +1796,25 @@ a:hover {
   text-underline-offset: 0.35em;
 }
 
+.navbar-publications-link {
+  margin: 0.25rem 0;
+  padding: 0.55rem 0.9rem !important;
+  border: 1px solid #dfe86a;
+  border-radius: 0.65rem;
+  background: #17151a;
+  color: #dfe86a !important;
+  font-weight: 700;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.navbar-publications-link:hover,
+.navbar-publications-link.active {
+  border-color: #dfe86a;
+  background: #dfe86a;
+  color: #17151a !important;
+  text-decoration: none;
+}
+
 .navbar-inacap .navbar-toggler {
   border-color: #d8cbb7;
 }
@@ -2179,6 +2198,10 @@ a:hover {
   letter-spacing: -0.045em;
 }
 
+.home-hero h1 {
+  color: #dfe86a;
+}
+
 .home-eyebrow,
 .home-eyebrow-light {
   color: #dfe86a;
@@ -2226,22 +2249,23 @@ a:hover {
 
 .home-hero-visual::after {
   position: absolute;
-  z-index: 3;
-  inset: -1.15rem;
-  border: 1px solid rgb(255 255 255 / 38%);
-  border-radius: 50%;
-  background: rgb(255 255 255 / 5%);
+  z-index: 1;
+  inset: -0.55rem 0.55rem 0.55rem -0.55rem;
+  border: 1px solid rgb(255 255 255 / 42%);
+  border-radius: 1.05rem;
+  background: rgb(255 255 255 / 10%);
   box-shadow:
-    0 0 0 0.65rem rgb(255 255 255 / 4%),
-    inset 0 0 1.5rem rgb(255 255 255 / 8%);
+    0 18px 38px rgb(67 21 47 / 18%),
+    inset 0 0 1.25rem rgb(255 255 255 / 10%);
   content: '';
   pointer-events: none;
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
-  transition: inset 0.35s ease, opacity 0.35s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transform: rotate(1deg);
 }
 
 .home-hero-visual > img {
+  z-index: 2;
   inset: 0.65rem;
   width: calc(100% - 1.3rem);
   height: calc(100% - 1.3rem);
