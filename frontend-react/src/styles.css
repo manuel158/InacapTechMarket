@@ -627,6 +627,22 @@ details.admin-section:not([open]) > .card-body {
   justify-content: center;
 }
 
+.admin-product-filter {
+  display: flex;
+  flex-direction: column;
+  max-width: 22rem;
+}
+
+.admin-product-filter .form-select {
+  min-width: 15rem;
+  max-width: 18rem;
+  font-size: 0.9rem;
+}
+
+.admin-product-filter-count {
+  white-space: nowrap;
+}
+
 .admin-product-status {
   white-space: nowrap;
 }
@@ -1023,6 +1039,16 @@ details.admin-section:not([open]) > .card-body {
 }
 
 @media (max-width: 767.98px) {
+  .admin-product-filter {
+    max-width: none;
+  }
+
+  .admin-product-filter .form-select {
+    width: 100%;
+    min-width: 0;
+    max-width: 22rem;
+  }
+
   .admin-user-row,
   .admin-product-row {
     align-items: stretch !important;

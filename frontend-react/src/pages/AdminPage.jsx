@@ -279,6 +279,7 @@ export default function AdminPage() {
     `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
   );
   const [report, setReport] = useState(null);
+  const [publicationStatusFilter, setPublicationStatusFilter] = useState('todas');
 
   async function load() {
     setError('');
@@ -418,6 +419,9 @@ export default function AdminPage() {
     result[categoria] = (result[categoria] || 0) + 1;
     return result;
   }, {});
+  const filteredProducts = publicationStatusFilter === 'todas'
+    ? products
+    : products.filter(product => getPublicationStatus(product) === publicationStatusFilter);
   const adminCount = users.filter(user => user.rol === 'admin').length;
 
   return (
@@ -554,13 +558,38 @@ export default function AdminPage() {
               </summary>
               <div className="card-body">
                 {products.length > 0 && (
+                  <div className="admin-product-filter mb-3">
+                    <label htmlFor="admin-publication-status-filter" className="form-label mb-1">
+                      Filtrar por estado
+                    </label>
+                    <div className="d-flex align-items-center gap-2 flex-wrap">
+                      <select
+                        id="admin-publication-status-filter"
+                        className="form-select"
+                        value={publicationStatusFilter}
+                        onChange={event => setPublicationStatusFilter(event.target.value)}
+                      >
+                        <option value="todas">Todas</option>
+                        {publicationStatuses.map(status => (
+                          <option key={status} value={status}>
+                            {getPublicationStatusLabel({ estado: status })}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="small text-muted admin-product-filter-count">
+                        {filteredProducts.length} {filteredProducts.length === 1 ? 'publicación' : 'publicaciones'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {filteredProducts.length > 0 && (
                   <div className="admin-product-table-header" aria-hidden="true">
                     <span>Publicación</span>
                     <span>Estado</span>
                     <span>Acciones</span>
                   </div>
                 )}
-                {products.map(product => (
+                {filteredProducts.map(product => (
                   <div className="d-flex justify-content-between align-items-center admin-product-row admin-list-row border-bottom py-2 gap-3" key={product._id}>
                     <div className="admin-product-details">
                       <strong>{product.nombre}</strong>
@@ -619,6 +648,9 @@ export default function AdminPage() {
                   </div>
                 ))}
                 {!products.length && <p className="mb-0">No hay publicaciones.</p>}
+                {products.length > 0 && !filteredProducts.length && (
+                  <p className="mb-0">No hay publicaciones con este estado.</p>
+                )}
               </div>
             </details>
             {report && createPortal(<AdminReport report={report} />, document.body)}
