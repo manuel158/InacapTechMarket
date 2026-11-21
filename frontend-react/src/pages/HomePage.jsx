@@ -134,6 +134,18 @@ export default function HomePage() {
                   <strong>Se arriendan<br />piezas</strong>
                   <small>Para estudiantes</small>
                 </div>
+                <div className="home-board-extra-note home-board-trueque-note">
+                  <strong>TRUEQUES</strong>
+                  <span>Intercambia<br />y comparte</span>
+                </div>
+                <div className="home-board-extra-note home-board-cabin-note">
+                  <strong>SE ARRIENDA</strong>
+                  <span>Cabaña<br />para estudiantes</span>
+                </div>
+                <div className="home-board-extra-note home-board-gamer-note">
+                  <strong>EVENTO GAMER</strong>
+                  <span>Juega y<br />conecta</span>
+                </div>
               </div>
               <img src={featuredSlide.image} alt={featuredSlide.alt} />
             </div>
