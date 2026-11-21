@@ -111,12 +111,15 @@ main {
 }
 
 .brand-tech {
-  color: #dfe86a;
+  color: #ff3158;
 }
 
 .brand-market {
   margin-left: 0.08em;
   color: #fffdf6;
+  padding: 0 0.12em;
+  border-radius: 0.12em;
+  background: #17151a;
   letter-spacing: -0.065em;
 }
 
@@ -1057,7 +1060,7 @@ details.admin-section:not([open]) > .card-body {
   }
 
   .admin-product-table-header {
-    display: none;
+    display: none !important;
   }
 
   .admin-product-row {
@@ -1850,11 +1853,12 @@ a:hover {
 }
 
 .navbar-inacap .brand-tech {
-  color: #e2b199;
+  color: #ff3158;
 }
 
 .navbar-inacap .brand-market {
-  color: #e5d5b9;
+  color: #fffdf6;
+  background: #17151a;
 }
 
 .navbar-inacap .btn-outline-primary {
@@ -1902,11 +1906,12 @@ a:hover {
 }
 
 .footer-inacap .brand-tech {
-  color: #dfe86a;
+  color: #ff3158;
 }
 
 .footer-inacap .brand-market {
-  color: #e5d5b9;
+  color: #fffdf6;
+  background: #17151a;
 }
 
 .btn-light {
