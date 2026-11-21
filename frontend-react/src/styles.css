@@ -17,18 +17,18 @@ body {
 }
 
 :root {
-  --color-principal: #75866a;
-  --color-secundario: #3f4a38;
-  --color-fondo: #f3f0e4;
-  --color-texto: #2f302b;
-  --color-superficie: rgb(255 253 246 / 92%);
-  --color-borde: #d5ceb8;
-  --color-acento: #b66d58;
-  --color-lima: #abb84d;
-  --color-lavanda: #aaa1bd;
-  --color-vino: #5d3251;
-  --color-papel-tostado: #ddd8be;
-  --color-texto-suave: #696c61;
+  --color-principal: #712c55;
+  --color-secundario: #43152f;
+  --color-fondo: #fff3d6;
+  --color-texto: #291e29;
+  --color-superficie: rgb(255 250 238 / 94%);
+  --color-borde: #dfb96b;
+  --color-acento: #ef5b35;
+  --color-lima: #c9d64a;
+  --color-lavanda: #a98cb2;
+  --color-vino: #5a183a;
+  --color-papel-tostado: #f1d69a;
+  --color-texto-suave: #70566b;
   --bs-body-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --bs-heading-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --bs-body-bg: var(--color-fondo);
@@ -48,9 +48,9 @@ body {
 }
 
 .navbar-inacap {
-  background: rgb(117 134 106 / 94%);
-  box-shadow: 0 8px 28px rgb(63 74 56 / 14%);
-  border-bottom: 1px solid rgb(255 255 255 / 38%);
+  background: rgb(90 24 58 / 96%);
+  box-shadow: 0 8px 28px rgb(67 21 47 / 22%);
+  border-bottom: 2px solid #ef5b35;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 }
@@ -111,7 +111,7 @@ main {
 }
 
 .brand-tech {
-  color: #dce7a1;
+  color: #dfe86a;
 }
 
 .brand-market {
@@ -1851,10 +1851,10 @@ a:hover {
 }
 
 .footer-inacap {
-  border-top: 1px solid rgb(255 255 255 / 18%);
+  border-top: 3px solid #ef5b35;
   background:
-    radial-gradient(circle at 82% 18%, rgb(171 184 77 / 16%), transparent 14rem),
-    linear-gradient(135deg, #394435 0%, #4f5a46 62%, #6a7058 100%);
+    radial-gradient(circle at 82% 18%, rgb(201 214 74 / 20%), transparent 14rem),
+    linear-gradient(135deg, #43152f 0%, #712c55 62%, #8d3d5c 100%);
 }
 
 .footer-inacap .brand-name {
@@ -1862,7 +1862,7 @@ a:hover {
 }
 
 .footer-inacap .brand-tech {
-  color: #dce7a1;
+  color: #dfe86a;
 }
 
 .footer-inacap .brand-market {
@@ -2164,15 +2164,15 @@ a:hover {
 
 .home-page {
   background:
-    radial-gradient(circle at 92% 14%, rgb(170 161 189 / 12%), transparent 18rem),
-    linear-gradient(180deg, #f8f5eb 0, #fffdf7 38rem, #f7f4e9 100%);
+    radial-gradient(circle at 92% 14%, rgb(201 214 74 / 24%), transparent 18rem),
+    linear-gradient(180deg, #fff7df 0, #fffaf0 38rem, #fff3d6 100%);
 }
 
 .home-hero {
   background:
-    radial-gradient(circle at 78% 18%, rgb(171 184 77 / 28%), transparent 16rem),
-    radial-gradient(circle at 12% 90%, rgb(182 109 88 / 18%), transparent 18rem),
-    linear-gradient(135deg, #4a5143 0%, #69745f 58%, #8c9275 100%);
+    radial-gradient(circle at 78% 18%, rgb(201 214 74 / 34%), transparent 16rem),
+    radial-gradient(circle at 12% 90%, rgb(239 91 53 / 24%), transparent 18rem),
+    linear-gradient(135deg, #43152f 0%, #712c55 58%, #984d68 100%);
   color: #fff;
 }
 
@@ -2186,7 +2186,7 @@ a:hover {
 
 .home-eyebrow,
 .home-eyebrow-light {
-  color: #e2e7b3;
+  color: #dfe86a;
 }
 
 .home-hero-kicker {
@@ -2199,14 +2199,14 @@ a:hover {
 
 .home-hero-actions .btn {
   border: 1px solid rgb(255 255 255 / 58%);
-  background: rgb(255 253 246 / 92%);
-  color: #4a5143;
+  background: #fff8df;
+  color: #43152f;
 }
 
 .home-hero-actions .btn:hover {
-  border-color: #dfe5ac;
-  background: #dfe5ac;
-  color: #394435;
+  border-color: #c9d64a;
+  background: #c9d64a;
+  color: #43152f;
 }
 
 .home-text-link {
@@ -2214,7 +2214,7 @@ a:hover {
 }
 
 .home-text-link:hover {
-  color: #e2e7b3;
+  color: #dfe86a;
 }
 
 .home-hero-visual {
@@ -2285,13 +2285,13 @@ a:hover {
 
 .home-app-download {
   border-color: var(--color-borde);
-  background: linear-gradient(110deg, #e9dfcd, var(--color-superficie) 78%);
-  box-shadow: 0 4px 16px rgb(73 59 39 / 7%);
+  background: linear-gradient(110deg, #fff0bb, var(--color-superficie) 78%);
+  box-shadow: 0 10px 26px rgb(67 21 47 / 10%);
 }
 
 .home-app-download-icon {
-  background: #e5e8dc;
-  color: var(--color-secundario);
+  background: #ef5b35;
+  color: #fff8df;
 }
 
 .home-app-download-copy h2,
@@ -2342,9 +2342,9 @@ a:hover {
 }
 
 .home-promo {
-  border-color: #4b5944;
-  background: #596650;
-  box-shadow: 0 8px 22px rgb(73 59 39 / 14%);
+  border-color: #43152f;
+  background: #712c55;
+  box-shadow: 0 12px 30px rgb(67 21 47 / 18%);
   color: var(--color-superficie);
 }
 
@@ -2353,7 +2353,7 @@ a:hover {
 }
 
 .home-promo-copy .home-eyebrow-light {
-  color: #e5d5b9;
+  color: #dfe86a;
 }
 
 .home-promo-copy > p:not(.home-eyebrow) {
@@ -2361,15 +2361,15 @@ a:hover {
 }
 
 .home-promo-visual {
-  background: #a25e4b;
+  background: #ef5b35;
 }
 
 .home-promo-circle {
-  background: #c49a55;
+  background: #c9d64a;
 }
 
 .home-promo-circle-two {
-  background: #78836b;
+  background: #a98cb2;
 }
 
 .home-promo-card,
