@@ -88,7 +88,6 @@ export default function HomePage() {
         <section className="home-hero" aria-label="Publicaciones destacadas">
           <div className="container home-hero-content">
             <div className="home-hero-copy">
-              <p className="home-eyebrow">La comunidad INACAP, más conectada</p>
               <p className="home-hero-kicker">{featuredSlide.eyebrow}</p>
               <h1>{featuredSlide.title}</h1>
               <p className="home-hero-description">{featuredSlide.description}</p>
@@ -145,6 +144,18 @@ export default function HomePage() {
                 <div className="home-board-extra-note home-board-gamer-note">
                   <strong>EVENTO GAMER</strong>
                   <span>Juega y<br />conecta</span>
+                </div>
+                <div className="home-board-extra-note home-board-notebook-note">
+                  <strong>BUSCO NOTEBOOK</strong>
+                  <span>Oferta o<br />trueque</span>
+                </div>
+                <div className="home-board-extra-note home-board-pet-note">
+                  <strong>MASCOTA PERDIDA</strong>
+                  <span>Ayuda a<br />encontrarla</span>
+                </div>
+                <div className="home-board-extra-note home-board-class-note">
+                  <strong>CLASES</strong>
+                  <span>Particulares<br />y apoyo</span>
                 </div>
               </div>
               <img src={featuredSlide.image} alt={featuredSlide.alt} />
