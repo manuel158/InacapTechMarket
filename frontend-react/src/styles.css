@@ -27,6 +27,7 @@ body {
   --color-lima: #c9d64a;
   --color-lavanda: #a98cb2;
   --color-vino: #5a183a;
+  --color-nav-footer: #3b1028;
   --color-papel-tostado: #f1d69a;
   --color-texto-suave: #70566b;
   --bs-body-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -48,8 +49,8 @@ body {
 }
 
 .navbar-inacap {
-  background: rgb(90 24 58 / 96%);
-  box-shadow: 0 8px 28px rgb(67 21 47 / 22%);
+  background: var(--color-nav-footer);
+  box-shadow: 0 8px 28px rgb(35 8 24 / 30%);
   border-bottom: 2px solid #ef5b35;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -310,9 +311,7 @@ h1 {
   padding: 3rem 0 1.25rem;
   position: relative;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 82% 18%, rgb(171 184 77 / 16%), transparent 14rem),
-    linear-gradient(135deg, #394435 0%, #4f5a46 62%, #6a7058 100%);
+  background: var(--color-nav-footer);
   color: #d8ced6;
 }
 
@@ -1896,9 +1895,7 @@ a:hover {
 
 .footer-inacap {
   border-top: 3px solid #ef5b35;
-  background:
-    radial-gradient(circle at 82% 18%, rgb(201 214 74 / 20%), transparent 14rem),
-    linear-gradient(135deg, #43152f 0%, #712c55 62%, #8d3d5c 100%);
+  background: var(--color-nav-footer);
 }
 
 .footer-inacap .brand-name {
