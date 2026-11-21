@@ -275,7 +275,7 @@ export function AuthLayout({ children }) {
       <nav className="navbar navbar-dark navbar-inacap shadow">
         <div className="container">
           <Link className="navbar-brand fw-bold" to="/"><SiteBrand /></Link>
-          <Link className="nav-link" to="/productos">Publicaciones</Link>
+          <Link className="nav-link navbar-publications-link" to="/productos">Publicaciones</Link>
         </div>
       </nav>
       <main className="container flex-grow-1 py-5">{children}</main>

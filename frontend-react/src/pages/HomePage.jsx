@@ -107,6 +107,34 @@ export default function HomePage() {
                 ? { '--home-hero-image': `url("${featuredSlide.image}")` }
                 : undefined}
             >
+              <div className="home-hero-glassboard" aria-hidden="true">
+                <span className="home-board-pin home-board-pin-top" />
+                <span className="home-board-pin home-board-pin-bottom" />
+                <div className="home-board-header">PANEL DE AVISOS INACAP</div>
+                <div className="home-board-image-frame">
+                  <img src={featuredSlide.image} alt={featuredSlide.alt} />
+                </div>
+                <div className="home-board-note home-board-note-left">
+                  <strong>Juntos</strong>
+                  <span>hacemos<br />más <b>☺</b></span>
+                </div>
+                <div className="home-board-note home-board-note-right">
+                  <strong>Ideas<br />personas<br />oportunidades</strong>
+                </div>
+                <div className="home-board-side-card">
+                  <strong>EVENTO</strong>
+                  <span>Tecnológico</span>
+                  <small>Conecta con la comunidad</small>
+                </div>
+                <div className="home-board-lower-note">
+                  <strong>BUSCA<br />INTEGRANTE</strong>
+                  <small>Proyecto estudiantil</small>
+                </div>
+                <div className="home-board-bottom-note">
+                  <strong>Se arriendan<br />piezas</strong>
+                  <small>Para estudiantes</small>
+                </div>
+              </div>
               <img src={featuredSlide.image} alt={featuredSlide.alt} />
             </div>
           </div>
