@@ -117,10 +117,10 @@ main {
 
 .brand-market {
   margin-left: 0.08em;
-  color: #fffdf6;
+  color: #17151a;
   padding: 0 0.12em;
   border-radius: 0.12em;
-  background: #17151a;
+  background: #fffdf6;
   letter-spacing: -0.065em;
 }
 
@@ -1856,8 +1856,8 @@ a:hover {
 }
 
 .navbar-inacap .brand-market {
-  color: #fffdf6;
-  background: #17151a;
+  color: #17151a;
+  background: #fffdf6;
 }
 
 .navbar-inacap .btn-outline-primary {
@@ -1907,8 +1907,8 @@ a:hover {
 }
 
 .footer-inacap .brand-market {
-  color: #fffdf6;
-  background: #17151a;
+  color: #17151a;
+  background: #fffdf6;
 }
 
 .btn-light {
