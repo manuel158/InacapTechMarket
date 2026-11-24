@@ -1433,6 +1433,32 @@ details.admin-section:not([open]) > .card-body {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.home-listings-track {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+}
+
+.home-listings-track::-webkit-scrollbar {
+  display: none;
+}
+
+.home-listing-slide {
+  min-width: 0;
+  flex: 0 0 calc((100% - 4.5rem) / 4);
+  scroll-snap-align: start;
+}
+
+.home-listings-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
 .home-listing-card:hover {
   transform: translateY(-5px);
   border-color: rgb(171 184 77 / 58%);
@@ -2805,6 +2831,14 @@ a:hover {
   color: var(--color-texto);
 }
 
+.home-discover-content .home-section-heading h2 .home-discover-title-accent {
+  color: #6951b0;
+}
+
+.home-discover-content .home-section-heading h2 span:last-child {
+  color: #202034;
+}
+
 .home-category-carousel {
   display: grid;
   gap: 1rem;
@@ -2829,6 +2863,10 @@ a:hover {
 }
 
 @media (max-width: 767.98px) {
+  .home-listing-slide {
+    flex-basis: calc((100% - 1.5rem) / 2);
+  }
+
   .home-discover {
     padding: 2.5rem 0;
   }
@@ -2925,5 +2963,11 @@ a:hover {
 
   .home-board-class-note {
     right: 2.1rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .home-listing-slide {
+    flex-basis: 100%;
   }
 }
