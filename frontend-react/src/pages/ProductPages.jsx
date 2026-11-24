@@ -275,7 +275,16 @@ export function ProductsPage() {
         </div>
         {category !== 'Todos' && (
           <div className="mb-4">
-            <label className="form-label fw-semibold" htmlFor="subcategory-filter">Filtrar por subcategoría</label>
+            <div className="d-flex align-items-center justify-content-between gap-2 mb-2">
+              <label className="form-label fw-semibold mb-0" htmlFor="subcategory-filter">Filtrar por subcategoría</label>
+              <button
+                type="button"
+                className="subcategory-filter-clear"
+                onClick={() => setSubcategory('Todas')}
+              >
+                Limpiar filtro
+              </button>
+            </div>
             <select
               className="form-select"
               id="subcategory-filter"

@@ -165,7 +165,7 @@ export default function HomePage() {
                 <Link className="btn btn-light" to="/productos">
                   Explorar publicaciones
                 </Link>
-                <Link className="home-text-link" to={user ? '/publicar' : '/registro'}>
+                <Link className="home-text-link home-button-link home-button-link-hero" to={user ? '/publicar' : '/registro'}>
                   {user ? 'Publicar ahora' : 'Únete a la comunidad'} <span aria-hidden="true">→</span>
                 </Link>
               </div>
@@ -346,7 +346,7 @@ export default function HomePage() {
                             </span>
                             <h3>{product.nombre}</h3>
                             <p>{product.descripcion || 'Conoce más sobre esta publicación.'}</p>
-                            <Link className="home-card-link" to={`/productos/${product._id}`}>
+                            <Link className="home-card-link home-button-link" to={`/productos/${product._id}`}>
                               Ver detalle <span aria-hidden="true">→</span>
                             </Link>
                           </div>
@@ -424,7 +424,7 @@ export default function HomePage() {
                       {categoryDescriptions[activeCategory] ||
                         'Descubre publicaciones de esta categoría.'}
                     </p>
-                    <Link to="/productos">
+                    <Link className="home-category-link home-button-link" to="/productos">
                       Ver publicaciones <span aria-hidden="true">→</span>
                     </Link>
                   </div>
