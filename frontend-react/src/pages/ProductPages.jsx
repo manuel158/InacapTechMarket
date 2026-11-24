@@ -89,6 +89,7 @@ function matchesKeyword(product, keyword) {
 }
 
 function ProductCard({ product, mine = false, onDelete, onStatusChange }) {
+  const location = useLocation();
   const { categoria, subcategoria } = getProductCategory(product);
   const status = publicationStatus(product);
   const statusLabels = {
@@ -166,6 +167,7 @@ function ProductCard({ product, mine = false, onDelete, onStatusChange }) {
           <Link
             className="product-card-link"
             to={`/productos/${product._id}`}
+            state={{ returnTo: `${location.pathname}${location.search}` }}
             aria-label={`Ver detalle de ${product.nombre}`}
           >
             {card}
@@ -176,13 +178,41 @@ function ProductCard({ product, mine = false, onDelete, onStatusChange }) {
 }
 
 export function ProductsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialCategory = categoryNames.includes(searchParams.get('categoria'))
+    ? searchParams.get('categoria')
+    : 'Todos';
+  const initialSubcategory = categorySubcategories[initialCategory]?.includes(
+    searchParams.get('subcategoria')
+  )
+    ? searchParams.get('subcategoria')
+    : 'Todas';
   const [products, setProducts] = useState([]);
-  const [category, setCategory] = useState('Todos');
-  const [subcategory, setSubcategory] = useState('Todas');
+  const [category, setCategory] = useState(initialCategory);
+  const [subcategory, setSubcategory] = useState(initialSubcategory);
   const [keyword, setKeyword] = useState('');
   const [dateOrder, setDateOrder] = useState('recent');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+
+  function saveCategoryFilters(nextCategory, nextSubcategory) {
+    setSearchParams(currentParams => {
+      const nextParams = new URLSearchParams(currentParams);
+      if (nextCategory === 'Todos') {
+        nextParams.delete('categoria');
+      } else {
+        nextParams.set('categoria', nextCategory);
+      }
+
+      if (nextCategory === 'Todos' || nextSubcategory === 'Todas') {
+        nextParams.delete('subcategoria');
+      } else {
+        nextParams.set('subcategoria', nextSubcategory);
+      }
+
+      return nextParams;
+    }, { replace: true });
+  }
 
   useEffect(() => {
     apiRequest('/api/productos')
@@ -263,8 +293,10 @@ export function ProductsPage() {
             id="category-filter"
             value={category}
             onChange={event => {
-              setCategory(event.target.value);
+              const nextCategory = event.target.value;
+              setCategory(nextCategory);
               setSubcategory('Todas');
+              saveCategoryFilters(nextCategory, 'Todas');
             }}
           >
             <option value="Todos">Todos ({products.length})</option>
@@ -273,31 +305,41 @@ export function ProductsPage() {
             ))}
           </select>
         </div>
-        {category !== 'Todos' && (
-          <div className="mb-4">
-            <div className="d-flex align-items-center justify-content-between gap-2 mb-2">
-              <label className="form-label fw-semibold mb-0" htmlFor="subcategory-filter">Filtrar por subcategoría</label>
-              <button
-                type="button"
-                className="subcategory-filter-clear"
-                onClick={() => setSubcategory('Todas')}
-              >
-                Limpiar filtro
-              </button>
-            </div>
-            <select
-              className="form-select"
-              id="subcategory-filter"
-              value={subcategory}
-              onChange={event => setSubcategory(event.target.value)}
+        <div className="mb-4">
+          <div className="d-flex align-items-center justify-content-between gap-2 mb-2">
+            <label className="form-label fw-semibold mb-0" htmlFor="subcategory-filter">Filtrar por subcategoría</label>
+            <button
+              type="button"
+              className="subcategory-filter-clear"
+              onClick={() => {
+                setSubcategory('Todas');
+                saveCategoryFilters(category, 'Todas');
+              }}
             >
-              <option value="Todas">Todas ({counts[category] || 0})</option>
-              {categorySubcategories[category].map(item => (
-                <option key={item} value={item}>{item} ({subcategoryCounts[item] || 0})</option>
-              ))}
-            </select>
+              Limpiar filtro
+            </button>
           </div>
-        )}
+          <select
+            className="form-select"
+            id="subcategory-filter"
+            value={subcategory}
+            disabled={category === 'Todos'}
+            onChange={event => {
+              const nextSubcategory = event.target.value;
+              setSubcategory(nextSubcategory);
+              saveCategoryFilters(category, nextSubcategory);
+            }}
+          >
+            {category === 'Todos'
+              ? <option value="Todas">Selecciona una categoría primero</option>
+              : <>
+                  <option value="Todas">Todas ({counts[category] || 0})</option>
+                  {categorySubcategories[category].map(item => (
+                    <option key={item} value={item}>{item} ({subcategoryCounts[item] || 0})</option>
+                  ))}
+                </>}
+          </select>
+        </div>
         {loading && <p role="status">Cargando publicaciones…</p>}
         <Feedback error={error} />
         {!loading && !error && (
@@ -404,6 +446,10 @@ export function ProductDetailPage() {
   function returnToOrigin() {
     if (fromAdmin && location.state?.fromAdmin) {
       navigate(-1);
+      return;
+    }
+    if (!fromAdmin && !fromMine && typeof location.state?.returnTo === 'string') {
+      navigate(location.state.returnTo, { replace: true });
       return;
     }
     navigate(fromAdmin
