@@ -257,7 +257,24 @@ export default function HomePage() {
           </a>
         </section>
 
-        <section className="container home-section home-listings" aria-labelledby="home-listings-title">
+        <section
+          className="container home-section home-listings home-community"
+          aria-labelledby="home-community-title"
+        >
+          <div className="home-community-intro">
+            <div className="home-community-copy">
+              <p className="home-eyebrow home-community-eyebrow">Una comunidad que comparte</p>
+              <h2 id="home-community-title">
+                Lo que ya no necesitas puede ser justo lo que alguien busca.
+              </h2>
+              <p>
+                Publica un trueque, ofrece un servicio o comparte una oportunidad con otros estudiantes.
+              </p>
+            </div>
+            <Link className="btn home-community-cta" to={user ? '/publicar' : '/registro'}>
+              {user ? 'Crear publicación' : 'Comienza ahora'}
+            </Link>
+          </div>
           <div className="home-section-heading">
             <h2 id="home-listings-title">Publicaciones recientes de la comunidad</h2>
           </div>
@@ -330,23 +347,6 @@ export default function HomePage() {
               </Link>
             </div>
           )}
-        </section>
-
-        <section className="container home-promo">
-          <div className="home-promo-copy">
-            <p className="home-eyebrow home-eyebrow-light">Una comunidad que comparte</p>
-            <h2>Lo que ya no necesitas puede ser justo lo que alguien busca.</h2>
-            <p>Publica un trueque, ofrece un servicio o comparte una oportunidad con otros estudiantes.</p>
-            <Link className="btn btn-primary" to={user ? '/publicar' : '/registro'}>
-              {user ? 'Crear publicación' : 'Comienza ahora'}
-            </Link>
-          </div>
-          <div className="home-promo-visual" aria-hidden="true">
-            <span className="home-promo-circle home-promo-circle-one" />
-            <span className="home-promo-circle home-promo-circle-two" />
-            <span className="home-promo-card home-promo-card-one">Intercambia</span>
-            <span className="home-promo-card home-promo-card-two">Conecta</span>
-          </div>
         </section>
 
         <section className="home-discover" aria-labelledby="home-discover-title">
