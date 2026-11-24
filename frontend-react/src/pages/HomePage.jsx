@@ -51,6 +51,41 @@ const categoryDescriptions = {
   'Todo mascotas': 'Encuentra o ayuda a una mascota de la comunidad.'
 };
 
+const categoryImages = {
+  'Trueques': {
+    src: '/images/categories/trueques.svg',
+    alt: 'Ilustración de artículos preparados para intercambiar'
+  },
+  'Servicios Estudiantiles': {
+    src: '/images/categories/servicios-estudiantiles.svg',
+    alt: 'Ilustración de un libro y lápiz para servicios estudiantiles'
+  },
+  'Avisos y Oportunidades': {
+    src: '/images/categories/avisos-oportunidades.svg',
+    alt: 'Ilustración de un panel con avisos y oportunidades'
+  },
+  'Objetos Perdidos y Encontrados': {
+    src: '/images/categories/objetos-perdidos.svg',
+    alt: 'Ilustración de una mochila y una lupa para objetos perdidos'
+  },
+  'Vivienda y arriendo de cabañas': {
+    src: '/images/categories/vivienda.svg',
+    alt: 'Ilustración de una vivienda para estudiantes'
+  },
+  'Comunidad y Recreación': {
+    src: '/images/categories/comunidad-recreacion.svg',
+    alt: 'Ilustración de estudiantes compartiendo una actividad'
+  },
+  'Juegos': {
+    src: '/images/categories/juegos.svg',
+    alt: 'Ilustración de dados y piezas de juego'
+  },
+  'Todo mascotas': {
+    src: '/images/categories/mascotas.svg',
+    alt: 'Ilustración de una mascota acompañada de una huella'
+  }
+};
+
 const androidReleaseUrl = 'https://github.com/manuel158/InacapTechMarket/releases/latest/download/InacapTechMarket.apk';
 
 export default function HomePage() {
@@ -82,6 +117,8 @@ export default function HomePage() {
     : [];
   const featuredSlide = carouselSlides[activeSlide];
   const homeCategories = categoryNames;
+  const activeCategory = homeCategories[activeCategorySlide];
+  const activeCategoryImage = categoryImages[activeCategory];
 
   function moveSlide(direction) {
     setActiveSlide(current => (
@@ -371,17 +408,26 @@ export default function HomePage() {
                 aria-label="Categorías de publicaciones"
               >
                 <div className="home-category-card" aria-live="polite">
-                  <span className="home-category-number">
-                    {String(activeCategorySlide + 1).padStart(2, '0')}
-                  </span>
-                  <h3>{homeCategories[activeCategorySlide]}</h3>
-                  <p>
-                    {categoryDescriptions[homeCategories[activeCategorySlide]] ||
-                      'Descubre publicaciones de esta categoría.'}
-                  </p>
-                  <Link to="/productos">
-                    Ver publicaciones <span aria-hidden="true">→</span>
-                  </Link>
+                  <div className="home-category-image">
+                    <img
+                      src={activeCategoryImage.src}
+                      alt={activeCategoryImage.alt}
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="home-category-copy">
+                    <span className="home-category-number">
+                      {String(activeCategorySlide + 1).padStart(2, '0')}
+                    </span>
+                    <h3>{activeCategory}</h3>
+                    <p>
+                      {categoryDescriptions[activeCategory] ||
+                        'Descubre publicaciones de esta categoría.'}
+                    </p>
+                    <Link to="/productos">
+                      Ver publicaciones <span aria-hidden="true">→</span>
+                    </Link>
+                  </div>
                 </div>
                 <div className="home-category-controls">
                   <button
