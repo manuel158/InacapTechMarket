@@ -272,7 +272,7 @@ export function AuthLayout({ children }) {
 
   return (
     <div className="site-layout">
-      <nav className="navbar navbar-dark navbar-inacap shadow">
+      <nav className="navbar navbar-dark navbar-inacap navbar-auth shadow">
         <div className="container">
           <Link className="navbar-brand fw-bold" to="/"><SiteBrand /></Link>
           <Link className="nav-link navbar-publications-link" to="/productos">Publicaciones</Link>

@@ -240,6 +240,50 @@ h1 {
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
+.product-list-grid .imagen-publicacion {
+  height: 150px;
+}
+
+.product-list-grid .card-body {
+  padding: 0.9rem;
+}
+
+.product-list-grid .product-category-badge {
+  display: block;
+  overflow: hidden;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-list-grid .card-title {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+  font-size: 1.05rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.product-list-grid .product-card-trade {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-bottom: 0.55rem !important;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.product-list-grid .product-card-publisher {
+  margin-bottom: 0;
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+
 .product-card-link {
   display: block;
   height: 100%;
@@ -1035,6 +1079,10 @@ details.admin-section:not([open]) > .card-body {
     height: 200px;
   }
 
+  .product-list-grid .imagen-publicacion {
+    height: 120px;
+  }
+
   .chat-message {
     max-width: 92%;
   }
@@ -1753,6 +1801,27 @@ a:hover {
   background: #dfe86a;
   color: #17151a !important;
   text-decoration: none;
+}
+
+@media (max-width: 575.98px) {
+  .navbar-auth .container {
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+  }
+
+  .navbar-auth .navbar-brand {
+    flex-shrink: 1;
+    margin-right: 0;
+    font-size: 1.15rem;
+  }
+
+  .navbar-auth .navbar-publications-link {
+    flex: 0 0 auto;
+    margin: 0.2rem 0 0.2rem auto;
+    padding: 0.35rem 0.6rem !important;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
 }
 
 .navbar-inacap .navbar-toggler {

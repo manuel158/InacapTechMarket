@@ -109,11 +109,6 @@ function ProductCard({ product, mine = false, onDelete, onStatusChange }) {
         <span className="badge product-category-badge mb-2">
           {categoria}{subcategoria ? ` · ${subcategoria}` : ''}
         </span>
-        {productConditionLabel(product.condicion) && (
-          <span className="badge bg-light text-dark mb-2 ms-1">
-            {productConditionLabel(product.condicion)}
-          </span>
-        )}
         {mine && (
           <span className={`badge ms-2 mb-2 ${status === 'aprobada' ? 'bg-success' : status === 'rechazada' ? 'bg-danger' : 'bg-secondary'}`}>
             {statusLabels[status] || status}
@@ -124,10 +119,14 @@ function ProductCard({ product, mine = false, onDelete, onStatusChange }) {
           <p className="small text-danger">Motivo: {product.motivoRechazo}</p>
         )}
         {categoria === 'Trueques' && product.sePermutaPor && (
-          <p className="fw-semibold mb-3">Se permuta por: {product.sePermutaPor}</p>
+          <p className="product-card-trade fw-semibold mb-3">
+            Se permuta por: {product.sePermutaPor}
+          </p>
         )}
         {!mine && product.usuario?.nombre && (
-          <p className="text-muted">Publicado por {product.usuario.nombre}</p>
+          <p className="product-card-publisher text-muted">
+            Publicado por {product.usuario.nombre}
+          </p>
         )}
       </div>
       {mine && (
@@ -294,7 +293,7 @@ export function ProductsPage() {
         <Feedback error={error} />
         {!loading && !error && (
           filtered.length
-            ? <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
+            ? <div className="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-5 g-4 product-list-grid">
                 {filtered.map(product => <ProductCard key={product._id} product={product} />)}
               </div>
             : <p className="text-muted">No hay publicaciones para mostrar.</p>
@@ -442,6 +441,11 @@ export function ProductDetailPage() {
                       : ''}
                   </span>
                   <h2 className="card-title">{product.nombre}</h2>
+                  {product.usuario?.nombre && (
+                    <p className="text-muted mb-3">
+                      Publicado por {product.usuario.nombre}
+                    </p>
+                  )}
                   {productConditionLabel(product.condicion) && (
                     <p className="text-muted">
                       Condición: {productConditionLabel(product.condicion)}
