@@ -312,8 +312,9 @@ export function ProductsPage() {
               type="button"
               className="subcategory-filter-clear"
               onClick={() => {
+                setCategory('Todos');
                 setSubcategory('Todas');
-                saveCategoryFilters(category, 'Todas');
+                saveCategoryFilters('Todos', 'Todas');
               }}
             >
               Limpiar filtro
