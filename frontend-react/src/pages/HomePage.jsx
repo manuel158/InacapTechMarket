@@ -55,6 +55,7 @@ export default function HomePage() {
   const { user } = useAuth();
   const [products, setProducts] = useState([]);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [activeCategorySlide, setActiveCategorySlide] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -80,6 +81,12 @@ export default function HomePage() {
     setActiveSlide(current => (
       current + direction + carouselSlides.length
     ) % carouselSlides.length);
+  }
+
+  function moveCategorySlide(direction) {
+    setActiveCategorySlide(current => (
+      current + direction + homeCategories.length
+    ) % homeCategories.length);
   }
 
   return (
@@ -295,30 +302,71 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="home-discover">
-          <div className="container home-section">
-            <div className="home-section-heading">
-              <div>
-                <p className="home-eyebrow home-eyebrow-light">Encuentra lo que necesitas</p>
-                <h2>Explora la comunidad</h2>
-              </div>
-              <Link className="home-section-link" to="/productos">
-                Explorar todo <span aria-hidden="true">→</span>
-              </Link>
+        <section className="home-discover" aria-labelledby="home-discover-title">
+          <div className="container home-discover-layout">
+            <div className="home-discover-visual">
+              <img
+                src="/images/home/community-board.jpg"
+                alt="Pizarrón turquesa con avisos de la comunidad estudiantil"
+                loading="lazy"
+              />
             </div>
-            <div className="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
-              {homeCategories.map((category, index) => (
-                <article className="col" key={category}>
-                  <div className="home-category-card">
-                    <span className="home-category-number">0{index + 1}</span>
-                    <h3>{category}</h3>
-                    <p>{categoryDescriptions[category] || 'Descubre publicaciones de esta categoría.'}</p>
-                    <Link to="/productos">
-                      Ver publicaciones <span aria-hidden="true">→</span>
-                    </Link>
+            <div className="home-discover-content">
+              <div className="home-section-heading">
+                <h2 id="home-discover-title">Explora la comunidad</h2>
+                <Link className="home-section-link" to="/productos">
+                  Explorar todo <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+              <article
+                className="home-category-carousel"
+                aria-roledescription="carrusel"
+                aria-label="Categorías de publicaciones"
+              >
+                <div className="home-category-card" aria-live="polite">
+                  <span className="home-category-number">
+                    {String(activeCategorySlide + 1).padStart(2, '0')}
+                  </span>
+                  <h3>{homeCategories[activeCategorySlide]}</h3>
+                  <p>
+                    {categoryDescriptions[homeCategories[activeCategorySlide]] ||
+                      'Descubre publicaciones de esta categoría.'}
+                  </p>
+                  <Link to="/productos">
+                    Ver publicaciones <span aria-hidden="true">→</span>
+                  </Link>
+                </div>
+                <div className="home-category-controls">
+                  <button
+                    type="button"
+                    className="home-carousel-arrow"
+                    onClick={() => moveCategorySlide(-1)}
+                    aria-label="Categoría anterior"
+                  >
+                    ←
+                  </button>
+                  <div className="home-carousel-dots" aria-label="Elegir categoría">
+                    {homeCategories.map((category, index) => (
+                      <button
+                        key={category}
+                        type="button"
+                        className={`home-carousel-dot ${index === activeCategorySlide ? 'active' : ''}`}
+                        onClick={() => setActiveCategorySlide(index)}
+                        aria-label={`Mostrar categoría ${category}`}
+                        aria-current={index === activeCategorySlide ? 'true' : undefined}
+                      />
+                    ))}
                   </div>
-                </article>
-              ))}
+                  <button
+                    type="button"
+                    className="home-carousel-arrow"
+                    onClick={() => moveCategorySlide(1)}
+                    aria-label="Siguiente categoría"
+                  >
+                    →
+                  </button>
+                </div>
+              </article>
             </div>
           </div>
         </section>
